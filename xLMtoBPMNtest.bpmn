@@ -1,0 +1,18 @@
+<startEvent id="_01" name="StartProcess" /><scriptTask id="_10" name="HFMS_TPCH.LINEITEM">+'
+'+<script>System.out.println(" ops.get(key).getOperationName()");</script>+'
+'+</scriptTask>+'
+'<scriptTask id="_30" name="GROUPBY_2">+'
+'+<script>System.out.println(" ops.get(key).getOperationName()");</script>+'
+'+</scriptTask>+'
+'<scriptTask id="_17" name="FILTER_3_0">+'
+'+<script>System.out.println(" ops.get(key).getOperationName()");</script>+'
+'+</scriptTask>+'
+'<scriptTask id="_1" name="HFMS_TPCH.Q1">+'
+'+<script>System.out.println(" ops.get(key).getOperationName()");</script>+'
+'+</scriptTask>+'
+'<endEvent id="_003" name="EndProcess">
+<terminateEventDefinition/>
+</endEvent><sequenceFlow id="_10-_17 sourceRef="_10" targetRef="_17"/>
+<sequenceFlow id="_30-_1 sourceRef="_30" targetRef="_1"/>
+<sequenceFlow id="_17-_30 sourceRef="_17" targetRef="_30"/>
+</process>
