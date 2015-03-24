@@ -1,0 +1,8 @@
+## nodes
+#if($node.type == "Datastore")
+	<dataStoreReference id = "_$node.id" name = "$node.name"/>
+#else
+	<scriptTask id="_$node.id" name="$node.name" >
+     		 <script>System.out.println("$node.name");</script>
+    </scriptTask>
+#end

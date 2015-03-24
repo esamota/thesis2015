@@ -1,0 +1,32 @@
+## template for the whole bpmn document
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions id="Definition"
+             targetNamespace= "http://sourceforge.net/bpmn/definitions/_1421940801539"
+             typeLanguage= "http://www.w3.org/2001/XMLSchema"
+             expressionLanguage= "http://www.w3.org/1999/XPath"
+             xmlns= "http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsd= "http://www.w3.org/2001/XMLSchema"
+             xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation= "http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+           
+<process id = "_1111" isExecutable = "false" processType = "none" name = "DefaultName">
+
+## nodes
+<startEvent id="_01" name="StartProcess"/>
+
+#foreach($node in $nodes)
+	#parse( "vmTemplates/node.vm" )
+#end
+
+<endEvent id="_09" name="EndProcess">
+ 	<terminateEventDefinition/>
+</endEvent>
+
+##edges
+#foreach( $edge in $edges )
+	#parse( "vmTemplates/edge.vm" )
+#end 
+
+
+</process>
+</definitions>
