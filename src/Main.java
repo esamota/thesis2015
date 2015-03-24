@@ -2,13 +2,18 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
 import operationDictionary.ETLOperationType;
 
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
 import etlFlowGraph.graph.ETLEdge;
@@ -18,27 +23,11 @@ import etlFlowGraph.operation.*;
 
 public class Main {
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ImportXLMToETLGraph importXlm = new ImportXLMToETLGraph();
-		ETLFlowGraph G = null;
-		try {
-			G = importXlm.getFlowGraph("C:\\Users\\Elena\\Desktop\\q1.xml");
-		} catch (CycleFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
 		
-		/*System.out.println("source node "+ G.getAllSourceNodes());
-		ArrayList<Integer> targetNodes = new ArrayList<Integer>();
-		targetNodes = G.getAllTargetNodes();
-		System.out.println("target node " + G.getAllTargetNodes());
-		System.out.println(targetNodes);*/
 		
-		//System.out.println(G.getEtlFlowOperations());
-		//System.out.println(G.getAllEdges(10, 17));
-		System.out.println(G);
-		Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		try{
 		File file = BPMNConstructs.writeBPMNFileWithHeader();
 		
@@ -86,6 +75,19 @@ public class Main {
 		bufferWriter.write("</definitions>");
 		bufferWriter.close();
 		
+		
+		//HashMap retDoc = new HashMap();
+		System.out.println("****Velocity starts here*****");
+		VelocityEngine ve = new VelocityEngine();
+	   	ve.init();     
+	    Template t = ve.getTemplate( "vmTemplates//bpmn.vm" );
+	    VelocityContext context = new VelocityContext();
+	    context.put("nodes", ops);
+	    StringWriter writer = new StringWriter();
+	    t.merge(context, writer);  
+	    System.out.println(writer.toString());
+	    
+		
 		}catch(IOException e){
     		e.printStackTrace();
     	}
@@ -96,6 +98,6 @@ public class Main {
 		
 		//ETLFlowGraph G1 = (ETLFlowGraph) G.clone();
 		//System.out.println(G1);
-	}
+	}*/
 
 }
