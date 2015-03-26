@@ -1,10 +1,10 @@
 ## edges
 #if($edge.source == $edge.from)
-	<sequenceFlow id="_01-_$edge.source" sourceRef="_01" targetRef="_$edge.source" />
+	<sequenceFlow id="_0001-_$edge.source" sourceRef="_0001" targetRef="_$edge.source" />
 	<sequenceFlow id="_${edge.from}-_$edge.to" sourceRef="_$edge.from" targetRef="_$edge.to" /> 
 #elseif($edge.target == $edge.to)
 	<sequenceFlow id="_${edge.from}-_$edge.to" sourceRef="_$edge.from" targetRef="_$edge.to" /> 
-	<sequenceFlow id="_${edge.target}-_09" sourceRef="_$edge.target" targetRef="_09" />
+	<sequenceFlow id="_${edge.target}-_0009" sourceRef="_$edge.target" targetRef="_0009" />
 #else
 	<sequenceFlow id="_${edge.from}-_$edge.to" sourceRef="_$edge.from" targetRef="_$edge.to" /> 
 #end

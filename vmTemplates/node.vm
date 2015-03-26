@@ -1,8 +1,6 @@
 ## nodes
-#if($node.type == "Datastore")
+#if($node.type == "Datastore" && ($node.optype == "TableInput" || $node.optype == "TableOutput"))
 	<dataStoreReference id = "_$node.id" name = "$node.name"/>
 #else
-	<scriptTask id="_$node.id" name="$node.name" >
-     		 <script>System.out.println("$node.name");</script>
-    </scriptTask>
+	<task id="_$node.id" name="$node.name" />
 #end

@@ -22,82 +22,25 @@ import importXLM.ImportXLMToETLGraph;
 import etlFlowGraph.operation.*;
 
 public class Main {
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 
-	/*public static void main(String[] args) {
-		// TODO Auto-generated method stub
-	
+	public static void main(String[] args) {
 		
-		
-		try{
-		File file = BPMNConstructs.writeBPMNFileWithHeader();
-		
-		FileWriter fileWriter = new FileWriter(file,true);
-        BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
-        bufferWriter.write("<startEvent id=\"_01\" name=\"StartProcess\" />\n");
-        
-		for (Integer key : ops.keySet()) {
-			bufferWriter.write("<scriptTask id=\"_" + key + "\" name=\"" + ops.get(key).getOperationName() + "\">");
-			bufferWriter.newLine();
-			bufferWriter.write("\t<script>System.out.println(\"" + ops.get(key).getOperationName() + "\");</script>");
-			bufferWriter.newLine();	
-			bufferWriter.write("</scriptTask>\n");
+		ImportXLMToETLGraph importXlm = new ImportXLMToETLGraph();
+		ETLFlowGraph G = new ETLFlowGraph();
+		try {
+			G = importXlm.getFlowGraph(XLMFilePathInput);
+		} catch (CycleFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		bufferWriter.write("<endEvent id=\"_003\" name=\"EndProcess\">"+'\n'+
-        "<terminateEventDefinition/>"+'\n'+ "</endEvent>\n");
-		
-		for (Integer key : ops.keySet()) {
-			Set<ETLEdge> edgeSet = G.outgoingEdgesOf(key);
-			ETLEdge[] edges = edgeSet.toArray(new ETLEdge[edgeSet.size()]);
-			for (int i = 0; i < edges.length; i++) {
-				Integer source = (Integer)edges[i].getSource();
-				Integer target = (Integer)edges[i].getTarget();
-				bufferWriter.write("<sequenceFlow id=\"_"+ source+ "-_"+target+"\""+
-						" sourceRef=\"_"+ source +"\"" + " targetRef=\"_"+ target+ "\""+"/>"+'\n');
-			}
-		}
-		
-		//startEventID hardcoded - fix
-		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
-		sourceNodes = G.getAllSourceNodes();
-		for (int i=0; i< sourceNodes.size(); i++){
-			bufferWriter.write("<sequenceFlow id=\"_01-_"+sourceNodes.toString().replaceAll("\\[", "").replaceAll("\\]","")+"\""+
-						" sourceRef=\"_01\" targetRef=\"_"+ sourceNodes.toString().replaceAll("\\[", "").replaceAll("\\]","")+ "\""+"/>\n");
-		}
-		//endEventID hardcoded - fix
-		ArrayList<Integer> targetNodes = new ArrayList<Integer>();
-		targetNodes = G.getAllTargetNodes();
-		for (int i=0; i< targetNodes.size(); i++){
-			bufferWriter.write("<sequenceFlow id=\"_"+ targetNodes.toString().replaceAll("\\[", "").replaceAll("\\]","")+ "-_003\" sourceRef=\"_"+ targetNodes.toString().replaceAll("\\[", "").replaceAll("\\]","") +"\"" + " targetRef=\"_003\"/>\n");
-		}
-		
-		bufferWriter.write("</process>\n");
-		bufferWriter.write("</definitions>");
-		bufferWriter.close();
-		
-		
-		//HashMap retDoc = new HashMap();
-		System.out.println("****Velocity starts here*****");
-		VelocityEngine ve = new VelocityEngine();
-	   	ve.init();     
-	    Template t = ve.getTemplate( "vmTemplates//bpmn.vm" );
-	    VelocityContext context = new VelocityContext();
-	    context.put("nodes", ops);
-	    StringWriter writer = new StringWriter();
-	    t.merge(context, writer);  
-	    System.out.println(writer.toString());
-	    
-		
-		}catch(IOException e){
-    		e.printStackTrace();
-    	}
-		
-		
-		
-		
-		
-		//ETLFlowGraph G1 = (ETLFlowGraph) G.clone();
-		//System.out.println(G1);
-	}*/
 
+Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+
+HashMap<Integer, EngineType> engineTypes = new HashMap<Integer, EngineType>();
+
+for (Integer key : ops.keySet()) {
+	engineTypes.put(key, ops.get(key).getEngine());		
+}
+	}
 }

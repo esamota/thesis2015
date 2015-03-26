@@ -9,16 +9,16 @@
              xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation= "http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
            
-<process id = "_1111" isExecutable = "false" processType = "none" name = "DefaultName">
+<process id = "Process_1" isExecutable = "false" processType = "none" name = "ProcessName">
 
 ## nodes
-<startEvent id="_01" name="StartProcess"/>
+	<startEvent id="_0001" name="StartProcess"/>
 
 #foreach($node in $nodes)
 	#parse( "vmTemplates/node.vm" )
 #end
 
-<endEvent id="_09" name="EndProcess">
+<endEvent id="_0009" name="EndProcess">
  	<terminateEventDefinition/>
 </endEvent>
 
