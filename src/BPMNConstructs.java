@@ -26,7 +26,7 @@ import etlFlowGraph.operation.ETLFlowOperation;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";

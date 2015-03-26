@@ -1,6 +1,14 @@
 ## nodes
 #if($node.type == "Datastore" && ($node.optype == "TableInput" || $node.optype == "TableOutput"))
 	<dataStoreReference id = "_$node.id" name = "$node.name"/>
-#else
+#elseif($node.type == "Datastore" && ($node.optype != "TableInput" || $node.optype != "TableOutput"))
+	<dataInput id="_$node.id" isCollection="false" name="$node.name"/>
+#elseif($node.type == "Operator" && ($node.optype == "Router" || $node.optype == "Splitter"))
+	<parallelGateway gatewayDirection="Diverging" id="_$node.id" name="$node.name"/>
+#elseif($node.type == "Operator" && ($node.optype == "Union" || $node.optype == "Merger"))
+	<parallelGateway gatewayDirection="Converging" id="_$node.id" name="$node.name"/>
+#elseif($node.type == "Operator" && $node.optype == "Voter")
+	<eventBasedGateway id="_$node.id" gatewayDirection="Mixed"/>
+#elseif($node.type == "Operator")
 	<task id="_$node.id" name="$node.name" />
 #end
