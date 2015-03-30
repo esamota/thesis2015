@@ -22,7 +22,12 @@
  	<terminateEventDefinition/>
 </endEvent>
 
-##edges
+## edges from start event
+#foreach ( $source in $sources )
+	#parse ( "vmTemplates/start.vm" )
+#end
+
+## middle edges
 #foreach( $edge in $edges )
 	#parse( "vmTemplates/edge.vm" )
 #end 
