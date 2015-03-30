@@ -23,9 +23,11 @@ import etlFlowGraph.ETLNonFunctionalCharacteristic;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
+import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
+	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
 	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
@@ -64,6 +66,44 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 
 		ArrayList<HashMap> nodes = new ArrayList<HashMap>();
 		ArrayList<HashMap> edges = new ArrayList<HashMap>();
+		ArrayList<HashMap> sources = new ArrayList<HashMap>();
+		
+		// source nodes of the graph to use when connecting the start even in the template
+		ArrayList<Integer> allSourceNodes = new ArrayList<Integer>();
+		allSourceNodes = G.getAllSourceNodes();
+		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
+		
+		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
+		for (Integer i : allSourceNodes) {
+			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)){
+				System.out.println("lala: " + i);
+				for (Object e : G.edgeSet()){
+					//is there a simpler way to do this????
+					Integer sourceId = (Integer)((ETLEdge) e).getSource();
+					Integer targetId = (Integer)((ETLEdge) e).getTarget();
+					if (sourceId.intValue() == i.intValue() && !targetOfSourceNodes.contains(targetId)){
+						sourceNodes.add(targetId);
+					}
+				}
+			}
+			else {
+				sourceNodes.add(i);
+			}
+		}
+		System.out.println(sourceNodes);
+		
+		//fill in the source arraylist
+		for (Integer i : sourceNodes) {
+			HashMap source = new HashMap();
+			source.put("id", i);
+			sources.add(source);
+		}
+		
+		// target nodes of the graph to use when connecting to the final BPMN place 
+		ArrayList<Integer> targetNodes = new ArrayList<Integer>();
+		targetNodes = G.getAllTargetNodes();
+		System.out.println("Target nodes: "+ targetNodes);
+		
 
 		int nodeCnt = -1;
 
@@ -96,20 +136,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				added.put(opT.getNodeID(), targetID);
 			}
 
-			// source
-			ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
-			sourceNodes = G.getAllSourceNodes();
-			
-			System.out.println("Source nodes: "+ sourceNodes);
-			
-
-			ArrayList<Integer> targetNodes = new ArrayList<Integer>();
-			targetNodes = G.getAllTargetNodes();
-			System.out.println("Target nodes: "+ targetNodes);
-
 			// for edges get nodeID instead of name
 			edge.put("from", opS.getNodeID());
 			edge.put("to", opT.getNodeID());
+			//add source and target just once, outside this for
 			edge.put("source", sourceNodes.toString().replaceAll("\\[", "")
 					.replaceAll("\\]", ""));
 			edge.put("target", targetNodes.toString().replaceAll("\\[", "")
@@ -118,7 +148,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			edges.add(edge);
 
 		}
-
+		
 		// ndproperties
 		ArrayList<HashMap> properties = new ArrayList<HashMap>();
 		for (String key : props.keySet()) {
@@ -179,6 +209,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		VelocityContext context = new VelocityContext();
 		context.put("edges", edges);
 		context.put("nodes", nodes);
+		context.put("sources", sources);
 		// context.put("properties", properties);
 		// context.put("resources", resources);
 		// context.put("features", features);
