@@ -67,6 +67,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<HashMap> nodes = new ArrayList<HashMap>();
 		ArrayList<HashMap> edges = new ArrayList<HashMap>();
 		ArrayList<HashMap> sources = new ArrayList<HashMap>();
+		ArrayList<HashMap> targets = new ArrayList<HashMap>();
 		
 		// source nodes of the graph to use when connecting the start even in the template
 		ArrayList<Integer> allSourceNodes = new ArrayList<Integer>();
@@ -90,7 +91,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				sourceNodes.add(i);
 			}
 		}
-		System.out.println(sourceNodes);
+		//System.out.println(sourceNodes);
 		
 		//fill in the source arraylist
 		for (Integer i : sourceNodes) {
@@ -100,10 +101,35 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 		
 		// target nodes of the graph to use when connecting to the final BPMN place 
+		ArrayList<Integer> allTargetNodes = new ArrayList<Integer>();
+		allTargetNodes = G.getAllTargetNodes();
+		ArrayList<Integer> sourceOfTargetNodes = new ArrayList<Integer>();
 		ArrayList<Integer> targetNodes = new ArrayList<Integer>();
-		targetNodes = G.getAllTargetNodes();
-		System.out.println("Target nodes: "+ targetNodes);
-		
+			
+		for (Integer i : allTargetNodes) {
+				if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)){
+					System.out.println("all target nodes: " + i);
+					for (Object e : G.edgeSet()){
+						//is there a simpler way to do this????
+						Integer sourceId = (Integer)((ETLEdge) e).getSource();
+						Integer targetId = (Integer)((ETLEdge) e).getTarget();
+						if (targetId.intValue() == i.intValue() && !sourceOfTargetNodes.contains(sourceId)){
+							targetNodes.add(sourceId);
+						}
+					}
+				}
+				else {
+					targetNodes.add(i);
+				}
+			}
+			System.out.println("not datastore target nodes " +targetNodes);
+			
+			//fill in the source arraylist
+			for (Integer i : targetNodes) {
+				HashMap target = new HashMap();
+				target.put("id", i);
+				targets.add(target);
+			}	
 
 		int nodeCnt = -1;
 
@@ -210,6 +236,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		context.put("edges", edges);
 		context.put("nodes", nodes);
 		context.put("sources", sources);
+		context.put("targets", targets);
 		// context.put("properties", properties);
 		// context.put("resources", resources);
 		// context.put("features", features);

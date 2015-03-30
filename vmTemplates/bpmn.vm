@@ -32,6 +32,11 @@
 	#parse( "vmTemplates/edge.vm" )
 #end 
 
+## edges to end event
+#foreach( $target in $targets )
+	#parse( "vmTemplates/end.vm" )
+#end 
+
 
 </process>
 </definitions>
