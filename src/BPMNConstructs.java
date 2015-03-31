@@ -27,7 +27,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	// public static String XLMFilePathInput =
+	// "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
 	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
@@ -61,75 +62,80 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				.getFlowFeatures();
 		Hashtable<String, ArrayList<ETLNonFunctionalCharacteristic>> resrs = G
 				.getFlowResources();
-		Hashtable<String,Object> flowMeta = G.getFlowMetadata();
-		//System.out.println("Flow meta " +flowMeta);
+		Hashtable<String, Object> flowMeta = G.getFlowMetadata();
+		// System.out.println("Flow meta " +flowMeta);
 
 		ArrayList<HashMap> nodes = new ArrayList<HashMap>();
 		ArrayList<HashMap> edges = new ArrayList<HashMap>();
 		ArrayList<HashMap> sources = new ArrayList<HashMap>();
 		ArrayList<HashMap> targets = new ArrayList<HashMap>();
-		
-		// source nodes of the graph to use when connecting the start even in the template
+
+		// source nodes of the graph to use when connecting the start even in
+		// the template
 		ArrayList<Integer> allSourceNodes = new ArrayList<Integer>();
 		allSourceNodes = G.getAllSourceNodes();
 		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
-		
+
 		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
 		for (Integer i : allSourceNodes) {
-			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)){
+			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
 				System.out.println("lala: " + i);
-				for (Object e : G.edgeSet()){
-					//is there a simpler way to do this????
-					Integer sourceId = (Integer)((ETLEdge) e).getSource();
-					Integer targetId = (Integer)((ETLEdge) e).getTarget();
-					if (sourceId.intValue() == i.intValue() && !targetOfSourceNodes.contains(targetId)){
+				for (Object e : G.edgeSet()) {
+					// is there a simpler way to do this????
+					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
+					Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+					if (sourceId.intValue() == i.intValue()
+							&& !targetOfSourceNodes.contains(targetId)) {
 						sourceNodes.add(targetId);
 					}
 				}
-			}
-			else {
+			} else {
 				sourceNodes.add(i);
 			}
 		}
-		//System.out.println(sourceNodes);
+		// System.out.println(sourceNodes);
 		
-		//fill in the source arraylist
+		// fill in the source arraylist
 		for (Integer i : sourceNodes) {
 			HashMap source = new HashMap();
 			source.put("id", i);
+			source.put("size", sourceNodes.size());
 			sources.add(source);
 		}
 		
-		// target nodes of the graph to use when connecting to the final BPMN place 
+		
+		// target nodes of the graph to use when connecting to the final BPMN
+		// place
 		ArrayList<Integer> allTargetNodes = new ArrayList<Integer>();
 		allTargetNodes = G.getAllTargetNodes();
 		ArrayList<Integer> sourceOfTargetNodes = new ArrayList<Integer>();
 		ArrayList<Integer> targetNodes = new ArrayList<Integer>();
-			
+
 		for (Integer i : allTargetNodes) {
-				if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)){
-					System.out.println("all target nodes: " + i);
-					for (Object e : G.edgeSet()){
-						//is there a simpler way to do this????
-						Integer sourceId = (Integer)((ETLEdge) e).getSource();
-						Integer targetId = (Integer)((ETLEdge) e).getTarget();
-						if (targetId.intValue() == i.intValue() && !sourceOfTargetNodes.contains(sourceId)){
-							targetNodes.add(sourceId);
-						}
+			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
+				System.out.println("all target nodes: " + i);
+				for (Object e : G.edgeSet()) {
+					// is there a simpler way to do this????
+					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
+					Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+					if (targetId.intValue() == i.intValue()
+							&& !sourceOfTargetNodes.contains(sourceId)) {
+						targetNodes.add(sourceId);
 					}
 				}
-				else {
-					targetNodes.add(i);
-				}
+			} else {
+				targetNodes.add(i);
 			}
-			System.out.println("not datastore target nodes " +targetNodes);
-			
-			//fill in the source arraylist
-			for (Integer i : targetNodes) {
-				HashMap target = new HashMap();
-				target.put("id", i);
-				targets.add(target);
-			}	
+		}
+		System.out.println("not datastore target nodes " + targetNodes);
+
+		// fill in the source arraylist
+		for (Integer i : targetNodes) {
+			HashMap target = new HashMap();
+			target.put("id", i);
+			target.put("size", targetNodes.size());
+			targets.add(target);
+		}
 
 		int nodeCnt = -1;
 
@@ -165,16 +171,11 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			// for edges get nodeID instead of name
 			edge.put("from", opS.getNodeID());
 			edge.put("to", opT.getNodeID());
-			//add source and target just once, outside this for
-			edge.put("source", sourceNodes.toString().replaceAll("\\[", "")
-					.replaceAll("\\]", ""));
-			edge.put("target", targetNodes.toString().replaceAll("\\[", "")
-					.replaceAll("\\]", ""));
 			edge.put("enabled", "Y");
 			edges.add(edge);
 
 		}
-		
+
 		// ndproperties
 		ArrayList<HashMap> properties = new ArrayList<HashMap>();
 		for (String key : props.keySet()) {
@@ -189,15 +190,15 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				properties.add(prop);
 			}
 		}
-		
-		//metadata
-		/*ArrayList<HashMap> flowMetadata = new ArrayList<HashMap>();
-		for (String key: flowMeta.keySet()) {
-			HashMap meta = new HashMap();
-			meta.put("flowName", flowMeta.get(key). )
-				
-			}
-		}*/
+
+		// metadata
+		/*
+		 * ArrayList<HashMap> flowMetadata = new ArrayList<HashMap>(); for
+		 * (String key: flowMeta.keySet()) { HashMap meta = new HashMap();
+		 * meta.put("flowName", flowMeta.get(key). )
+		 * 
+		 * } }
+		 */
 
 		// ndresources
 		ArrayList<HashMap> resources = new ArrayList<HashMap>();
