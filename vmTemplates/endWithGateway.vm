@@ -1,0 +1,3 @@
+## converging gateway in the end
+<sequenceFlow id="_$target.id-_009" sourceRef="_$target.id" targetRef="_009" />
+#set ($convergingGateway = "Y")

@@ -170,6 +170,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			// for edges get nodeID instead of name
 			edge.put("from", opS.getNodeID());
 			edge.put("to", opT.getNodeID());
+			edge.put("fromKind", opS.getNodeKind());
+			edge.put("toKind", opT.getNodeKind());
+			edge.put("fromOpType", opS.getOperationType().getOpTypeName());
+			edge.put("toOpType", opT.getOperationType().getOpTypeName());
 			edge.put("enabled", "Y");
 			edges.add(edge);
 
