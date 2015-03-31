@@ -1,9 +1,12 @@
 ## nodes
 #if($node.type == "Datastore" && ($node.optype == "TableInput" || $node.optype == "TableOutput"))
-	<dataStoreReference id = "_$node.id" name = "$node.name"/>
+	<dataStoreReference dataStoreRef="DS_1" id = "_$node.id" name = "$node.name"/>
+	#set( $dataStore = "Y")
 	
 #*#elseif($node.type == "Datastore" && ($node.optype == "FileInput" || $node.optype == "XMLInput" || $node.optype == "ExcelInput"))
 	<dataInput id="_$node.id" isCollection="false" name="$node.name"/>
+	
+	#set( $dataStore = "Y")
 #elseif($node.type == "Datastore" && ($node.optype == "FileOutput" || $node.optype == "XMLOutput" || $node.optype == "ExcelOutput"))
 	<dataOutput id="_$node.id" isCollection="false" name="$node.name"/>
 #elseif($node.type == "Operator" && ($node.optype == "Router" || $node.optype == "Splitter"))
