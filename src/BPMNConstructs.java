@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import operationDictionary.OperationTypeName;
+
 import org.jgrapht.alg.KShortestPaths;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
@@ -27,8 +29,9 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
+	// public static String XLMFilePathInput =
+	// "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
@@ -68,6 +71,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<HashMap> edges = new ArrayList<HashMap>();
 		ArrayList<HashMap> sources = new ArrayList<HashMap>();
 		ArrayList<HashMap> targets = new ArrayList<HashMap>();
+		ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
+		ArrayList<HashMap> dbOutputNodes = new ArrayList<HashMap>();
+		ArrayList<HashMap> nodesWithoutIO = new ArrayList<HashMap>();
 
 		// source nodes of the graph to use when connecting the start even in
 		// the template
@@ -93,7 +99,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			}
 		}
 		// System.out.println(sourceNodes);
-		
+
 		// fill in the source arraylist
 		for (Integer i : sourceNodes) {
 			HashMap source = new HashMap();
@@ -101,8 +107,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			source.put("size", sourceNodes.size());
 			sources.add(source);
 		}
-		
-		
+
 		// target nodes of the graph to use when connecting to the final BPMN
 		// place
 		ArrayList<Integer> allTargetNodes = new ArrayList<Integer>();
@@ -177,6 +182,13 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			edge.put("enabled", "Y");
 			edges.add(edge);
 
+			dbInputNodes.addAll(nodesWithDataInput(G, opS, opT));
+			dbOutputNodes.addAll(nodesWithDataOutput(G, opS, opT));
+			nodesWithoutIO.addAll(nodesWithoutDataIO(G, opS, opT));
+
+			System.out.println("dbOutputNodes1 " + dbInputNodes);
+			System.out.println("dbInputNodes1 " + dbInputNodes);
+			System.out.println("nodesWithoutIO1 " + dbInputNodes);
 		}
 
 		// ndproperties
@@ -232,7 +244,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				features.add(feat);
 			}
 		}
-
+		System.out.println("dbInputNodes2 " + dbInputNodes);
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate("vmTemplates//bpmn.vm");
@@ -241,6 +253,8 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		context.put("nodes", nodes);
 		context.put("sources", sources);
 		context.put("targets", targets);
+		context.put("dbInputNodes", dbInputNodes);
+		context.put("dbOutputNodes", dbOutputNodes);
 		// context.put("properties", properties);
 		// context.put("resources", resources);
 		// context.put("features", features);
@@ -266,6 +280,88 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	// identify all nodes that have a data input going in
+	public static ArrayList<HashMap> nodesWithDataInput(ETLFlowGraph G,
+			ETLFlowOperation opS, ETLFlowOperation opT) {
+		ArrayList<Integer> nodesWithDBInput = new ArrayList<Integer>();
+		ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
+		for (Object e : G.edgeSet()) {
+			// is there a simpler way to do this????
+			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
+			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+			// System.out.println("targetId " + targetId);
+			if (targetId.intValue() == opT.getNodeID()
+					&& opS.getOperationType().getOpTypeName()
+							.equals(OperationTypeName.TableInput)) {
+				nodesWithDBInput.add(targetId);
+			}
+		}
+		for (Integer i : nodesWithDBInput) {
+			HashMap dbInputNode = new HashMap();
+			dbInputNode.put("id", i);
+			dbInputNodes.add(dbInputNode);
+		}
+
+		System.out.println("dbInputNodes end " + dbInputNodes);
+		return dbInputNodes;
+	}
+
+	// identify all nodes that have a data output coming out
+	public static ArrayList<HashMap> nodesWithDataOutput(ETLFlowGraph G,
+			ETLFlowOperation opS, ETLFlowOperation opT) {
+		ArrayList<Integer> nodesWithDBOutput = new ArrayList<Integer>();
+		ArrayList<HashMap> dbOutputNodes = new ArrayList<HashMap>();
+		for (Object e : G.edgeSet()) {
+			// is there a simpler way to do this????
+			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
+			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+			// System.out.println("targetId " + targetId);
+			if (sourceId.intValue() == opS.getNodeID()
+					&& opT.getOperationType().getOpTypeName()
+							.equals(OperationTypeName.TableOutput)) {
+				nodesWithDBOutput.add(sourceId);
+			}
+		}
+
+		for (Integer i : nodesWithDBOutput) {
+			HashMap dbOutputNode = new HashMap();
+			dbOutputNode.put("id", i);
+			dbOutputNodes.add(dbOutputNode);
+		}
+
+		System.out.println("dbOutputNodes end " + dbOutputNodes);
+		return dbOutputNodes;
+	}
+
+	// identify nodes without data objects
+	public static ArrayList<HashMap> nodesWithoutDataIO(ETLFlowGraph G,
+			ETLFlowOperation opS, ETLFlowOperation opT) {
+		ArrayList<Integer> nodes = new ArrayList<Integer>();
+		ArrayList<HashMap> nodesWithoutIO = new ArrayList<HashMap>();
+		for (Object e : G.edgeSet()) {
+			// is there a simpler way to do this????
+			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
+			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+			// System.out.println("targetId " + targetId);
+			if (sourceId.intValue() == opS.getNodeID()
+					&& !opT.getOperationType().getOpTypeName()
+							.equals(OperationTypeName.TableOutput)) {
+				nodes.add(sourceId);
+			} else if (targetId.intValue() == opT.getNodeID()
+					&& !opS.getOperationType().getOpTypeName()
+							.equals(OperationTypeName.TableInput)
+					&& !nodes.contains(targetId)) {
+				nodes.add(targetId);
+			}
+		}
+		for (Integer i : nodes) {
+			HashMap nodeWithoutIO = new HashMap();
+			nodeWithoutIO.put("id", i);
+			nodesWithoutIO.add(nodeWithoutIO);
+		}
+		return nodesWithoutIO;
 	}
 
 }

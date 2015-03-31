@@ -15,7 +15,13 @@
 	<startEvent id="_0001" name="StartProcess"/>
 
 #foreach($node in $nodes)
-	#parse( "vmTemplates/node.vm" )
+	#foreach ($dbInputNode in $dbInputNodes)
+		#if($node.id == $dbInputNode.id)
+			#parse ( "vmTemplates/dbInputNode.vm" )
+		#else
+			#parse( "vmTemplates/node.vm" )
+		#end
+	#end
 #end
 
 <endEvent id="_0009" name="EndProcess">
@@ -56,7 +62,7 @@
 #end
 
 </process>
-#if ($dataStore == "Y")
+#if ($database == "Y")
  <dataStore id="DS_1" isUnlimited="false" />
  #end
 </definitions>
