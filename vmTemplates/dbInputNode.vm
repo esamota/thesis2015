@@ -1,0 +1,14 @@
+## nodes that have an incoming db
+#foreach ($edge in $edges)
+	#if($edge.to == $dbInputNode.id && $edge.fromKind == "Datastore")
+	<task id="_$dbInputNode.id" name="$node.name">
+      <ioSpecification>
+        <dataInput id="Din_${dbInputNode.id}_$edge.from" isCollection="false"/>
+        <inputSet>
+          <dataInputRefs>Din_${dbInputNode.id}_$edge.from</dataInputRefs>
+        </inputSet>
+        <outputSet/>
+      </ioSpecification>
+      </task>
+	#end
+#end

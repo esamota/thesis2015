@@ -25,22 +25,22 @@ public class Main {
 	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 
 	public static void main(String[] args) {
-		
-		ImportXLMToETLGraph importXlm = new ImportXLMToETLGraph();
-		ETLFlowGraph G = new ETLFlowGraph();
-		try {
-			G = importXlm.getFlowGraph(XLMFilePathInput);
-		} catch (CycleFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-
-HashMap<Integer, EngineType> engineTypes = new HashMap<Integer, EngineType>();
-
-for (Integer key : ops.keySet()) {
-	engineTypes.put(key, ops.get(key).getEngine());		
-}
+		/*
+		 * ImportXLMToETLGraph importXlm = new ImportXLMToETLGraph();
+		 * ETLFlowGraph G = new ETLFlowGraph(); try { G =
+		 * importXlm.getFlowGraph(XLMFilePathInput); } catch
+		 * (CycleFoundException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 * 
+		 * Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		 * 
+		 * HashMap<Integer, EngineType> engineTypes = new HashMap<Integer,
+		 * EngineType>();
+		 * 
+		 * for (Integer key : ops.keySet()) { engineTypes.put(key,
+		 * ops.get(key).getEngine()); }
+		 * //System.out.println("types: "+engineTypes);
+		 */
 	}
 }

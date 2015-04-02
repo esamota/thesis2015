@@ -29,9 +29,9 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
 	// public static String XLMFilePathInput =
-	// "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
+	// "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
@@ -44,6 +44,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 	public static void main(String[] args) {
 		String BPMN = toStringBPMN(XLMFilePathInput);
 		toFileBPMN(BPMN);
+
 	}
 
 	public static String toStringBPMN(String XLMFilePathInput) {
@@ -184,11 +185,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 
 			dbInputNodes.addAll(nodesWithDataInput(G, opS, opT));
 			dbOutputNodes.addAll(nodesWithDataOutput(G, opS, opT));
-			nodesWithoutIO.addAll(nodesWithoutDataIO(G, opS, opT));
+			// nodesWithoutIO.addAll(nodesWithoutDataIO(dbInputNodes,
+			// dbOutputNodes, opS, opT, G));
 
-			System.out.println("dbOutputNodes1 " + dbInputNodes);
-			System.out.println("dbInputNodes1 " + dbInputNodes);
-			System.out.println("nodesWithoutIO1 " + dbInputNodes);
 		}
 
 		// ndproperties
@@ -244,7 +243,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				features.add(feat);
 			}
 		}
-		System.out.println("dbInputNodes2 " + dbInputNodes);
+		nodeEngineTypes(nodes);
+		System.out.println("dbInputNodes " + dbInputNodes);
+		System.out.println("dbOutputNodes " + dbOutputNodes);
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate("vmTemplates//bpmn.vm");
@@ -291,10 +292,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			// is there a simpler way to do this????
 			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
-			// System.out.println("targetId " + targetId);
 			if (targetId.intValue() == opT.getNodeID()
 					&& opS.getOperationType().getOpTypeName()
 							.equals(OperationTypeName.TableInput)) {
+				System.out.println("targetId " + targetId);
 				nodesWithDBInput.add(targetId);
 			}
 		}
@@ -304,7 +305,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			dbInputNodes.add(dbInputNode);
 		}
 
-		System.out.println("dbInputNodes end " + dbInputNodes);
+		// System.out.println("dbInputNodes end " + dbInputNodes);
 		return dbInputNodes;
 	}
 
@@ -321,6 +322,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			if (sourceId.intValue() == opS.getNodeID()
 					&& opT.getOperationType().getOpTypeName()
 							.equals(OperationTypeName.TableOutput)) {
+				System.out.println("sourceId " + sourceId);
 				nodesWithDBOutput.add(sourceId);
 			}
 		}
@@ -331,37 +333,43 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			dbOutputNodes.add(dbOutputNode);
 		}
 
-		System.out.println("dbOutputNodes end " + dbOutputNodes);
+		// System.out.println("dbOutputNodes end " + dbOutputNodes);
 		return dbOutputNodes;
 	}
 
 	// identify nodes without data objects
-	public static ArrayList<HashMap> nodesWithoutDataIO(ETLFlowGraph G,
-			ETLFlowOperation opS, ETLFlowOperation opT) {
-		ArrayList<Integer> nodes = new ArrayList<Integer>();
-		ArrayList<HashMap> nodesWithoutIO = new ArrayList<HashMap>();
-		for (Object e : G.edgeSet()) {
-			// is there a simpler way to do this????
-			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
-			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
-			// System.out.println("targetId " + targetId);
-			if (sourceId.intValue() == opS.getNodeID()
-					&& !opT.getOperationType().getOpTypeName()
-							.equals(OperationTypeName.TableOutput)) {
-				nodes.add(sourceId);
-			} else if (targetId.intValue() == opT.getNodeID()
-					&& !opS.getOperationType().getOpTypeName()
-							.equals(OperationTypeName.TableInput)
-					&& !nodes.contains(targetId)) {
-				nodes.add(targetId);
+	/*
+	 * public static ArrayList<HashMap> nodesWithoutDataIO(ArrayList<HashMap>
+	 * dbOutputNodes, ArrayList<HashMap> dbInputNodes, ETLFlowOperation opS,
+	 * ETLFlowOperation opT, ETLFlowGraph G) { ArrayList<Integer> nodes = new
+	 * ArrayList<Integer>(); ArrayList<HashMap> nodesWithoutIO = new
+	 * ArrayList<HashMap>(); for (Object e : G.edgeSet()) { // is there a
+	 * simpler way to do this???? Integer sourceId = (Integer) ((ETLEdge)
+	 * e).getSource(); Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+	 * if (sourceId.intValue() == opS.getNodeID() &&
+	 * !opS.getNodeKind().equals(ETLNodeKind.Datastore) &&
+	 * !dbOutputNodes.contains(sourceId) && !dbInputNodes.contains(sourceId) &&
+	 * !nodes.contains(sourceId) ) {
+	 * System.out.println("sourceId without data coming out " + sourceId);
+	 * nodes.add(sourceId); } else if (targetId.intValue() == opT.getNodeID() &&
+	 * !opT.getNodeKind().equals(ETLNodeKind.Datastore) &&
+	 * !dbOutputNodes.contains(targetId) && !dbInputNodes.contains(targetId) &&
+	 * !nodes.contains(targetId)) {
+	 * System.out.println("targetId without data coming in " + targetId);
+	 * nodes.add(targetId); } } for (Integer i : nodes) { HashMap nodeWithoutIO
+	 * = new HashMap(); nodeWithoutIO.put("id", i);
+	 * nodesWithoutIO.add(nodeWithoutIO); } return nodesWithoutIO; }
+	 */
+
+	public static void nodeEngineTypes(ArrayList<HashMap> nodes) {
+		for (int i = 0; i < nodes.size(); i++) {
+			for (Object key : nodes.get(i).keySet()) {
+				if (key.equals("engine")) {
+					System.out.println();
+				}
+
 			}
 		}
-		for (Integer i : nodes) {
-			HashMap nodeWithoutIO = new HashMap();
-			nodeWithoutIO.put("id", i);
-			nodesWithoutIO.add(nodeWithoutIO);
-		}
-		return nodesWithoutIO;
 	}
 
 }

@@ -1,0 +1,14 @@
+## db output node
+#foreach ($edge in $edges)
+<task id="_$dbOutputNode.id" name="$node.name">
+	#if ($edge.from == $dbOutputNode.id && $edge.toKind == "Datastore")
+     	<ioSpecification>
+    <dataOutput id="Dout_${dbOutputNode.id}_$edge.to" isCollection="false"/>
+        <inputSet/>
+        <outputSet>
+          <dataOutputRefs>Dout_${dbOutputNode.id}_$edge.to</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      </task>
+	#end
+#end

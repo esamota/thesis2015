@@ -17,12 +17,19 @@
 #foreach($node in $nodes)
 	#foreach ($dbInputNode in $dbInputNodes)
 		#if($node.id == $dbInputNode.id)
-			#parse ( "vmTemplates/dbInputNode.vm" )
+			#parse( "vmTemplates/dbInputNode.vm" )
 		#else
-			#parse( "vmTemplates/node.vm" )
+			#foreach ($dbOutputNode in $dbOutputNodes)
+				#if($node.id == $dbOutputNode.id)
+					#parse( "vmTemplates/dbOutputNode.vm" )
+				#else
+					#parse( "vmTemplates/node.vm" )
+				#end
+			#end
 		#end
 	#end
 #end
+
 
 <endEvent id="_0009" name="EndProcess">
  	<terminateEventDefinition/>
