@@ -1,12 +1,12 @@
 ## db output node
 #foreach ($edge in $edges)
-<task id="_$dbOutputNode.id" name="$node.name">
-	#if ($edge.from == $dbOutputNode.id && $edge.toKind == "Datastore")
+	#if ($edge.from == $node.id && $edge.toKind == "Datastore")
+	<task id="_$node.id" name="$node.name">
      	<ioSpecification>
-    <dataOutput id="Dout_${dbOutputNode.id}_$edge.to" isCollection="false"/>
+   		 <dataOutput id="Dout_${node.id}_$edge.to" isCollection="false"/>
         <inputSet/>
         <outputSet>
-          <dataOutputRefs>Dout_${dbOutputNode.id}_$edge.to</dataOutputRefs>
+          <dataOutputRefs>Dout_${node.id}_$edge.to</dataOutputRefs>
         </outputSet>
       </ioSpecification>
       </task>

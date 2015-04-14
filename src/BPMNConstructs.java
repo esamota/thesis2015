@@ -30,8 +30,7 @@ import etlFlowGraph.operation.ETLNodeKind;
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
 	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
-	// public static String XLMFilePathInput =
-	// "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
+	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
@@ -75,6 +74,13 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
 		ArrayList<HashMap> dbOutputNodes = new ArrayList<HashMap>();
 		ArrayList<HashMap> nodesWithoutIO = new ArrayList<HashMap>();
+		
+		ArrayList<Integer> nodesWithInput = new ArrayList<Integer>();
+		ArrayList<Integer> nodesWithOutput = new ArrayList<Integer>(); 
+		
+		//populate arraylists of nodes with inputs and outputs
+		nodesWithInput = nodesWithDataInput(G, ops);
+		nodesWithOutput = nodesWithDataOutput(G, ops);
 
 		// source nodes of the graph to use when connecting the start even in
 		// the template
@@ -145,12 +151,14 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		int nodeCnt = -1;
 
 		HashMap<Integer, Integer> added = new HashMap<Integer, Integer>();
+		
 
 		for (Object e : G.edgeSet()) {
 			// adding link
 			HashMap edge = new HashMap();
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+			
 			int srcID = -1, targetID = -1;
 
 			if (added.containsKey(opS.getNodeID())) {
@@ -158,7 +166,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			} else {
 				srcID = ++nodeCnt;
 				HashMap nodeS = new HashMap();
-				G.fillInNodes(opS, nodeS);
+				fillInNodeMap(opS, nodeS, nodesWithInput, nodesWithOutput);
 				nodes.add(nodeS);
 				added.put(opS.getNodeID(), srcID);
 			}
@@ -168,25 +176,24 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			} else {
 				targetID = ++nodeCnt;
 				HashMap nodeT = new HashMap();
-				G.fillInNodes(opT, nodeT);
+				fillInNodeMap(opT, nodeT, nodesWithInput, nodesWithOutput);
 				nodes.add(nodeT);
 				added.put(opT.getNodeID(), targetID);
 			}
 
 			// for edges get nodeID instead of name
-			edge.put("from", opS.getNodeID());
-			edge.put("to", opT.getNodeID());
+			if (opS.getNodeID() == 1){
+				edge.put("from", 111111);
+			} else edge.put("from", opS.getNodeID());
+			if (opT.getNodeID() == 1){
+				edge.put("to", 111111);
+			} else edge.put("to", opT.getNodeID());
 			edge.put("fromKind", opS.getNodeKind());
 			edge.put("toKind", opT.getNodeKind());
 			edge.put("fromOpType", opS.getOperationType().getOpTypeName());
 			edge.put("toOpType", opT.getOperationType().getOpTypeName());
 			edge.put("enabled", "Y");
 			edges.add(edge);
-
-			dbInputNodes.addAll(nodesWithDataInput(G, opS, opT));
-			dbOutputNodes.addAll(nodesWithDataOutput(G, opS, opT));
-			// nodesWithoutIO.addAll(nodesWithoutDataIO(dbInputNodes,
-			// dbOutputNodes, opS, opT, G));
 
 		}
 
@@ -204,15 +211,6 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				properties.add(prop);
 			}
 		}
-
-		// metadata
-		/*
-		 * ArrayList<HashMap> flowMetadata = new ArrayList<HashMap>(); for
-		 * (String key: flowMeta.keySet()) { HashMap meta = new HashMap();
-		 * meta.put("flowName", flowMeta.get(key). )
-		 * 
-		 * } }
-		 */
 
 		// ndresources
 		ArrayList<HashMap> resources = new ArrayList<HashMap>();
@@ -243,9 +241,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				features.add(feat);
 			}
 		}
-		nodeEngineTypes(nodes);
-		System.out.println("dbInputNodes " + dbInputNodes);
-		System.out.println("dbOutputNodes " + dbOutputNodes);
+		
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate("vmTemplates//bpmn.vm");
@@ -265,6 +261,35 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 
 		return (writer.toString());
 	}
+	
+	public static void fillInNodeMap(ETLFlowOperation op, HashMap node, ArrayList<Integer> nodesWithDBInput, 
+										ArrayList<Integer> nodesWithDBOutput) {
+		// id's 0 and 1 are reserved in Yaoquiang, and therefore the editor inserts an extra "_" before such values which creates problems
+		if (op.getNodeID() == 1){
+			node.put("id", 111111);
+		} else node.put("id", op.getNodeID());
+		node.put("name", op.getOperationName());
+		node.put("type", op.getNodeKind().name());
+		node.put("optype", op.getOperationType().getOpTypeName());
+		node.put("engine", op.getEngine().name());
+		node.put("flowID", op.getParentFlowID());
+		node.put("implementationType", op.getImplementationType());
+		//insert a flag if node has db input 
+		if (nodesWithDBInput.contains(op.getNodeID()) == true){
+			node.put("hasInput", "Y");
+		} else node.put("hasInput", "N");
+		
+		//insert a flag if node has db output
+		System.out.println("nodes "+ nodesWithDBOutput);
+		System.out.println("op "+ op.getNodeID());
+		System.out.println ("operation id "+ op.getNodeID()+ " boolean for nodes with output " + nodesWithDBOutput.contains(op.getNodeID()));
+		if (nodesWithDBOutput.contains(op.getNodeID()) == true){
+			node.put("hasOutput", "Y");
+		}
+		else node.put("hasOutput", "N");
+		
+		}
+	
 
 	public static void toFileBPMN(String writerInput) {
 		File file = new File(BPMNFilePathOutput);
@@ -284,12 +309,14 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 	}
 
 	// identify all nodes that have a data input going in
-	public static ArrayList<HashMap> nodesWithDataInput(ETLFlowGraph G,
-			ETLFlowOperation opS, ETLFlowOperation opT) {
+	public static ArrayList<Integer> nodesWithDataInput(ETLFlowGraph G,
+			Hashtable<Integer,ETLFlowOperation> ops) {
 		ArrayList<Integer> nodesWithDBInput = new ArrayList<Integer>();
-		ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
+		//ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
 		for (Object e : G.edgeSet()) {
-			// is there a simpler way to do this????
+			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+			
 			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
 			if (targetId.intValue() == opT.getNodeID()
@@ -299,22 +326,24 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				nodesWithDBInput.add(targetId);
 			}
 		}
-		for (Integer i : nodesWithDBInput) {
+		/*for (Integer i : nodesWithDBInput) {
 			HashMap dbInputNode = new HashMap();
 			dbInputNode.put("id", i);
 			dbInputNodes.add(dbInputNode);
-		}
+		}*/
 
 		// System.out.println("dbInputNodes end " + dbInputNodes);
-		return dbInputNodes;
+		return nodesWithDBInput;
 	}
 
 	// identify all nodes that have a data output coming out
-	public static ArrayList<HashMap> nodesWithDataOutput(ETLFlowGraph G,
-			ETLFlowOperation opS, ETLFlowOperation opT) {
+	public static ArrayList<Integer> nodesWithDataOutput(ETLFlowGraph G,
+			Hashtable<Integer,ETLFlowOperation> ops) {
 		ArrayList<Integer> nodesWithDBOutput = new ArrayList<Integer>();
 		ArrayList<HashMap> dbOutputNodes = new ArrayList<HashMap>();
 		for (Object e : G.edgeSet()) {
+			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
 			// is there a simpler way to do this????
 			Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 			Integer targetId = (Integer) ((ETLEdge) e).getTarget();
@@ -326,40 +355,17 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				nodesWithDBOutput.add(sourceId);
 			}
 		}
-
-		for (Integer i : nodesWithDBOutput) {
+//System.out.println ("nodesWithDBOutput within method "+ nodesWithDBOutput);
+		/*for (Integer i : nodesWithDBOutput) {
 			HashMap dbOutputNode = new HashMap();
 			dbOutputNode.put("id", i);
 			dbOutputNodes.add(dbOutputNode);
-		}
+		}*/
 
 		// System.out.println("dbOutputNodes end " + dbOutputNodes);
-		return dbOutputNodes;
+		return nodesWithDBOutput;
 	}
-
-	// identify nodes without data objects
-	/*
-	 * public static ArrayList<HashMap> nodesWithoutDataIO(ArrayList<HashMap>
-	 * dbOutputNodes, ArrayList<HashMap> dbInputNodes, ETLFlowOperation opS,
-	 * ETLFlowOperation opT, ETLFlowGraph G) { ArrayList<Integer> nodes = new
-	 * ArrayList<Integer>(); ArrayList<HashMap> nodesWithoutIO = new
-	 * ArrayList<HashMap>(); for (Object e : G.edgeSet()) { // is there a
-	 * simpler way to do this???? Integer sourceId = (Integer) ((ETLEdge)
-	 * e).getSource(); Integer targetId = (Integer) ((ETLEdge) e).getTarget();
-	 * if (sourceId.intValue() == opS.getNodeID() &&
-	 * !opS.getNodeKind().equals(ETLNodeKind.Datastore) &&
-	 * !dbOutputNodes.contains(sourceId) && !dbInputNodes.contains(sourceId) &&
-	 * !nodes.contains(sourceId) ) {
-	 * System.out.println("sourceId without data coming out " + sourceId);
-	 * nodes.add(sourceId); } else if (targetId.intValue() == opT.getNodeID() &&
-	 * !opT.getNodeKind().equals(ETLNodeKind.Datastore) &&
-	 * !dbOutputNodes.contains(targetId) && !dbInputNodes.contains(targetId) &&
-	 * !nodes.contains(targetId)) {
-	 * System.out.println("targetId without data coming in " + targetId);
-	 * nodes.add(targetId); } } for (Integer i : nodes) { HashMap nodeWithoutIO
-	 * = new HashMap(); nodeWithoutIO.put("id", i);
-	 * nodesWithoutIO.add(nodeWithoutIO); } return nodesWithoutIO; }
-	 */
+	
 
 	public static void nodeEngineTypes(ArrayList<HashMap> nodes) {
 		for (int i = 0; i < nodes.size(); i++) {
