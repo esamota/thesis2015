@@ -34,7 +34,7 @@
 #end
 
 #if ($divergingGateway == "Y")
-<parallelGateway gatewayDirection="Diverging" id="_001" />
+<parallelGateway gatewayDirection="Diverging" id="_001" name = "Parallel Gateway 1"/>
 <sequenceFlow id="_0001-_001" sourceRef="_0001" targetRef="_001" />
 #end
 
