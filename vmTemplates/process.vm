@@ -1,5 +1,8 @@
 ## inside each process
 #set ($nonEmptyProcess = "N")
+#set ($gatewayCounter = 2)
+
+
 #foreach($node in $nodes)
 	#if($node.engine == $engine.name)
 	#set ($nonEmptyProcess = "Y")
