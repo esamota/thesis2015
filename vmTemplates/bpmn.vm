@@ -8,61 +8,26 @@
              xmlns:xsd= "http://www.w3.org/2001/XMLSchema"
              xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation= "http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
-           
-<process id = "Process_1" isExecutable = "false" processType = "none" name = "ProcessName">
 
-## nodes
-	<startEvent id="_0001" name="StartProcess"/>
+#set($counter = 2)             
+## collaboration definition
+<collaboration id="COLLABORATION_1" isClosed="false">
+#foreach ($engine in $engines)
+ <participant id="_$counter" name="$engine.name" processRef="PROCESS_$counter">
+      <participantMultiplicity maximum="1" minimum="0"/>
+ </participant>
+#set ($counter = ($counter + 1))
+#end
+</collaboration>
 
-#foreach($node in $nodes)
-	#if($node.hasInput == "Y")
-		#parse( "vmTemplates/dbInputNode.vm" )
-	#elseif ($node.hasOutput == "Y")
-		#parse( "vmTemplates/dbOutputNode.vm" )
-	#else
-		#parse( "vmTemplates/node.vm" )
-	#end
+#set($counter = 2)
+#foreach ($engine in $engines)        
+	<process id = "PROCESS_$counter" isExecutable = "false" processType = "none" name = "ProcessName">
+		#parse ("vmTemplates/process.vm" )
+	</process>
+	#set ($counter = ($counter + 1))
 #end
 
-
-<endEvent id="_0009" name="EndProcess">
- 	<terminateEventDefinition/>
-</endEvent>
-
-## edges from start event
-#foreach ( $source in $sources )
-	#if ($source.size == 1)
-		#parse ( "vmTemplates/start.vm" )
-	#else
-		#parse ( "vmTemplates/startWithGateway.vm" )
-	#end
-#end
-
-#if ($divergingGateway == "Y")
-<parallelGateway gatewayDirection="Diverging" id="_001" />
-<sequenceFlow id="_0001-_001" sourceRef="_0001" targetRef="_001" />
-#end
-
-## middle edges
-#foreach( $edge in $edges )
-	#parse( "vmTemplates/edge.vm" )
-#end 
-
-## edges to end event
-#foreach( $target in $targets )
-	#if ($target.size == 1)
-		#parse ( "vmTemplates/end.vm" )
-	#else
-		#parse ( "vmTemplates/endWithGateway.vm" )
-	#end
-#end 
-
-#if ($convergingGateway == "Y")
-<parallelGateway gatewayDirection="Converging" id="_009" />
-<sequenceFlow id="_009-_0009" sourceRef="_009" targetRef="_0009" />
-#end
-
-</process>
 #if ($database == "Y")
  <dataStore id="DS_1" isUnlimited="false" />
  #end

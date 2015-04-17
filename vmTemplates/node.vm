@@ -1,16 +1,25 @@
 ## nodes
+#set($gatewayCounter = 2)
 #if($node.type == "Datastore")
 	<dataStoreReference dataStoreRef="DS_1" id = "_$node.id" name = "$node.name"/>
 	#set( $database = "Y")    
 	
-#elseif($node.type == "Operator" && ($node.optype == "Router" || $node.optype == "Splitter"))
+#elseif($node.type == "Operator" && $node.optype == "Router")
 	<parallelGateway gatewayDirection="Diverging" id="_$node.id" name="$node.name"/>
+	
+#elseif($node.type == "Operator" && $node.optype == "Splitter" )
+	<complexGateway gatewayDirection="Unspecified" id="_$node.id" name="$node.name"/>
 	
 #elseif($node.type == "Operator" && ($node.optype == "Union" || $node.optype == "Merger"))
 	<parallelGateway gatewayDirection="Converging" id="_$node.id" name="$node.name"/>
 	
 #elseif($node.type == "Operator" && $node.optype == "Voter")
 	<eventBasedGateway id="_$node.id" gatewayDirection="Mixed"/>
+	
+#elseif($node.type == "Operator" && ($node.optype == "Join" || $node.optype == "LeftOuterJoin"))
+	<parallelGateway gatewayDirection="Converging" id="_0$gatewayCounter" name="Parallel Gateway"/>
+	<sequenceFlow id="_0${gatewayCounter}-_$node.id" sourceRef="_0$gatewayCounter" targetRef="_$node.id" /> 
+	<task id="_$node.id" name="$node.name" />
 		
 #else <task id="_$node.id" name="$node.name" />
 

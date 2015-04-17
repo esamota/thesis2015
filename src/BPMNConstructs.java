@@ -29,7 +29,7 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q3.xml";
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
@@ -72,8 +72,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<HashMap> sources = new ArrayList<HashMap>();
 		ArrayList<HashMap> targets = new ArrayList<HashMap>();
 		ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
-		ArrayList<HashMap> dbOutputNodes = new ArrayList<HashMap>();
-		ArrayList<HashMap> nodesWithoutIO = new ArrayList<HashMap>();
+		ArrayList<HashMap> engines = new ArrayList<HashMap>();
 		
 		ArrayList<Integer> nodesWithInput = new ArrayList<Integer>();
 		ArrayList<Integer> nodesWithOutput = new ArrayList<Integer>(); 
@@ -81,6 +80,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		//populate arraylists of nodes with inputs and outputs
 		nodesWithInput = nodesWithDataInput(G, ops);
 		nodesWithOutput = nodesWithDataOutput(G, ops);
+		engines = flowEngineTypes(ops);
 
 		// source nodes of the graph to use when connecting the start even in
 		// the template
@@ -192,6 +192,8 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			edge.put("toKind", opT.getNodeKind());
 			edge.put("fromOpType", opS.getOperationType().getOpTypeName());
 			edge.put("toOpType", opT.getOperationType().getOpTypeName());
+			edge.put("fromEngine", opS.getEngine().toString());
+			edge.put("toEngine", opT.getEngine().toString());
 			edge.put("enabled", "Y");
 			edges.add(edge);
 
@@ -250,12 +252,12 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		context.put("nodes", nodes);
 		context.put("sources", sources);
 		context.put("targets", targets);
-		context.put("dbInputNodes", dbInputNodes);
-		context.put("dbOutputNodes", dbOutputNodes);
 		// context.put("properties", properties);
 		// context.put("resources", resources);
 		// context.put("features", features);
 		context.put("metadata", flowMeta);
+		context.put("engines", engines);
+		
 		StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 
@@ -367,15 +369,31 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 	}
 	
 
-	public static void nodeEngineTypes(ArrayList<HashMap> nodes) {
-		for (int i = 0; i < nodes.size(); i++) {
-			for (Object key : nodes.get(i).keySet()) {
-				if (key.equals("engine")) {
-					System.out.println();
-				}
-
+	public static ArrayList<HashMap> flowEngineTypes(Hashtable<Integer,ETLFlowOperation> ops) {
+		ArrayList<String> engineTypes = new ArrayList<String>();
+		ArrayList<HashMap> engines = new ArrayList<HashMap>();
+		System.out.println("engineTypes before " + engineTypes);
+		for (Integer i: ops.keySet()){
+			System.out.println("get engine " +ops.get(i).getEngine().toString());
+			System.out.println("engineTypes contains " + engineTypes.contains(ops.get(i).getEngine().toString()));
+			if (!engineTypes.contains(ops.get(i).getEngine().toString())){
+				engineTypes.add(ops.get(i).getEngine().toString());
+			} else if (ops.get(i).getEngine().toString().isEmpty()){
+				System.out.println("empty engine info");
 			}
+			
 		}
+		System.out.println("engineTypes after " + engineTypes);
+		//engineTypes.add("PDI");
+		
+		for(String str: engineTypes){
+			HashMap engine = new HashMap();
+			engine.put("name", str);
+			engine.put("size", engineTypes.size());
+			engines.add(engine);
+		}
+		System.out.println("engineTypes "+engineTypes);
+		return engines;
 	}
 
 }

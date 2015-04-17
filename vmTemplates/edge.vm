@@ -1,5 +1,5 @@
 ## edges
-#if($edge.fromKind != "Datastore" && $edge.toKind != "Datastore")
+#if($edge.fromKind != "Datastore" && $edge.toKind != "Datastore" && $edge.fromEngine == $engine.name && $edge.toEngine == $engine.name)
 <sequenceFlow id="_${edge.from}-_$edge.to" sourceRef="_$edge.from" targetRef="_$edge.to" /> 
 #end
 
