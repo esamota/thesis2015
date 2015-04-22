@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import operationDictionary.ETLOperationType;
 import operationDictionary.OperationTypeName;
 
 import org.jgrapht.alg.KShortestPaths;
@@ -29,8 +31,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q3.xml";
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
+	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
@@ -83,7 +85,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		engines = flowEngineTypes(ops);
 
 		// source nodes of the graph to use when connecting the start even in
-		// the template
+		// the template. check here is the source node is a datastore, then the target task of that datastore should be considered a source node.
+		// if the target task is a join or a leftouterjoin, then it is not a source node, since the datastore can be one of the things to be joined
+		// and doesn't need to be connected to the start place -- see example in q13.xml
 		ArrayList<Integer> allSourceNodes = new ArrayList<Integer>();
 		allSourceNodes = G.getAllSourceNodes();
 		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
@@ -97,7 +101,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 					Integer targetId = (Integer) ((ETLEdge) e).getTarget();
 					if (sourceId.intValue() == i.intValue()
-							&& !targetOfSourceNodes.contains(targetId)) {
+							&& !targetOfSourceNodes.contains(targetId) && 
+							!ops.get(targetId).getOperationType().getOpTypeName().equals(OperationTypeName.Join) && 
+							!ops.get(targetId).getOperationType().getOpTypeName().equals(OperationTypeName.LeftOuterJoin)) {
 						sourceNodes.add(targetId);
 					}
 				}
@@ -105,12 +111,15 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				sourceNodes.add(i);
 			}
 		}
-		// System.out.println(sourceNodes);
+		System.out.println("sourceNodes "+ allSourceNodes);
+		//sourceNodes.remove(34);
 
 		// fill in the source arraylist
 		for (Integer i : sourceNodes) {
 			HashMap source = new HashMap();
-			source.put("id", i);
+			if (i == 1) {
+				source.put("id", 111111);
+			} else source.put("id", i);
 			source.put("size", sourceNodes.size());
 			sources.add(source);
 		}
@@ -143,7 +152,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		// fill in the source arraylist
 		for (Integer i : targetNodes) {
 			HashMap target = new HashMap();
-			target.put("id", i);
+			if (i == 1) {
+				target.put("id", 111111);
+			} else target.put("id", i);
 			target.put("size", targetNodes.size());
 			targets.add(target);
 		}
@@ -290,6 +301,38 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 		else node.put("hasOutput", "N");
 		
+		//insert a flag for blocking non-blocking operation
+		// datastores are considered non-blocking; UNION is a bit unclear. for now included with Joins and Grouper
+		ArrayList<OperationTypeName> nonBlockingOperations = new ArrayList<OperationTypeName>();
+		ArrayList<OperationTypeName> blockingOperations = new ArrayList<OperationTypeName>();
+		ArrayList<OperationTypeName> uncertainBlockingTypeOperations = new ArrayList<OperationTypeName>();
+		nonBlockingOperations.addAll(Arrays.asList(OperationTypeName.Splitter, OperationTypeName.Router, OperationTypeName.Merger, OperationTypeName.Voter, OperationTypeName.Filter,
+				OperationTypeName.AttributeAddition, OperationTypeName.Rename, OperationTypeName.Project));
+		blockingOperations.addAll(Arrays.asList(OperationTypeName.Sort, OperationTypeName.TopK, OperationTypeName.UserDefinedFunction));
+		uncertainBlockingTypeOperations.addAll(Arrays.asList(OperationTypeName.Join, OperationTypeName.LeftOuterJoin, OperationTypeName.Grouper, OperationTypeName.Union));
+		
+		String opName = op.getOperationType().getOpTypeName().toString();
+		for (OperationTypeName opn: nonBlockingOperations){
+			if (opName.equals(opn)){
+				node.put("blocking", "N");
+			}
+		}
+		for (OperationTypeName opn: blockingOperations){
+			if (opName.equals(opn)){
+				node.put("blocking", "Y");
+			}
+		}
+		
+		for (OperationTypeName opn : uncertainBlockingTypeOperations){
+		if (opName.equals(opn)){
+			if (op.getImplementationType().toUpperCase().contains("MERGE")){
+				node.put("blocking", "N");
+			} else node.put("blocking", "Y");
+		}
+		}
+		if (op.getNodeKind().equals(ETLNodeKind.Datastore)){
+			node.put("blocking", "N");
+		}
 		}
 	
 
