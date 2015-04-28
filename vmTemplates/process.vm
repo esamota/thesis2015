@@ -4,7 +4,7 @@
 
 
 #foreach($node in $nodes)
-	#if($node.engine == $engine.name)
+	#if($node.engine == $pool.engine && $node.flowID == $pool.flow)
 	#set ($nonEmptyProcess = "Y")
 		#if($node.hasInput == "Y")
 			#parse( "vmTemplates/dbInputNode.vm" )

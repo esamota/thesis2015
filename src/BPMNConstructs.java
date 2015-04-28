@@ -31,8 +31,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml";
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
@@ -74,7 +74,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<HashMap> sources = new ArrayList<HashMap>();
 		ArrayList<HashMap> targets = new ArrayList<HashMap>();
 		ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
-		ArrayList<HashMap> engines = new ArrayList<HashMap>();
+		ArrayList<HashMap> pools = new ArrayList<HashMap>();
 		
 		ArrayList<Integer> nodesWithInput = new ArrayList<Integer>();
 		ArrayList<Integer> nodesWithOutput = new ArrayList<Integer>(); 
@@ -82,7 +82,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		//populate arraylists of nodes with inputs and outputs
 		nodesWithInput = nodesWithDataInput(G, ops);
 		nodesWithOutput = nodesWithDataOutput(G, ops);
-		engines = flowEngineTypes(ops);
+		pools = flowEngineTypes(ops);
 
 		// source nodes of the graph to use when connecting the start even in
 		// the template. check here is the source node is a datastore, then the target task of that datastore should be considered a source node.
@@ -267,7 +267,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		// context.put("resources", resources);
 		// context.put("features", features);
 		context.put("metadata", flowMeta);
-		context.put("engines", engines);
+		context.put("pools", pools);
 		
 		StringWriter writer = new StringWriter();
 		t.merge(context, writer);
@@ -414,29 +414,43 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 
 	public static ArrayList<HashMap> flowEngineTypes(Hashtable<Integer,ETLFlowOperation> ops) {
 		ArrayList<String> engineTypes = new ArrayList<String>();
-		ArrayList<HashMap> engines = new ArrayList<HashMap>();
-		System.out.println("engineTypes before " + engineTypes);
+		ArrayList<HashMap> pools= new ArrayList<HashMap>();
+		ArrayList<Integer> flowIDs = new ArrayList<Integer>();
+		ArrayList<String> uniquePools = new ArrayList<String>();
+		//System.out.println("engineTypes before " + engineTypes);
 		for (Integer i: ops.keySet()){
-			System.out.println("get engine " +ops.get(i).getEngine().toString());
-			System.out.println("engineTypes contains " + engineTypes.contains(ops.get(i).getEngine().toString()));
+			//System.out.println("engine "+ ops.get(i).getEngine()+ "node "+ops.get(i).getOperationName() + "flow id "+ops.get(i).getParentFlowID());
+			//System.out.println("get engine " +ops.get(i).getEngine().toString());
+			//System.out.println("engineTypes contains " + engineTypes.contains(ops.get(i).getEngine().toString()));
+			//System.out.println("flow id: " +ops.get(i).getParentFlowID());
 			if (!engineTypes.contains(ops.get(i).getEngine().toString())){
 				engineTypes.add(ops.get(i).getEngine().toString());
 			} else if (ops.get(i).getEngine().toString().isEmpty()){
 				System.out.println("empty engine info");
 			}
-			
+			if (!flowIDs.contains(ops.get(i).getParentFlowID())){
+				flowIDs.add(ops.get(i).getParentFlowID());
+			}
+			if (!uniquePools.contains(ops.get(i).getEngine()+"_"+ ops.get(i).getParentFlowID())){
+				uniquePools.add(ops.get(i).getEngine()+"_"+ ops.get(i).getParentFlowID());
+			}
 		}
-		System.out.println("engineTypes after " + engineTypes);
+		System.out.println("flowIDS "+flowIDs);
+		System.out.println("unique pools " + uniquePools);
 		//engineTypes.add("PDI");
-		
-		for(String str: engineTypes){
-			HashMap engine = new HashMap();
-			engine.put("name", str);
-			engine.put("size", engineTypes.size());
-			engines.add(engine);
+		for (Integer i : flowIDs){
+			for(String str: engineTypes){
+				HashMap pool = new HashMap();
+				pool.put("name", str + "_"+ i);
+				pool.put("size", uniquePools.size());
+				pool.put("engine", str);
+				pool.put("flow", i);
+				pools.add(pool);
+			}
 		}
 		System.out.println("engineTypes "+engineTypes);
-		return engines;
+		return pools;
 	}
+
 
 }

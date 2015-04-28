@@ -12,8 +12,8 @@
 #set($counter = 2)             
 ## collaboration definition
 <collaboration id="COLLABORATION_1" isClosed="false">
-#foreach ($engine in $engines)
- <participant id="_$counter" name="$engine.name" processRef="PROCESS_$counter">
+#foreach ($pool in $pools)
+ <participant id="_$counter" name="$pool.name" processRef="PROCESS_$counter">
       <participantMultiplicity maximum="1" minimum="0"/>
  </participant>
 #set ($counter = ($counter + 1))
@@ -21,8 +21,8 @@
 </collaboration>
 
 #set($counter = 2)
-#foreach ($engine in $engines)        
-	<process id = "PROCESS_$counter" isExecutable = "false" processType = "none" name = "ProcessName">
+#foreach ($pool in $pools)        
+	<process id = "PROCESS_$counter" isExecutable = "false" processType = "None" name = "ProcessName">
 		#parse ("vmTemplates/process.vm" )
 	</process>
 	#set ($counter = ($counter + 1))
