@@ -36,6 +36,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
+	public static ArrayList<OperationTypeName> nonBlockingOperations = new ArrayList<OperationTypeName>();
+	public static ArrayList<OperationTypeName> blockingOperations = new ArrayList<OperationTypeName>();
+	public static ArrayList<OperationTypeName> uncertainBlockingTypeOperations = new ArrayList<OperationTypeName>();
+	
 
 	public BPMNConstructs(Class arg0) {
 		super(arg0);
@@ -303,13 +307,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		
 		//insert a flag for blocking non-blocking operation
 		// datastores are considered non-blocking; UNION is a bit unclear. for now included with Joins and Grouper
-		ArrayList<OperationTypeName> nonBlockingOperations = new ArrayList<OperationTypeName>();
-		ArrayList<OperationTypeName> blockingOperations = new ArrayList<OperationTypeName>();
-		ArrayList<OperationTypeName> uncertainBlockingTypeOperations = new ArrayList<OperationTypeName>();
-		nonBlockingOperations.addAll(Arrays.asList(OperationTypeName.Splitter, OperationTypeName.Router, OperationTypeName.Merger, OperationTypeName.Voter, OperationTypeName.Filter,
-				OperationTypeName.AttributeAddition, OperationTypeName.Rename, OperationTypeName.Project));
-		blockingOperations.addAll(Arrays.asList(OperationTypeName.Sort, OperationTypeName.TopK, OperationTypeName.UserDefinedFunction));
-		uncertainBlockingTypeOperations.addAll(Arrays.asList(OperationTypeName.Join, OperationTypeName.LeftOuterJoin, OperationTypeName.Grouper, OperationTypeName.Union));
+		fillInBlockingFlag();
 		
 		String opName = op.getOperationType().getOpTypeName().toString();
 		for (OperationTypeName opn: nonBlockingOperations){
@@ -451,6 +449,28 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		System.out.println("engineTypes "+engineTypes);
 		return pools;
 	}
-
+	
+	public static void fillInBlockingFlag (){
+		nonBlockingOperations.addAll(Arrays.asList(OperationTypeName.Splitter, OperationTypeName.Router, OperationTypeName.Merger, OperationTypeName.Voter, OperationTypeName.Filter,
+				OperationTypeName.AttributeAddition, OperationTypeName.Rename, OperationTypeName.Project));
+		blockingOperations.addAll(Arrays.asList(OperationTypeName.Sort, OperationTypeName.TopK, OperationTypeName.UserDefinedFunction));
+		uncertainBlockingTypeOperations.addAll(Arrays.asList(OperationTypeName.Join, OperationTypeName.LeftOuterJoin, OperationTypeName.Grouper, OperationTypeName.Union));
+	}
+	
+	public static void subprocessExtraction (ETLFlowGraph G, Hashtable<Integer,ETLFlowOperation> ops){
+		fillInBlockingFlag();
+		ArrayList<Integer> subprocess = new ArrayList<Integer>();
+		for (Object e : G.edgeSet()){
+			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+			for (OperationTypeName opn: nonBlockingOperations){
+				if (opS.getOperationName().equals(opn) && opT.getOperationName().equals(opn)){
+					subprocess.add(opS.getNodeID());
+					subprocess.add(opT.getNodeID());
+			}
+			
+		}
+	}
+	}
 
 }
