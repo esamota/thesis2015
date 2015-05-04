@@ -31,8 +31,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructs extends DirectedAcyclicGraph {
 
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
+	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	public static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	public static String startEventID = "0001";
 	public static String endEventID = "0009";
@@ -61,6 +61,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
 		System.out.println(G);
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
@@ -464,10 +465,17 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
 			for (OperationTypeName opn: nonBlockingOperations){
+				//nonBlockingOperations.contains(arg0)
 				if (opS.getOperationName().equals(opn) && opT.getOperationName().equals(opn)){
 					subprocess.add(opS.getNodeID());
 					subprocess.add(opT.getNodeID());
 			}
+				else if (opS.getOperationName().equals(opn) && !opT.getOperationName().equals(opn)){
+					if (subprocess.size() > 1){
+						//add subprocess id, and 
+						
+					}
+				}
 			
 		}
 	}

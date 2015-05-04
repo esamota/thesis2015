@@ -6,7 +6,7 @@ import java.io.*;
 
 public class XSLT {
 	
-	static Source xmlInput = new StreamSource(new File("C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml"));
+	/*static Source xmlInput = new StreamSource(new File("C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml"));
 	static Source xsl = new StreamSource(new File("C:\\Users\\Elena\\Desktop\\test.xsl"));
 	static Result bpmnOutput = new StreamResult(new File("C:\\Users\\Elena\\Desktop\\test.bpmn"));
 
@@ -19,6 +19,6 @@ public class XSLT {
 		  catch (Exception e) {
 		    e.printStackTrace( );
 		    }	
-	}
+	}*/
 
 }
