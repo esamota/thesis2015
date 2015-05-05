@@ -63,25 +63,25 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		HashMap<String, BPMNElement> optypeMapping = JSONDictionary
+		HashMap<String, BPMNElement> mapping = JSONDictionary
 				.parseJSONDictionary(JSONDictionary.dictionaryFilePath);
-		fillInVariableAttributesValue(ops, optypeMapping);
+		fillInVariableAttributesValue(G, ops, mapping);
 
 		ArrayList<HashMap> elements = new ArrayList<HashMap>();
-		String stringAttributes ="";
+		String stringAttributes = "";
 		for (Integer key : ops.keySet()) {
-			for (String str : optypeMapping.keySet()) {
+			for (String str : mapping.keySet()) {
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
 						.toString())) {
 					HashMap element = new HashMap();
-					for (BPMNAttribute attr : optypeMapping.get(str)
-							.getAttributes()) {
-						stringAttributes += attr.name+"=\""+attr.value+"\""+"\t";	
+					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
+						stringAttributes += attr.name + "=\"" + attr.value
+								+ "\"" + " ";
 					}
 					element.put("attributes", stringAttributes);
-					stringAttributes ="";
+					stringAttributes = "";
 					// System.out.println(optypeMapping.get(str).getElementName());
-					element.put("name", optypeMapping.get(str).getElementName());
+					element.put("name", mapping.get(str).getElementName());
 					elements.add(element);
 				}
 			}
@@ -92,7 +92,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		Template t = ve.getTemplate("vmTemplates2//jsonTest.vm");
 		VelocityContext context = new VelocityContext();
 		context.put("elements", elements);
-		//context.put("attributes", attributes);
+		// context.put("attributes", attributes);
 
 		StringWriter writer = new StringWriter();
 		t.merge(context, writer);
@@ -559,33 +559,27 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 	}
 
-	public static void fillInVariableAttributesValue(
+	public static void fillInVariableAttributesValue(ETLFlowGraph G,
 			Hashtable<Integer, ETLFlowOperation> ops,
-			HashMap<String, BPMNElement> optypeMapping) {
+			HashMap<String, BPMNElement> mapping) {
 		for (Integer key : ops.keySet()) {
-			for (String str : optypeMapping.keySet()) {
+			for (String str : mapping.keySet()) {
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
 						.toString())) {
-					System.out.println(str + " "
-							+ ops.get(key).getOperationType().getOpTypeName());
-					for (BPMNAttribute attr : optypeMapping.get(str)
-							.getAttributes()) {
+					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
 						if (attr.getAttributeName().equals("name")
 								&& attr.getAttributeValue().equals("")) {
 							attr.setAttributeValue(ops.get(key)
 									.getOperationName());
 						} else if (attr.getAttributeName().equals("id")
-								&& attr.getAttributeValue().equals("")) {
-							attr.setAttributeValue(String.valueOf(ops.get(key)
-									.getNodeID()));
-						}
-
-						System.out.println(attr.name + " " + attr.value);
+								&& attr.getAttributeValue().equals("") && !str.equals("edge")) {
+							attr.setAttributeValue("_"
+										+ String.valueOf(ops.get(key)
+												.getNodeID()));
+						} 
 					}
 				}
-
 			}
-		}
 	}
-
+	}
 }

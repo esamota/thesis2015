@@ -16,17 +16,17 @@ public class JSONDictionary {
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
 	public static final String dictionaryFilePath = "C:\\Users\\Elena\\Desktop\\test.json";
-	private static ArrayList<BPMNAttribute> fixedAttributes = new ArrayList();
-	private static ArrayList<BPMNAttribute> variableAttributes = new ArrayList();;
+	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 		// call method
 		HashMap<String, BPMNElement> optypeMapping = parseJSONDictionary(dictionaryFilePath);
-		
+
 		for (String str : optypeMapping.keySet()) {
-			System.out.println(optypeMapping.get(str).getElementName() + " element");
+			System.out.println(optypeMapping.get(str).getElementName()
+					+ " element");
 			for (BPMNAttribute attr : optypeMapping.get(str).getAttributes()) {
 				System.out.println(attr.name + " " + attr.value);
 			}
@@ -36,7 +36,7 @@ public class JSONDictionary {
 
 	public static HashMap<String, BPMNElement> parseJSONDictionary(
 			String dictionaryFilePath) {
-		HashMap<String, BPMNElement> optypeMapping = new HashMap<String, BPMNElement>();
+		HashMap<String, BPMNElement> mapping = new HashMap<String, BPMNElement>();
 		BPMNElement element = new BPMNElement();
 		BPMNAttribute bpmnAttr;
 
@@ -54,7 +54,7 @@ public class JSONDictionary {
 
 			for (int i = 0; i < size; i++) {
 				JSONObject root = (JSONObject) dictionary.get(i);
-				String xlmCategory = (String) root.get("category");
+				String category = (String) root.get("category");
 				String xlmName = (String) root.get("xlmName");
 
 				JSONArray bpmnElement = (JSONArray) root.get("bpmnElement");
@@ -68,22 +68,21 @@ public class JSONDictionary {
 						JSONObject attribute = (JSONObject) attributes.get(l);
 						String attrName = (String) attribute.get("name");
 						String attrValue = (String) attribute.get("value");
-
-						if (!attrName.equals("") && attrValue.equals("")) {
-							bpmnAttr = new BPMNAttribute(attrName, attrValue);
-							element.addAttribute(bpmnAttr);
-						} 
+						bpmnAttr = new BPMNAttribute(attrName, attrValue);
+						element.addAttribute(bpmnAttr);
 					}
 				}
-				if (xlmCategory.equals("optype")){
-					optypeMapping.put(xlmName, element);
+				if (category.equals("optype")) {
+					mapping.put(xlmName, element);
+				} else if (category.equals("edge")){
+					mapping.put(category, element);
 				}
-				
+
 			}
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return optypeMapping;
+		return mapping;
 	}
 }
