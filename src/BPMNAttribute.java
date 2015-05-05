@@ -3,7 +3,11 @@ public class BPMNAttribute {
 
 	public String name;
 	public String value;
+
+public BPMNAttribute(){
 	
+}
+
 public BPMNAttribute(String attrName){
 	name = attrName;
 	value = "";
