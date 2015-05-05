@@ -1,0 +1,3 @@
+#foreach ($element in $elements)
+<$element.name $element.attributes />
+#end
