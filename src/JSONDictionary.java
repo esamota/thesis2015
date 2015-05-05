@@ -24,11 +24,14 @@ public class JSONDictionary {
 
 		// call method
 		JSONObject jsonObject = createJSONObject(dictionaryFilePath);
-		BPMNElement element = getBPMNElements(jsonObject.get())
 		HashMap<String, BPMNElement> mapping = parseJSONDictionary(jsonObject);
+		
 		System.out.println(mapping);
 		for (String str : mapping.keySet()) {
-			System.out.println(str);
+			System.out.println(mapping.get(str).getElementName()+" element");
+			for (BPMNAttribute attr: mapping.get(str).getFixedAttributes()){
+				System.out.println(attr.name + " "+attr.value);
+			}
 		}
 
 	}
@@ -57,11 +60,38 @@ public class JSONDictionary {
 
 		// loop through the root array
 		JSONArray dictionary = (JSONArray) jsonObject.get("nodeDictionary");
+		
 		Integer size = dictionary.size();
+
 		for (int i = 0; i < size; i++) {
-			JSONObject root = getNodeDictionaryObject(jsonObject);
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String xlmCategory = (String) root.get("category");
 			String xlmName = (String) root.get("xlmName");
-			element = getBPMNElements(root);
+					
+			JSONArray bpmnElement = (JSONArray) root.get("bpmnElement");
+			for (int k = 0; k < bpmnElement.size(); k++) {
+				JSONObject bpmn = (JSONObject) bpmnElement.get(k);
+				String elName = (String) bpmn.get("name");
+				element = new BPMNElement(elName);
+				
+				JSONArray attributes = (JSONArray) bpmn.get("attributes");
+				for (int l = 0; l < attributes.size(); l++) {
+					JSONObject attribute = (JSONObject) attributes.get(l);
+					String attrName = (String) attribute.get("name");
+					String attrValue = (String) attribute.get("value");
+
+					if (!attrName.equals("") && attrValue.equals("")) {
+						bpmnAttr = new BPMNAttribute(attrName, attrValue);
+						element.addVariableAttribute(bpmnAttr);
+					}
+					else {
+						bpmnAttr = new BPMNAttribute(attrName, attrValue);
+						element.addFixedAttribute(bpmnAttr);
+
+				}
+				}
+			}
+	
 			mapping.put(xlmName, element);
 			}
 		return mapping;
