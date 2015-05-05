@@ -26,4 +26,11 @@ public String getAttributeValue(){
 	return value;
 }
 
+public void setAttributeName(String attrName){
+	this.name = attrName;
+}
+
+public void setAttributeValue(String attrValue){
+	this.value = attrValue;
+}
 }

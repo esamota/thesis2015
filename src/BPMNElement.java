@@ -1,11 +1,13 @@
 import java.util.ArrayList;
 
+import org.apache.commons.collections.ListUtils;
+
 
 public class BPMNElement {
 	
 private String name;
-private ArrayList<BPMNAttribute> fixedAttributes;
-private ArrayList<BPMNAttribute> variableAttributes;
+private ArrayList<BPMNAttribute> attributes;
+
 
 public BPMNElement(){
 	
@@ -13,28 +15,20 @@ public BPMNElement(){
 
 public BPMNElement(String elementName){
 	name = elementName;
-	fixedAttributes = new ArrayList<>();
-	variableAttributes = new ArrayList<>();
-	
+	attributes = new ArrayList<>();	
 }
 
-public void addFixedAttribute(BPMNAttribute fixedAttr){
-	fixedAttributes.add(fixedAttr);
-}
-
-public void addVariableAttribute(BPMNAttribute variableAttr){
-	variableAttributes.add(variableAttr);
+public void addAttribute(BPMNAttribute attr){
+	attributes.add(attr);
 }
 
 public String getElementName(){
 	return name;
 }
 
-public ArrayList<BPMNAttribute> getFixedAttributes(){
-	return fixedAttributes;
+
+public ArrayList<BPMNAttribute> getAttributes(){
+	return attributes;
 }
 
-public ArrayList<BPMNAttribute> getVariableAttributes(){
-	return variableAttributes;
-}
 }

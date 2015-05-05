@@ -15,7 +15,7 @@ public class JSONDictionary {
 
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
-	private static String dictionaryFilePath = "C:\\Users\\Elena\\Desktop\\test.json";
+	public static final String dictionaryFilePath = "C:\\Users\\Elena\\Desktop\\test.json";
 	private static ArrayList<BPMNAttribute> fixedAttributes = new ArrayList();
 	private static ArrayList<BPMNAttribute> variableAttributes = new ArrayList();;
 
@@ -23,12 +23,11 @@ public class JSONDictionary {
 		// TODO Auto-generated method stub
 
 		// call method
-		HashMap<String, BPMNElement> mapping = parseJSONDictionary(dictionaryFilePath);
-
-		System.out.println(mapping);
-		for (String str : mapping.keySet()) {
-			System.out.println(mapping.get(str).getElementName() + " element");
-			for (BPMNAttribute attr : mapping.get(str).getFixedAttributes()) {
+		HashMap<String, BPMNElement> optypeMapping = parseJSONDictionary(dictionaryFilePath);
+		
+		for (String str : optypeMapping.keySet()) {
+			System.out.println(optypeMapping.get(str).getElementName() + " element");
+			for (BPMNAttribute attr : optypeMapping.get(str).getAttributes()) {
 				System.out.println(attr.name + " " + attr.value);
 			}
 		}
@@ -37,7 +36,7 @@ public class JSONDictionary {
 
 	public static HashMap<String, BPMNElement> parseJSONDictionary(
 			String dictionaryFilePath) {
-		HashMap<String, BPMNElement> mapping = new HashMap<String, BPMNElement>();
+		HashMap<String, BPMNElement> optypeMapping = new HashMap<String, BPMNElement>();
 		BPMNElement element = new BPMNElement();
 		BPMNAttribute bpmnAttr;
 
@@ -72,19 +71,19 @@ public class JSONDictionary {
 
 						if (!attrName.equals("") && attrValue.equals("")) {
 							bpmnAttr = new BPMNAttribute(attrName, attrValue);
-							element.addVariableAttribute(bpmnAttr);
-						} else {
-							bpmnAttr = new BPMNAttribute(attrName, attrValue);
-							element.addFixedAttribute(bpmnAttr);
-						}
+							element.addAttribute(bpmnAttr);
+						} 
 					}
 				}
-				mapping.put(xlmName, element);
+				if (xlmCategory.equals("optype")){
+					optypeMapping.put(xlmName, element);
+				}
+				
 			}
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return mapping;
+		return optypeMapping;
 	}
 }
