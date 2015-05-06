@@ -66,12 +66,11 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionary
 				.parseJSONDictionary(JSONDictionary.dictionaryFilePath);
-		ArrayList<BPMNElement> graphElements = fillInAttributeValues(G,
-				ops, mapping);
+		ArrayList<BPMNElement> graphElements = getGraphElements(G, ops, mapping);
 
 		ArrayList<HashMap> elements = new ArrayList<HashMap>();
 		String stringAttributes = "";
-System.out.println(graphElements);
+//System.out.println(graphElements);
 		for (BPMNElement el : graphElements) {
 			HashMap element = new HashMap();
 			for (BPMNAttribute attr : el.getAttributes()) {
@@ -549,10 +548,32 @@ System.out.println(graphElements);
 		}
 	}
 
-	public static ArrayList<BPMNElement> fillInAttributeValues(
+	public static ArrayList<BPMNElement> getGraphElements(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
+			HashMap<String, ArrayList<BPMNElement>> mapping){
+		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
+		//call a method that creates a sequence flow element for each edge
+		ArrayList<BPMNElement> edgeElements = fillInEdgeAttributeValues(G, ops, mapping);
+		ArrayList<BPMNElement> singleElements = fillInAttributeValuesOneToOne(G, ops, mapping);
+		ArrayList<BPMNElement> complexElements = fillInAtrributeValuesOneToMany(ops, mapping);
+		
+		//add sequence flow elements to graphElements
+		for (BPMNElement edgeEl: edgeElements){
+			graphElements.add(edgeEl);
+		}
+		for (BPMNElement singleEl: singleElements){
+			graphElements.add(singleEl);
+		}
+		for (BPMNElement complexEl: complexElements){
+			graphElements.add(complexEl);
+		}
+		
+		return graphElements;
+	}
+	
+	public static ArrayList<BPMNElement> fillInAttributeValuesOneToOne(
 			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
 			HashMap<String, ArrayList<BPMNElement>> mapping) {
-		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
+		ArrayList<BPMNElement> singleElements = new ArrayList<BPMNElement>();
 
 		//one-to-one mappings
 		//*****************************************************************************************
@@ -561,7 +582,7 @@ System.out.println(graphElements);
 			for (String str : mapping.keySet()) {
 				//System.out.println("blah2 str");
 				Random randomGenerator = new Random();
-				String randomID= "0"+randomGenerator.nextInt(100);
+				String randomID= "_0"+randomGenerator.nextInt(100);
 				for(BPMNElement el: mapping.get(str)){
 					System.out.println("blah3 el");
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
@@ -581,50 +602,19 @@ System.out.println(graphElements);
 					}
 				}
 					}
-					graphElements.add(el);
-					System.out.println("after one-to-one "+graphElements);
-				} //***********************************************************************************
-					//one-to-many mapping for Join and LeftOuterJoin		
-				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
-						.toString()) && mapping.get(str).size()>1){	
-
-				for (BPMNAttribute attr : el.getAttributes()) {
-						
-					switch(attr.getAttributeName()){
-					case "name":
-						if(attr.getAttributeValue().equals("")){
-							attr.setAttributeValue(ops.get(key).getOperationName());
-							break;
-						} else if (attr.getAttributeValue().equals("create")){
-							attr.setAttributeValue(str);
-							break;
-						}
-						break;
-					case "id":
-						if(attr.getAttributeValue().equals("") && !el.getElementName().equals("sequenceFlow")){
-							attr.setAttributeValue("_"+ String.valueOf(ops.get(key).getNodeID()));
-							break;
-						} else if (attr.getAttributeValue().equals("create")){
-							attr.setAttributeValue(randomID);
-						} else if (el.getElementName().equals("sequenceFlow")){
-							//System.out.println("source and target ref from inside the case id "+sourceRef+"-"+targetRef);
-							attr.setAttributeValue("_"+String.valueOf(ops.get(key).getNodeID())+"-_"+randomID);
-							break;
-						}
-						break;
-					case "sourceRef":
-						attr.setAttributeValue("_"+String.valueOf(ops.get(key).getNodeID()));
-						break;
-					case "targetRef":
-						attr.setAttributeValue(randomID);
-						break;
-					}
-					}
-					graphElements.add(el);
-				}
+					singleElements.add(el);
+				} 
 			}
 		}
 		}
+
+		//System.out.println(graphElements);
+		return singleElements;
+	}
+	
+	public static ArrayList<BPMNElement> fillInEdgeAttributeValues(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
+			HashMap<String, ArrayList<BPMNElement>> mapping){
+		ArrayList<BPMNElement> edgeElements = new ArrayList<BPMNElement>();
 		for (String str : mapping.keySet()) {
 			if (str.equals("edge")) {
 				for (Object e : G.edgeSet()) {
@@ -652,13 +642,68 @@ System.out.println(graphElements);
 						BPMNAttribute bpmnAttr = new BPMNAttribute(attr.name, attr.value);
 						bpmnElement.addAttribute(bpmnAttr);
 					}
-					graphElements.add(bpmnElement);
+					edgeElements.add(bpmnElement);
 				}
 			}
 		}
 		}
-		//System.out.println(graphElements);
-		return graphElements;
+		return edgeElements;
+	}
+	
+	public static ArrayList<BPMNElement> fillInAtrributeValuesOneToMany (Hashtable<Integer, ETLFlowOperation> ops,
+			HashMap<String, ArrayList<BPMNElement>> mapping){
+		ArrayList<BPMNElement> complexElements = new ArrayList<BPMNElement>();
+		for (Integer key : ops.keySet()) {
+			System.out.println("blah1 ops");
+			for (String str : mapping.keySet()) {
+				//System.out.println("blah2 str");
+				Random randomGenerator = new Random();
+				String randomID= "_0"+randomGenerator.nextInt(100);
+				for(BPMNElement el: mapping.get(str)){
+					//one-to-many mapping for Join and LeftOuterJoin		
+					if (str.equals(ops.get(key).getOperationType().getOpTypeName()
+							.toString()) && mapping.get(str).size()>1){	
+
+					for (BPMNAttribute attr : el.getAttributes()) {
+							
+						switch(attr.getAttributeName()){
+						case "name":
+							if(attr.getAttributeValue().equals("")){
+								attr.setAttributeValue(ops.get(key).getOperationName());
+								break;
+							} else if (attr.getAttributeValue().equals("create")){
+								attr.setAttributeValue(str);
+								break;
+							}
+							break;
+						case "id":
+							if(attr.getAttributeValue().equals("") && !el.getElementName().equals("sequenceFlow")){
+								attr.setAttributeValue("_"+ String.valueOf(ops.get(key).getNodeID()));
+								break;
+							} else if (attr.getAttributeValue().equals("create")){
+								attr.setAttributeValue(randomID);
+							} else if (el.getElementName().equals("sequenceFlow")){
+								//System.out.println("source and target ref from inside the case id "+sourceRef+"-"+targetRef);
+								attr.setAttributeValue("_"+String.valueOf(ops.get(key).getNodeID())+"-"+randomID);
+								break;
+							}
+							break;
+						case "sourceRef":
+							attr.setAttributeValue("_"+String.valueOf(ops.get(key).getNodeID()));
+							break;
+						case "targetRef":
+							attr.setAttributeValue(randomID);
+							break;
+						}
+						}
+						complexElements.add(el);
+					}
+				}
+			}
+			}
+
+			//System.out.println(graphElements);
+			return complexElements;
 	}
 
 }
