@@ -22,12 +22,12 @@ public class JSONDictionary {
 		// TODO Auto-generated method stub
 
 		// call method
-		HashMap<String, BPMNElement> optypeMapping = parseJSONDictionary(dictionaryFilePath);
+		HashMap<String, BPMNElement> mapping = parseJSONDictionary(dictionaryFilePath);
 
-		for (String str : optypeMapping.keySet()) {
-			System.out.println(optypeMapping.get(str).getElementName()
+		for (String str : mapping.keySet()) {
+			System.out.println(mapping.get(str).getElementName()
 					+ " element");
-			for (BPMNAttribute attr : optypeMapping.get(str).getAttributes()) {
+			for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
 				System.out.println(attr.name + " " + attr.value);
 			}
 		}
@@ -77,6 +77,7 @@ public class JSONDictionary {
 				} else if (category.equals("edge")){
 					mapping.put(category, element);
 				}
+				
 
 			}
 		} catch (IOException | ParseException e) {

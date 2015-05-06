@@ -65,26 +65,23 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		HashMap<String, BPMNElement> mapping = JSONDictionary
 				.parseJSONDictionary(JSONDictionary.dictionaryFilePath);
-		fillInVariableAttributesValue(G, ops, mapping);
+		ArrayList<BPMNElement> graphElements = fillInAttributesValues(G,
+				ops, mapping);
 
 		ArrayList<HashMap> elements = new ArrayList<HashMap>();
 		String stringAttributes = "";
-		for (Integer key : ops.keySet()) {
-			for (String str : mapping.keySet()) {
-				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
-						.toString())) {
-					HashMap element = new HashMap();
-					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
-						stringAttributes += attr.name + "=\"" + attr.value
-								+ "\"" + " ";
-					}
-					element.put("attributes", stringAttributes);
-					stringAttributes = "";
-					// System.out.println(optypeMapping.get(str).getElementName());
-					element.put("name", mapping.get(str).getElementName());
-					elements.add(element);
-				}
+
+		for (BPMNElement el : graphElements) {
+			HashMap element = new HashMap();
+			for (BPMNAttribute attr : el.getAttributes()) {
+				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
+			//System.out.println(stringAttributes);
+			element.put("attributes", stringAttributes);
+			stringAttributes = "";
+			// System.out.println(optypeMapping.get(str).getElementName());
+			element.put("name", el.getElementName());
+			elements.add(element);
 		}
 
 		VelocityEngine ve = new VelocityEngine();
@@ -559,27 +556,113 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 	}
 
-	public static void fillInVariableAttributesValue(ETLFlowGraph G,
-			Hashtable<Integer, ETLFlowOperation> ops,
+	public static ArrayList<BPMNElement> fillInAttributesValues(
+			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
 			HashMap<String, BPMNElement> mapping) {
+		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
+
+		//one-to-one mappings
+		//*****************************************************************************************
 		for (Integer key : ops.keySet()) {
 			for (String str : mapping.keySet()) {
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
-						.toString())) {
+						.toString()) && !str.contains("Join")){
 					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
-						if (attr.getAttributeName().equals("name")
-								&& attr.getAttributeValue().equals("")) {
-							attr.setAttributeValue(ops.get(key)
-									.getOperationName());
-						} else if (attr.getAttributeName().equals("id")
-								&& attr.getAttributeValue().equals("") && !str.equals("edge")) {
-							attr.setAttributeValue("_"
-										+ String.valueOf(ops.get(key)
-												.getNodeID()));
-						} 
+						if (attr.getAttributeName().equals("name")){
+								if (attr.getAttributeValue().equals("")) {
+								attr.setAttributeValue(ops.get(key)
+										.getOperationName());
+						} else if (attr.getAttributeName().equals("id") && attr.getAttributeValue().equals("")){
+									attr.setAttributeValue("_"
+									+ String.valueOf(ops.get(key).getNodeID()));
+
 					}
 				}
+					}
+					graphElements.add(mapping.get(str));
+				}
+				//***********************************************************************************
+				//one-to-many mapping for Join and LeftOuterJoin		
+				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
+						.toString()) && str.contains("Join")){
+					int counter = 1;
+					String sourceRef="";
+					String targetRef="";
+					String randomTaskID="";	
+					System.out.println(mapping.get("Join").getElementName());
+				for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
+						
+					switch(attr.getAttributeName()){
+					case "name":
+						if(attr.getAttributeValue().equals("")){
+							attr.setAttributeValue(ops.get(key).getOperationName());
+							break;
+						} else if (attr.getAttributeValue().equals("create")){
+							attr.setAttributeValue(str);
+							break;
+						}
+						break;
+					case "id":
+						if(attr.getAttributeValue().equals("") && !mapping.get(str).getElementName().equals("sequenceFlow")){
+							attr.setAttributeValue("_"+ String.valueOf(ops.get(key).getNodeID()));
+							break;
+						} else if (attr.getAttributeValue().equals("create")){
+							randomTaskID = "_00"+counter;
+						} else if (mapping.get(str).getElementName().equals("sequenceFlow")){
+							System.out.println("source and target ref from inside the case id "+sourceRef+"-"+targetRef);
+							attr.setAttributeValue(sourceRef+"-"+targetRef);
+							break;
+						}
+						counter = counter+1;
+						break;
+					case "sourceRef":
+						sourceRef = "_"+String.valueOf(ops.get(key).getNodeID());
+						attr.setAttributeValue(sourceRef);
+						break;
+					case "targetRef":
+						targetRef = randomTaskID;
+						attr.setAttributeValue(targetRef);
+						break;
+					}
+					}
+					graphElements.add(mapping.get(str));
+				
 			}
+		}
+		}
+		for (String str : mapping.keySet()) {
+			if (str.equals("edge")) {
+				for (Object e : G.edgeSet()) {
+					BPMNElement bpmnElement = new BPMNElement(mapping.get(str).getElementName());
+					
+					// adding link
+					ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+					ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
+						if (attr.getAttributeName().equals("sourceRef")) {
+							attr.setAttributeValue("_"
+									+ String.valueOf(opS.getNodeID()));
+
+						} else if (attr.getAttributeName().equals("targetRef")) {
+							attr.setAttributeValue("_"
+									+ String.valueOf(opT.getNodeID()));
+
+						} else if (attr.getAttributeName().equals("id")) {
+							attr.setAttributeValue("_"
+									+ String.valueOf(opS.getNodeID()) + "-_"
+									+ String.valueOf(opT.getNodeID()));
+							//System.out.println(attr.name + " " + attr.value);
+
+						}
+						BPMNAttribute bpmnAttr = new BPMNAttribute(attr.name, attr.value);
+						bpmnElement.addAttribute(bpmnAttr);
+					}
+					graphElements.add(bpmnElement);
+				}
+			}
+		}
+		System.out.println(graphElements);
+		return graphElements;
 	}
-	}
+
 }
