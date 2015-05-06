@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Random;
 
 import operationDictionary.ETLOperationType;
 import operationDictionary.OperationTypeName;
@@ -63,14 +64,14 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		HashMap<String, BPMNElement> mapping = JSONDictionary
+		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionary
 				.parseJSONDictionary(JSONDictionary.dictionaryFilePath);
-		ArrayList<BPMNElement> graphElements = fillInAttributesValues(G,
+		ArrayList<BPMNElement> graphElements = fillInAttributeValues(G,
 				ops, mapping);
 
 		ArrayList<HashMap> elements = new ArrayList<HashMap>();
 		String stringAttributes = "";
-
+System.out.println(graphElements);
 		for (BPMNElement el : graphElements) {
 			HashMap element = new HashMap();
 			for (BPMNAttribute attr : el.getAttributes()) {
@@ -147,7 +148,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
 		for (Integer i : allSourceNodes) {
 			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
-				System.out.println("lala: " + i);
+				//System.out.println("lala: " + i);
 				for (Object e : G.edgeSet()) {
 					// is there a simpler way to do this????
 					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
@@ -167,7 +168,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				sourceNodes.add(i);
 			}
 		}
-		System.out.println("sourceNodes " + allSourceNodes);
+		//System.out.println("sourceNodes " + allSourceNodes);
 		// sourceNodes.remove(34);
 
 		// fill in the source arraylist
@@ -190,7 +191,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 
 		for (Integer i : allTargetNodes) {
 			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
-				System.out.println("all target nodes: " + i);
+				//System.out.println("all target nodes: " + i);
 				for (Object e : G.edgeSet()) {
 					// is there a simpler way to do this????
 					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
@@ -204,7 +205,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				targetNodes.add(i);
 			}
 		}
-		System.out.println("not datastore target nodes " + targetNodes);
+		//System.out.println("not datastore target nodes " + targetNodes);
 
 		// fill in the source arraylist
 		for (Integer i : targetNodes) {
@@ -479,14 +480,6 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<String> uniquePools = new ArrayList<String>();
 		// System.out.println("engineTypes before " + engineTypes);
 		for (Integer i : ops.keySet()) {
-			// System.out.println("engine "+ ops.get(i).getEngine()+
-			// "node "+ops.get(i).getOperationName() +
-			// "flow id "+ops.get(i).getParentFlowID());
-			// System.out.println("get engine "
-			// +ops.get(i).getEngine().toString());
-			// System.out.println("engineTypes contains " +
-			// engineTypes.contains(ops.get(i).getEngine().toString()));
-			// System.out.println("flow id: " +ops.get(i).getParentFlowID());
 			if (!engineTypes.contains(ops.get(i).getEngine().toString())) {
 				engineTypes.add(ops.get(i).getEngine().toString());
 			} else if (ops.get(i).getEngine().toString().isEmpty()) {
@@ -556,41 +549,46 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 	}
 
-	public static ArrayList<BPMNElement> fillInAttributesValues(
+	public static ArrayList<BPMNElement> fillInAttributeValues(
 			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
-			HashMap<String, BPMNElement> mapping) {
+			HashMap<String, ArrayList<BPMNElement>> mapping) {
 		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
 
 		//one-to-one mappings
 		//*****************************************************************************************
 		for (Integer key : ops.keySet()) {
+			System.out.println("blah1 ops");
 			for (String str : mapping.keySet()) {
+				//System.out.println("blah2 str");
+				Random randomGenerator = new Random();
+				String randomID= "0"+randomGenerator.nextInt(100);
+				for(BPMNElement el: mapping.get(str)){
+					System.out.println("blah3 el");
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
-						.toString()) && !str.contains("Join")){
-					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
-						if (attr.getAttributeName().equals("name")){
-								if (attr.getAttributeValue().equals("")) {
-								attr.setAttributeValue(ops.get(key)
-										.getOperationName());
-						} else if (attr.getAttributeName().equals("id") && attr.getAttributeValue().equals("")){
-									attr.setAttributeValue("_"
+						.toString()) && mapping.get(str).size() == 1){
+					for (BPMNAttribute attr : el.getAttributes()) {
+						
+					if (attr.getAttributeValue().equals("")){
+						System.out.println(attr.getAttributeName());
+						switch(attr.getAttributeName()){
+						case "name":
+							attr.setAttributeValue(ops.get(key).getOperationName());
+								break;
+						case "id":
+							attr.setAttributeValue("_"
 									+ String.valueOf(ops.get(key).getNodeID()));
-
+							break;
 					}
 				}
 					}
-					graphElements.add(mapping.get(str));
-				}
-				//***********************************************************************************
-				//one-to-many mapping for Join and LeftOuterJoin		
+					graphElements.add(el);
+					System.out.println("after one-to-one "+graphElements);
+				} //***********************************************************************************
+					//one-to-many mapping for Join and LeftOuterJoin		
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
-						.toString()) && str.contains("Join")){
-					int counter = 1;
-					String sourceRef="";
-					String targetRef="";
-					String randomTaskID="";	
-					System.out.println(mapping.get("Join").getElementName());
-				for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
+						.toString()) && mapping.get(str).size()>1){	
+
+				for (BPMNAttribute attr : el.getAttributes()) {
 						
 					switch(attr.getAttributeName()){
 					case "name":
@@ -603,42 +601,39 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 						}
 						break;
 					case "id":
-						if(attr.getAttributeValue().equals("") && !mapping.get(str).getElementName().equals("sequenceFlow")){
+						if(attr.getAttributeValue().equals("") && !el.getElementName().equals("sequenceFlow")){
 							attr.setAttributeValue("_"+ String.valueOf(ops.get(key).getNodeID()));
 							break;
 						} else if (attr.getAttributeValue().equals("create")){
-							randomTaskID = "_00"+counter;
-						} else if (mapping.get(str).getElementName().equals("sequenceFlow")){
-							System.out.println("source and target ref from inside the case id "+sourceRef+"-"+targetRef);
-							attr.setAttributeValue(sourceRef+"-"+targetRef);
+							attr.setAttributeValue(randomID);
+						} else if (el.getElementName().equals("sequenceFlow")){
+							//System.out.println("source and target ref from inside the case id "+sourceRef+"-"+targetRef);
+							attr.setAttributeValue("_"+String.valueOf(ops.get(key).getNodeID())+"-_"+randomID);
 							break;
 						}
-						counter = counter+1;
 						break;
 					case "sourceRef":
-						sourceRef = "_"+String.valueOf(ops.get(key).getNodeID());
-						attr.setAttributeValue(sourceRef);
+						attr.setAttributeValue("_"+String.valueOf(ops.get(key).getNodeID()));
 						break;
 					case "targetRef":
-						targetRef = randomTaskID;
-						attr.setAttributeValue(targetRef);
+						attr.setAttributeValue(randomID);
 						break;
 					}
 					}
-					graphElements.add(mapping.get(str));
-				
+					graphElements.add(el);
+				}
 			}
 		}
 		}
 		for (String str : mapping.keySet()) {
 			if (str.equals("edge")) {
 				for (Object e : G.edgeSet()) {
-					BPMNElement bpmnElement = new BPMNElement(mapping.get(str).getElementName());
-					
 					// adding link
 					ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 					ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
-					for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
+					for (BPMNElement el: mapping.get(str)){
+					BPMNElement bpmnElement = new BPMNElement(el.getElementName());
+					for (BPMNAttribute attr : el.getAttributes()) {
 						if (attr.getAttributeName().equals("sourceRef")) {
 							attr.setAttributeValue("_"
 									+ String.valueOf(opS.getNodeID()));
@@ -661,7 +656,8 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				}
 			}
 		}
-		System.out.println(graphElements);
+		}
+		//System.out.println(graphElements);
 		return graphElements;
 	}
 

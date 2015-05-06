@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.lang.model.util.Elements;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,22 +24,26 @@ public class JSONDictionary {
 		// TODO Auto-generated method stub
 
 		// call method
-		HashMap<String, BPMNElement> mapping = parseJSONDictionary(dictionaryFilePath);
+		HashMap<String, ArrayList<BPMNElement>> mapping = parseJSONDictionary(dictionaryFilePath);
 
 		for (String str : mapping.keySet()) {
-			System.out.println(mapping.get(str).getElementName()
-					+ " element");
-			for (BPMNAttribute attr : mapping.get(str).getAttributes()) {
-				System.out.println(attr.name + " " + attr.value);
+			for (BPMNElement el : mapping.get(str)) {
+				
+				if (str.equals("Join")){
+				for (BPMNAttribute attr : el.getAttributes()) {
+					//System.out.println(attr.name + " " + attr.value);
+				}
+			}
 			}
 		}
 
 	}
 
-	public static HashMap<String, BPMNElement> parseJSONDictionary(
+	public static HashMap<String, ArrayList<BPMNElement>> parseJSONDictionary(
 			String dictionaryFilePath) {
-		HashMap<String, BPMNElement> mapping = new HashMap<String, BPMNElement>();
+		HashMap<String, ArrayList<BPMNElement>> mapping = new HashMap<String, ArrayList<BPMNElement>>();
 		BPMNElement element = new BPMNElement();
+		ArrayList<BPMNElement> elementsPerOptype = new ArrayList<BPMNElement>();
 		BPMNAttribute bpmnAttr;
 
 		JSONParser parser = new JSONParser();
@@ -71,13 +77,15 @@ public class JSONDictionary {
 						bpmnAttr = new BPMNAttribute(attrName, attrValue);
 						element.addAttribute(bpmnAttr);
 					}
+					elementsPerOptype.add(element);
 				}
+				//System.out.println(xlmName+" "+ elementsPerOptype);
 				if (category.equals("optype")) {
-					mapping.put(xlmName, element);
-				} else if (category.equals("edge")){
-					mapping.put(category, element);
+					mapping.put(xlmName, new ArrayList<BPMNElement>(elementsPerOptype));
+				} else if (category.equals("edge")) {
+					mapping.put(category, new ArrayList<BPMNElement>(elementsPerOptype));
 				}
-				
+			elementsPerOptype.clear();
 
 			}
 		} catch (IOException | ParseException e) {
