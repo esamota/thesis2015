@@ -624,8 +624,13 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 					for (BPMNElement el: mapping.get(str)){
 					BPMNElement bpmnElement = new BPMNElement(el.getElementName());
 					for (BPMNAttribute attr : el.getAttributes()) {
+						String optypeName = opS.getOperationType().getOpTypeName().name();
 						if (attr.getAttributeName().equals("sourceRef")) {
-							attr.setAttributeValue("_"
+							if (optypeName.contains("Join") || optypeName.equals(OperationTypeName.Merger)){
+								//to match the id of the newly inserted task after the parallel gateway
+								attr.setAttributeValue("_0"
+										+ String.valueOf(opS.getNodeID()));
+							}else attr.setAttributeValue("_"
 									+ String.valueOf(opS.getNodeID()));
 
 						} else if (attr.getAttributeName().equals("targetRef")) {
@@ -633,11 +638,15 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 									+ String.valueOf(opT.getNodeID()));
 
 						} else if (attr.getAttributeName().equals("id")) {
+							if (optypeName.contains("Join") || optypeName.equals(OperationTypeName.Merger)){
+								attr.setAttributeValue("_0"
+										+ String.valueOf(opS.getNodeID()) + "-_"
+										+ String.valueOf(opT.getNodeID()));	
+							} else
 							attr.setAttributeValue("_"
 									+ String.valueOf(opS.getNodeID()) + "-_"
 									+ String.valueOf(opT.getNodeID()));
 							//System.out.println(attr.name + " " + attr.value);
-
 						}
 						BPMNAttribute bpmnAttr = new BPMNAttribute(attr.name, attr.value);
 						bpmnElement.addAttribute(bpmnAttr);
@@ -657,8 +666,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			System.out.println("blah1 ops");
 			for (String str : mapping.keySet()) {
 				//System.out.println("blah2 str");
-				Random randomGenerator = new Random();
-				String randomID= "_0"+randomGenerator.nextInt(100);
+				/*Random randomGenerator = new Random();
+				String randomID= "_0"+randomGenerator.nextInt(100);*/
+				String randomID="_0"+String.valueOf(ops.get(key).getNodeID());
 				for(BPMNElement el: mapping.get(str)){
 					//one-to-many mapping for Join and LeftOuterJoin		
 					if (str.equals(ops.get(key).getOperationType().getOpTypeName()
@@ -695,6 +705,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 							attr.setAttributeValue(randomID);
 							break;
 						}
+						//for a sequence flow coming out of the task
+						/*BPMNElement seqFlow2 = new BPMNElement("sequenceFlow");
+						BPMNAttribute attr1 = new BPMNAttribute("sourceRef", "randomID");
+						BPMNAttribute attr2 = new BPMNAttribute("targetRef", );*/
 						}
 						complexElements.add(el);
 					}
