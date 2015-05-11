@@ -1,3 +1,22 @@
-#foreach ($element in $elements)
+## print collaboration block here
+#foreach ($element in $collaborationElements)
+<$element.name $element.attributes>
+	#foreach ($element in $subElements)
+		<$element.name $element.attributes />
+	#end
+<$element.name />
+#end
+
+#foreach ($element in $simpleElements)
 <$element.name $element.attributes />
 #end
+
+#foreach ($element in $complexElements)
+<$element.name $element.attributes>
+	#foreach ($element in $subElements)
+		<$element.name $element.attributes />
+	#end
+<$element.name />
+#end
+
+

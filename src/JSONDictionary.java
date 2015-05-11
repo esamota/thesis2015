@@ -24,8 +24,8 @@ public class JSONDictionary {
 		// TODO Auto-generated method stub
 
 		// call method
-		HashMap<String, ArrayList<BPMNElement>> mapping = parseJSONDictionary(dictionaryFilePath);
-
+		HashMap<String, ArrayList<BPMNElement>> mapping = parseJSONDictionary();
+		HashMap<String, ArrayList<String>> flagMapping = getPatternFlagsPerNode();
 		for (String str : mapping.keySet()) {
 			for (BPMNElement el : mapping.get(str)) {
 				
@@ -36,25 +36,44 @@ public class JSONDictionary {
 			}
 			}
 		}
+		for (String optype: flagMapping.keySet()){
+			for (String flagName: flagMapping.get(optype)){
+				if(optype.equals("TableInput")){
+					System.out.println(optype+" "+flagName);
+				}
+			}
+		}
 
 	}
-
-	public static HashMap<String, ArrayList<BPMNElement>> parseJSONDictionary(
-			String dictionaryFilePath) {
-		HashMap<String, ArrayList<BPMNElement>> mapping = new HashMap<String, ArrayList<BPMNElement>>();
-		BPMNElement element = new BPMNElement();
-		ArrayList<BPMNElement> elementsPerOptype = new ArrayList<BPMNElement>();
-		BPMNAttribute bpmnAttr;
-
+	
+	public static JSONArray getJSONRootObject(){
 		JSONParser parser = new JSONParser();
 		Object obj;
+		JSONArray dictionary = new JSONArray();
 
 		try {
 			obj = parser.parse(new FileReader(dictionaryFilePath));
 			JSONObject jsonObject = (JSONObject) obj;
 
 			// loop through the root array
-			JSONArray dictionary = (JSONArray) jsonObject.get("nodeDictionary");
+			dictionary = (JSONArray) jsonObject.get("nodeDictionary");
+	} catch (IOException | ParseException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+		
+		return dictionary;	
+	}
+
+	public static HashMap<String, ArrayList<BPMNElement>> parseJSONDictionary() {
+		HashMap<String, ArrayList<BPMNElement>> mapping = new HashMap<String, ArrayList<BPMNElement>>();
+		//hashMap between opType and the name of the pattern that could start at the node
+		BPMNElement element = new BPMNElement();
+		ArrayList<BPMNElement> elementsPerOptype = new ArrayList<BPMNElement>();
+		BPMNAttribute bpmnAttr;
+
+			// loop through the root array
+			JSONArray dictionary = getJSONRootObject();
 
 			Integer size = dictionary.size();
 
@@ -86,12 +105,33 @@ public class JSONDictionary {
 					mapping.put(category, new ArrayList<BPMNElement>(elementsPerOptype));
 				}
 			elementsPerOptype.clear();
-
 			}
-		} catch (IOException | ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return mapping;
+	}
+	
+	public static HashMap<String, ArrayList<String>> getPatternFlagsPerNode(){
+		HashMap<String, ArrayList<String>> flagMapping = new HashMap<String, ArrayList<String>>();
+		JSONArray dictionary = getJSONRootObject();
+
+		Integer size = dictionary.size();
+
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String category = (String) root.get("category");
+			String xlmName = (String) root.get("xlmName");
+			
+			JSONArray patternFlag = (JSONArray) root.get("patternFlag");
+			ArrayList<String> flagNames = new ArrayList<String>();
+			for (int f=0; f <patternFlag.size(); f++){
+				JSONObject flag = (JSONObject) patternFlag.get(f);
+				String flagName = (String) flag.get("name");
+				flagNames.add(flagName);
+			}
+			if (category.equals("optype")) {
+				flagMapping.put(xlmName, new ArrayList<String>(flagNames));
+			}
+			flagNames.clear();
+		}
+			return flagMapping;
 	}
 }

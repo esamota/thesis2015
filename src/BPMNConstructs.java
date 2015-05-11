@@ -62,35 +62,81 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
+		//all graph operations
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		//parsed JSON dictionary
 		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionary
-				.parseJSONDictionary(JSONDictionary.dictionaryFilePath);
+				.parseJSONDictionary();
+		//gets an array list of pattern name flags for each optype in the dictionary
+		HashMap<String, ArrayList<String>> flagMapping = JSONDictionary.getPatternFlagsPerNode();
+		//all elements from the dictionary that belong to the graph of this xLM document
 		ArrayList<BPMNElement> graphElements = getGraphElements(G, ops, mapping);
-
-		ArrayList<HashMap> elements = new ArrayList<HashMap>();
+		//add a dataStore element in case it needs to be references by one of the elements
+		graphElements.add(createDataStoreElement());
+		//all elements that belong inside of a process tag and require a 
+		// single--one-line self closing tag, like a task without i/o's
+		ArrayList<HashMap> simpleProcessElements = new ArrayList<HashMap>();
+		//all elements that belong inside of a process but have subelements inside, like a task with an I/O
+		ArrayList<HashMap> complexProcessElements = new ArrayList<HashMap>();
+		//all elements that are inside another element, like the data I/O association
+		ArrayList<HashMap> subElements = new ArrayList<HashMap>();
+		//all elements necessary to fill in the collaboration for the bpmn model
+		ArrayList<HashMap> collaborationElements = new ArrayList<HashMap>();
+		//all elements that belong after the process tag is over, eg dataStore
+		ArrayList<HashMap> nonProcessElements = new ArrayList<HashMap>();
+		//all header elements that belong in the beginning of each bpmn model before the process starts
+		ArrayList<HashMap> headerElements = new ArrayList<HashMap>();
+		
 		String stringAttributes = "";
 //System.out.println(graphElements);
+		
 		for (BPMNElement el : graphElements) {
+			System.out.println(el.getElementName()+" "+el.getSubElements().size());
 			HashMap element = new HashMap();
+			
 			for (BPMNAttribute attr : el.getAttributes()) {
 				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
-			//System.out.println(stringAttributes);
+			
 			element.put("attributes", stringAttributes);
 			stringAttributes = "";
 			// System.out.println(optypeMapping.get(str).getElementName());
 			element.put("name", el.getElementName());
-			elements.add(element);
+			if(el.getSubElements().size() < 1){
+				//create a dataStore for each process even if it is not being referenced later
+				if(el.getElementName().equals(BPMNElementTagName.dataStore.name())){
+					nonProcessElements.add(element);
+				} else 
+				simpleProcessElements.add(element);
+			}
+			else if(el.getSubElements().size() >= 1){
+				if(el.getElementName().equals(BPMNElementTagName.collaboration.name())){
+					collaborationElements.add(element);
+				} else
+					complexProcessElements.add(element);
+			for (BPMNElement subEl: el.getSubElements()){
+				HashMap subElement = new HashMap();
+				subElement.put("name", subEl.getElementName());
+				for (BPMNAttribute attr : subEl.getAttributes()) {
+					stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
+			}
+				subElement.put("attributes", stringAttributes);		
+				stringAttributes = "";
+			subElements.add(subElement);
+			}
 		}
-
+		}
+		
+		//System.out.println(simpleElements);
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate("vmTemplates2//jsonTest.vm");
 		VelocityContext context = new VelocityContext();
-		context.put("elements", elements);
-		// context.put("attributes", attributes);
-
+		context.put("simpleElements", simpleProcessElements);
+		context.put("complexElements", complexProcessElements);
+		context.put("collaborationElements", collaborationElements);
+		context.put("subElements", subElements);
 		StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 
@@ -471,6 +517,7 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		return nodesWithDBOutput;
 	}
 
+	//this was necessary for the hardcoded part, can be removed after getPoolElements method is finished
 	public static ArrayList<HashMap> flowEngineTypes(
 			Hashtable<Integer, ETLFlowOperation> ops) {
 		ArrayList<String> engineTypes = new ArrayList<String>();
@@ -510,6 +557,59 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		return pools;
 	}
 
+	public static ArrayList<BPMNElement> getPoolElements(
+			Hashtable<Integer, ETLFlowOperation> ops) {
+		ArrayList<BPMNElement> poolElements = new ArrayList<BPMNElement>();	
+		BPMNElement collaborationElement = new BPMNElement(BPMNElementTagName.collaboration.name());
+		BPMNAttribute collAttr1 = new BPMNAttribute("id", "COLLABORATION_1");
+		BPMNAttribute collAttr2 = new BPMNAttribute("isClosed", "false");
+		collaborationElement.addAttribute(collAttr1);
+		collaborationElement.addAttribute(collAttr2);
+		poolElements.add(collaborationElement);
+		
+		ArrayList<String> engineTypes = new ArrayList<String>();
+		ArrayList<HashMap> pools = new ArrayList<HashMap>();
+		ArrayList<Integer> flowIDs = new ArrayList<Integer>();
+		ArrayList<String> uniquePools = new ArrayList<String>();
+		// System.out.println("engineTypes before " + engineTypes);
+		for (Integer i : ops.keySet()) {
+			if (!engineTypes.contains(ops.get(i).getEngine().toString())) {
+				engineTypes.add(ops.get(i).getEngine().toString());
+			} else if (ops.get(i).getEngine().toString().isEmpty()) {
+				System.out.println("empty engine info");
+			}
+			if (!flowIDs.contains(ops.get(i).getParentFlowID())) {
+				flowIDs.add(ops.get(i).getParentFlowID());
+			}
+		}
+		int counter = 1;
+		for (Integer i : flowIDs) {
+			for (String str : engineTypes) {
+				//create a process element for each pool
+				BPMNElement processElement = new BPMNElement(BPMNElementTagName.process.name());
+				BPMNAttribute processAttr1 = new BPMNAttribute("id", "PROCESS_"+counter);
+				BPMNAttribute processAttr2 = new BPMNAttribute("isExecutable", "false");
+				BPMNAttribute processAttr3 = new BPMNAttribute("processType", "None");
+				BPMNAttribute processAttr4 = new BPMNAttribute("name", str+"_"+i );
+				ArrayList<BPMNAttribute> processAttributes = new ArrayList<BPMNAttribute>();
+				processAttributes.addAll(Arrays.asList(processAttr1, processAttr2, processAttr3, processAttr4));
+				processElement.addAttributes(processAttributes);
+				//create a participant element for each pool
+				BPMNElement participantElement = new BPMNElement(BPMNElementTagName.participant.name());
+				BPMNAttribute partAttr1 = new BPMNAttribute("id", "_"+counter);
+				BPMNAttribute partAttr2 = new BPMNAttribute("name", str + "_" + i);
+				BPMNAttribute partAttr3 = new BPMNAttribute("processRef", "PROCESS_"+counter);
+				ArrayList<BPMNAttribute> participantAttributes = new ArrayList<BPMNAttribute>();
+				participantAttributes.addAll(Arrays.asList(partAttr1, partAttr2, partAttr3));
+				participantElement.addAttributes(participantAttributes);
+				collaborationElement.addSubElement(participantElement);
+				counter = counter +1;
+				poolElements.add(processElement);
+			}
+		}
+		System.out.println("engineTypes " + engineTypes);
+		return poolElements;
+	}
 	public static void fillInBlockingFlag() {
 		nonBlockingOperations.addAll(Arrays.asList(OperationTypeName.Splitter,
 				OperationTypeName.Router, OperationTypeName.Merger,
@@ -547,6 +647,13 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			}
 		}
 	}
+	
+	public static void getGraphElementsPerParticipant(){
+		//for each participant, or unique pool, add all tasks that belong there as subelements of the process element
+		//then return the process elements to the printing method
+		
+		
+	}
 
 	public static ArrayList<BPMNElement> getGraphElements(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
 			HashMap<String, ArrayList<BPMNElement>> mapping){
@@ -555,6 +662,8 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		ArrayList<BPMNElement> edgeElements = fillInEdgeAttributeValues(G, ops, mapping);
 		ArrayList<BPMNElement> singleElements = fillInAttributeValuesOneToOne(G, ops, mapping);
 		ArrayList<BPMNElement> complexElements = fillInAtrributeValuesOneToMany(ops, mapping);
+		ArrayList<BPMNElement> poolElements = getPoolElements(ops);
+		
 		
 		//add sequence flow elements to graphElements
 		for (BPMNElement edgeEl: edgeElements){
@@ -565,6 +674,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 		for (BPMNElement complexEl: complexElements){
 			graphElements.add(complexEl);
+		}
+		
+		for (BPMNElement poolEl: poolElements){
+			graphElements.add(poolEl);
 		}
 		
 		return graphElements;
@@ -578,13 +691,11 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		//one-to-one mappings
 		//*****************************************************************************************
 		for (Integer key : ops.keySet()) {
-			System.out.println("blah1 ops");
 			for (String str : mapping.keySet()) {
 				//System.out.println("blah2 str");
-				Random randomGenerator = new Random();
-				String randomID= "_0"+randomGenerator.nextInt(100);
+				//Random randomGenerator = new Random();
+				//String randomID= "_0"+randomGenerator.nextInt(100);
 				for(BPMNElement el: mapping.get(str)){
-					System.out.println("blah3 el");
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
 						.toString()) && mapping.get(str).size() == 1){
 					for (BPMNAttribute attr : el.getAttributes()) {
@@ -718,6 +829,16 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 
 			//System.out.println(graphElements);
 			return complexElements;
+	}
+	
+	public static BPMNElement createDataStoreElement(){
+		BPMNElement dataStoreElement = new BPMNElement(BPMNElementTagName.dataStore.name());
+		BPMNAttribute attr1 = new BPMNAttribute("id", "DS_1");
+		BPMNAttribute attr2 = new BPMNAttribute("isUnlimited", "false");
+		dataStoreElement.addAttribute(attr1);
+		dataStoreElement.addAttribute(attr2);
+		
+		return dataStoreElement;
 	}
 
 }
