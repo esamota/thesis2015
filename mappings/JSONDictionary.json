@@ -1,0 +1,225 @@
+{
+"nodeDictionary":[
+
+{"category": "optype",
+"name": "Filter",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":"p1"}, {"name":"p2"}]
+},
+
+{"category": "optype",
+"name": "Grouper",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "Sort",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]																				
+},
+
+{"category": "optype",
+"name": "Project",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "AttributeAddition",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "Project",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "Distinct",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "Rename",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "TopK",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "UserDefinedFunction",
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "Splitter",
+"bpmnElement": [{"name":"complexGateway", "attributes":[{"name":"gatewayDirection","value":"Unspecified"}, 
+												{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]},
+				{"name":"conditionExpression", "attributes":[], "text":""}],
+"patternFlag":[{"name":""}]
+},
+							 
+{"category": "optype",
+"name": "Union",
+"bpmnElement": [{"name":"parallelGateway","attributes":[{"name":"gatewayDirection","value":"Converging"},
+														{"name":"id", "value":""}, 
+														{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+							 
+{"category": "optype",
+"name": "Merger",
+"bpmnElement": [{"name":"parallelGateway", "attributes":[{"name":"gatewayDirection","value":"Converging"},
+														{"name":"id", "value":""}, 
+														{"name":"name", "value":""}]},
+				{"name":"sequenceFlow", "attributes":[{"name":"id", "value": ""},
+													{"name":"sourceRef", "value":""},
+													{"name":"targetRef", "value": ""}]},
+				{"name":"task", "attributes":[{"name":"name","value":"Select Distinct"},
+											{"name":"id", "value":"create"}]}],
+"patternFlag":[{"name":""}]
+},
+							 
+{"category": "optype",
+"name": "Voter",
+"bpmnElement": [{"name":"eventBasedGateway","attributes":[{"name":"gatewayDirection","value":"Mixed"},
+														{"name":"id", "value":""}, 
+														{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "Router",
+"bpmnElement": [{"name":"parallelGateway","attributes":[{"name":"gatewayDirection","value":"Diverging"},
+														{"name":"id", "value":""}, 
+														{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category":"optype",
+"name": "Join",
+"bpmnElement":[{"name":"parallelGateway","attributes":[{"name":"gatewayDirection", "value":"Converging"},
+												{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]},
+				{"name":"sequenceFlow", "attributes":[{"name":"id", "value": ""},
+													{"name":"sourceRef", "value":""},
+													{"name":"targetRef", "value": ""}]},
+				{"name":"task", "attributes":[{"name":"id", "value":"create"}, 
+												{"name":"name", "value":"create"}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category":"optype",
+"name": "LeftOuterJoin",
+"bpmnElement":[{"name":"task", "attributes":[{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]},
+				{"name":"parallelGateway","attributes":[{"name":"gatewayDirection", "value":"Converging"},
+												{"name":"id", "value":""}, 
+												{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "TableInput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""}, 
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "TableOutput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""}, 
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "FileInput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""}, 
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "FileOutput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""}, 
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "XMLInput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""}, 
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "XMLOutput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""},
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "ExcelInput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""}, 
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "optype",
+"name": "ExcelOutput",
+"bpmnElement": [{"name":"dataStoreReference", "attributes": [{"name":"dataStoreRef", "value":"DS_1"},
+															{"name":"id", "value":""},
+															{"name":"name", "value":""}]}],
+"patternFlag":[{"name":""}]
+},
+
+{"category": "edge",
+"name": "N/A",
+"bpmnElement": [{"name":"sequenceFlow", "attributes":[{"name":"id", "value": ""},
+													{"name":"sourceRef", "value":""},
+													{"name":"targetRef", "value": ""}]}],
+"patternFlag":[{"name":""}]
+}
+]
+
+"patternDictionary":[
+{"name":"p1",
+"start":[{"optype":"Sort"}],
+"middle":[{"optype":"Merge"}],
+"end": []
+}
+
+]
+}
+
