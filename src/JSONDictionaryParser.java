@@ -25,7 +25,10 @@ public class JSONDictionaryParser {
 
 		// call method
 		HashMap<String, ArrayList<BPMNElement>> mapping = parseNodeDictionary();
-		HashMap<String, ArrayList<String>> flagMapping = parseNodePatternFlags();
+		HashMap<String, ArrayList<String>> flagMapping = getNodePatternFlags();
+		HashMap<String, ArrayList<String>> startProperties = getStartPatternProperties("sortMerge");
+		System.out.println(startProperties);
+	
 		for (String str : mapping.keySet()) {
 			for (BPMNElement el : mapping.get(str)) {
 				
@@ -38,7 +41,7 @@ public class JSONDictionaryParser {
 		for (String optype: flagMapping.keySet()){
 			for (String flagName: flagMapping.get(optype)){
 				if(optype.equals("TableInput")){
-					System.out.println(optype+" "+flagName);
+					//System.out.println(optype+" "+flagName);
 				}
 			}
 		}
@@ -110,7 +113,7 @@ public class JSONDictionaryParser {
 		return mapping;
 	}
 	
-	public static HashMap<String, ArrayList<String>> parseNodePatternFlags(){
+	public static HashMap<String, ArrayList<String>> getNodePatternFlags(){
 		HashMap<String, ArrayList<String>> flagMapping = new HashMap<String, ArrayList<String>>();
 		JSONArray dictionary = getJSONRootObject("nodeDictionary");
 
@@ -136,16 +139,90 @@ public class JSONDictionaryParser {
 			return flagMapping;
 	}
 	
-	public static void parsePatternDictionary(){
+	public static HashMap<String, ArrayList<String>>  getStartPatternProperties(String name){
 		JSONArray dictionary = getJSONRootObject("patternDictionary");
 		Integer size = dictionary.size();
-
+		HashMap<String, ArrayList<String>> startProperties = new HashMap<String, ArrayList<String>>();
+		ArrayList<String> propValues = new ArrayList<String>(); 
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
-			String patternStart = (String) root.get("start");
-			
+			if (patternName.equals(name)){
+			JSONArray patternStart = (JSONArray) root.get("start");
+			for (int s =0; s < patternStart.size(); s++){
+				JSONObject start = (JSONObject) patternStart.get(s);
+				String xlmElement = (String) start.get("name");
+				System.out.println(xlmElement);
+				JSONArray properties = (JSONArray) start.get("property");
+				for(int p=0; p < properties.size(); p++){
+					JSONObject prop = (JSONObject) properties.get(p);
+					String propertyName = (String) prop.get("name");
+					String propertyValue = (String) prop.get("value");
+					if(startProperties.containsKey(propertyName)){
+						propValues.add(propertyValue);
+					} else if(!startProperties.containsKey(propertyName)){
+						propValues.add(propertyValue);
+						startProperties.put(propertyName, propValues);
+				}
+			}
 		}
+			}
+		}
+		return startProperties;
+	}
+	
+	public static ArrayList<HashMap> getMiddlePatternProperties(){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		ArrayList<HashMap> middleProperties = new ArrayList<HashMap>();
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+				JSONArray patternMiddle = (JSONArray) root.get("middle");
+				for(int m=0; m < patternMiddle.size(); m++){
+					JSONObject middle = (JSONObject) patternMiddle.get(m);
+					String xlmElement = (String) middle.get("name");
+					System.out.println(xlmElement);
+					JSONArray properties = (JSONArray) middle.get("property");
+					for(int p=0; p < properties.size(); p++){
+						JSONObject prop = (JSONObject) properties.get(p);
+						String propertyName = (String) prop.get("name");
+						String propertyValue = (String) prop.get("value");
+						HashMap middleProperty = new HashMap();
+						middleProperty.put(propertyName, propertyValue);
+						middleProperties.add(middleProperty);
+					}
+				}
+			}
+			return middleProperties;
 		
 	}
+	
+	public static ArrayList<HashMap> getPatternEndProperties(){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		ArrayList<HashMap> endProperties = new ArrayList<HashMap>();
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+				JSONArray patternEnd = (JSONArray) root.get("end");
+				for(int m=0; m < patternEnd.size(); m++){
+					JSONObject end = (JSONObject) patternEnd.get(m);
+					String xlmElement = (String) end.get("name");
+					System.out.println(xlmElement);
+					JSONArray properties = (JSONArray) end.get("property");
+					for(int p=0; p < properties.size(); p++){
+						JSONObject prop = (JSONObject) properties.get(p);
+						String propertyName = (String) prop.get("name");
+						String propertyValue = (String) prop.get("value");
+						HashMap endProperty = new HashMap();
+						endProperty.put(propertyName, propertyValue);
+						endProperties.add(endProperty);
+					}
+				}
+			}
+			return endProperties;	
+	}
+	
+
 }

@@ -19,7 +19,7 @@
 "name": "Sort",
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
 												{"name":"name", "value":""}]}],
-"patternFlag":[{"name":""}]																				
+"patternFlag":[{"name":"sortMerge"}]																				
 },
 
 {"category": "optype",
@@ -214,10 +214,18 @@
 ]
 
 "patternDictionary":[
-{"name":"p1",
-"start":[{"optype":"Sort"}],
-"middle":[{"optype":"Merge"}],
-"end": []
+{"name":"sortMerge",
+"origin":"Sort",
+"start":[{"name":"node", "property":[{"name":"implementationType", "value":"LEFTOUTERMERGE"}]}],
+"middle":[{"name":"", "property":[{"name":"", "value":""}]}],
+"end": [{"name":"", "property":[{"name":"", "value":""}]}]
+},
+
+{"name":"sortMerge",
+"origin":"Sort",
+"start":[{"name":"node", "property":[{"name":"implementationType", "value":"LEFTOUTERMERGE"}]}],
+"middle":[{"name":"", "property":[{"name":"", "value":""}]}],
+"end": [{"name":"", "property":[{"name":"", "value":""}]}]
 }
 
 ]
