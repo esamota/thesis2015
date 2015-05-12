@@ -66,10 +66,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		//all graph operations
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		//parsed JSON dictionary
-		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionary
-				.parseJSONDictionary();
+		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser
+				.parseNodeDictionary();
 		//gets an array list of pattern name flags for each optype in the dictionary
-		HashMap<String, ArrayList<String>> flagMapping = JSONDictionary.getPatternFlagsPerNode();
+		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.parseNodePatternFlags();
 		//all elements from the dictionary that belong to the graph of this xLM document
 		ArrayList<BPMNElement> graphElements = getGraphElements(G, ops, mapping);
 		//add a dataStore element in case it needs to be references by one of the elements
@@ -88,11 +88,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		//all header elements that belong in the beginning of each bpmn model before the process starts
 		ArrayList<HashMap> headerElements = new ArrayList<HashMap>();
 		
-		String stringAttributes = "";
-//System.out.println(graphElements);
-		
+		String stringAttributes = "";		
 		for (BPMNElement el : graphElements) {
-			System.out.println(el.getElementName()+" "+el.getSubElements().size());
+			//System.out.println(el.getElementName()+" "+el.getSubElements().size());
 			HashMap element = new HashMap();
 			
 			for (BPMNAttribute attr : el.getAttributes()) {
@@ -107,8 +105,9 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 				//create a dataStore for each process even if it is not being referenced later
 				if(el.getElementName().equals(BPMNElementTagName.dataStore.name())){
 					nonProcessElements.add(element);
-				} else 
+				} else if (!el.getElementName().equals(BPMNElementTagName.conditionExpression.name())){
 				simpleProcessElements.add(element);
+				}
 			}
 			else if(el.getSubElements().size() >= 1){
 				if(el.getElementName().equals(BPMNElementTagName.collaboration.name())){
@@ -117,7 +116,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 					complexProcessElements.add(element);
 			for (BPMNElement subEl: el.getSubElements()){
 				HashMap subElement = new HashMap();
-				subElement.put("name", subEl.getElementName());
+				subElement.put("elName", el.getElementName());
+				subElement.put("subName", subEl.getElementName());
+				subElement.put("text", subEl.getElementText());
+				//TODO:edge after splitter has a text value and not just attributes. How to deal with that?
 				for (BPMNAttribute attr : subEl.getAttributes()) {
 					stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
@@ -128,7 +130,8 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		}
 		}
 		
-		//System.out.println(simpleElements);
+		System.out.println(subElements);
+		
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate("vmTemplates2//jsonTest.vm");
@@ -313,51 +316,6 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 			edge.put("enabled", "Y");
 			edges.add(edge);
 
-		}
-
-		// ndproperties
-		ArrayList<HashMap> properties = new ArrayList<HashMap>();
-		for (String key : props.keySet()) {
-			for (ETLNonFunctionalCharacteristic c : props.get(key)) {
-				HashMap prop = new HashMap();
-				prop.put("name", key);
-				prop.put("leftfun", c.getLeftFun());
-				prop.put("leftop", c.getLeftOp());
-				prop.put("oper", c.getOper());
-				prop.put("rightfun", c.getRightFun());
-				prop.put("rightop", c.getRightOp());
-				properties.add(prop);
-			}
-		}
-
-		// ndresources
-		ArrayList<HashMap> resources = new ArrayList<HashMap>();
-		for (String key : resrs.keySet()) {
-			for (ETLNonFunctionalCharacteristic c : resrs.get(key)) {
-				HashMap res = new HashMap();
-				res.put("name", key);
-				res.put("leftfun", c.getLeftFun());
-				res.put("leftop", c.getLeftOp());
-				res.put("oper", c.getOper());
-				res.put("rightfun", c.getRightFun());
-				res.put("rightop", c.getRightOp());
-				resources.add(res);
-			}
-		}
-
-		// ndfeatures
-		ArrayList<HashMap> features = new ArrayList<HashMap>();
-		for (String key : feats.keySet()) {
-			for (ETLNonFunctionalCharacteristic c : feats.get(key)) {
-				HashMap feat = new HashMap();
-				feat.put("name", key);
-				feat.put("leftfun", c.getLeftFun());
-				feat.put("leftop", c.getLeftOp());
-				feat.put("oper", c.getOper());
-				feat.put("rightfun", c.getRightFun());
-				feat.put("rightop", c.getRightOp());
-				features.add(feat);
-			}
 		}
 
 		VelocityEngine ve = new VelocityEngine();
@@ -692,14 +650,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		//*****************************************************************************************
 		for (Integer key : ops.keySet()) {
 			for (String str : mapping.keySet()) {
-				//System.out.println("blah2 str");
-				//Random randomGenerator = new Random();
-				//String randomID= "_0"+randomGenerator.nextInt(100);
 				for(BPMNElement el: mapping.get(str)){
 				if (str.equals(ops.get(key).getOperationType().getOpTypeName()
 						.toString()) && mapping.get(str).size() == 1){
-					for (BPMNAttribute attr : el.getAttributes()) {
-						
+					for (BPMNAttribute attr : el.getAttributes()) {	
 					if (attr.getAttributeValue().equals("")){
 						System.out.println(attr.getAttributeName());
 						switch(attr.getAttributeName()){
@@ -761,6 +715,11 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 						}
 						BPMNAttribute bpmnAttr = new BPMNAttribute(attr.name, attr.value);
 						bpmnElement.addAttribute(bpmnAttr);
+						}
+					if (opS.getOperationType().getOpTypeName().equals(OperationTypeName.Splitter)){
+						BPMNElement sub = new BPMNElement(BPMNElementTagName.conditionExpression.name());
+						sub.addText("<![CDATA["+opS.getSemanticsExpressionTrees().toString()+"]]>");
+						bpmnElement.addSubElement(sub);
 					}
 					edgeElements.add(bpmnElement);
 				}
@@ -770,11 +729,28 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 		return edgeElements;
 	}
 	
+	public static ArrayList<String> getNodeFlags(OperationTypeName optypeName){
+		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.parseNodePatternFlags();
+		ArrayList<String> nodeFlagNames = new ArrayList<String>();
+		for (String opName: flagMapping.keySet()){
+			if(opName.equals(optypeName.name())){
+			for (String flagName: flagMapping.get(opName)){
+				if(!flagName.equals("")){
+				nodeFlagNames.add(flagName);
+				}
+			}
+			}
+		}
+		return nodeFlagNames;
+	}
+	
 	public static ArrayList<BPMNElement> fillInAtrributeValuesOneToMany (Hashtable<Integer, ETLFlowOperation> ops,
 			HashMap<String, ArrayList<BPMNElement>> mapping){
 		ArrayList<BPMNElement> complexElements = new ArrayList<BPMNElement>();
 		for (Integer key : ops.keySet()) {
-			System.out.println("blah1 ops");
+			/*ArrayList<String> flags = getNodeFlags(ops.get(key).getOperationType().getOpTypeName());
+			System.out.println(ops.get(key).getOperationType().getOpTypeName()+" "+ flags.size());
+			if(flags.size() == 0){*/
 			for (String str : mapping.keySet()) {
 				//System.out.println("blah2 str");
 				/*Random randomGenerator = new Random();
@@ -823,9 +799,10 @@ public class BPMNConstructs extends DirectedAcyclicGraph {
 						}
 						complexElements.add(el);
 					}
-				}
+				//}
 			}
 			}
+		}
 
 			//System.out.println(graphElements);
 			return complexElements;

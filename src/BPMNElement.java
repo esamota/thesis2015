@@ -8,6 +8,7 @@ public class BPMNElement {
 private String name;
 private ArrayList<BPMNAttribute> attributes;
 private ArrayList<BPMNElement> subElements;
+private String text;
 
 
 public BPMNElement(){
@@ -18,6 +19,7 @@ public BPMNElement(String elementName){
 	name = elementName;
 	attributes = new ArrayList<>();	
 	subElements = new ArrayList<>();
+	text = "";
 }
 
 public void addAttribute(BPMNAttribute attr){
@@ -40,6 +42,10 @@ public void addSubElements(ArrayList<BPMNElement> elements){
 	}
 }
 
+public void addText (String newText){
+	this.text = newText;
+}
+
 public String getElementName(){
 	return name;
 }
@@ -51,6 +57,10 @@ public ArrayList<BPMNAttribute> getAttributes(){
 
 public ArrayList<BPMNElement> getSubElements(){
 	return subElements;
+}
+
+public String getElementText(){
+	return text;
 }
 
 }
