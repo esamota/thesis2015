@@ -1,10 +1,8 @@
 ## print collaboration block here
 #foreach ($element in $collaborationElements)
 <$element.name $element.attributes>
-	#foreach ($sub in $subElements)
-	 #if ($element.name == $sub.elName)
-		<$sub.subName $sub.attributes />
-	#end
+	#foreach ($sub in $collaborationSubElements)
+		<$sub.name $sub.attributes />
 	#end
 <$element.name />
 #end

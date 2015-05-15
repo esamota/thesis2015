@@ -15,7 +15,7 @@ import etlFlowGraph.operation.ETLFlowOperation;
 public class XLMParser {
 	
 	public static final String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
-	// public static String XLMFilePathInput =
+	 //public static String XLMFilePathInput =
 	// "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 
 	public static void main(String[] args) {
@@ -33,6 +33,19 @@ public class XLMParser {
 			e.printStackTrace();
 		}
 		return G;
+	}
+	
+	public static ArrayList<ETLFlowOperation> getTargetOperation(ETLFlowOperation sourceNode, ETLFlowGraph G,
+			Hashtable<Integer, ETLFlowOperation> ops){	
+	ArrayList<ETLFlowOperation> targetNodes = new ArrayList<ETLFlowOperation>();
+		for (Object e : G.edgeSet()) {
+			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+			if (sourceNode.getNodeID() == opS.getNodeID()){
+				targetNodes.add(opT);
+			}
+		}
+		return targetNodes;
 	}
 	
 	// identify all nodes that have a data input going in

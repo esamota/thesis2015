@@ -26,10 +26,10 @@ public class JSONDictionaryParser {
 		// call method
 		HashMap<String, ArrayList<BPMNElement>> mapping = parseNodeDictionary();
 		HashMap<String, ArrayList<String>> flagMapping = getNodePatternFlags();
-		HashMap<String, ArrayList<String>> startProperties = getStartPatternProperties("sortMerge");
-		System.out.println(startProperties);
+		//HashMap<String, ArrayList<String>> startProperties = getStartPatternProperties();
+		//System.out.println(startProperties);
 	
-		for (String str : mapping.keySet()) {
+		/*for (String str : mapping.keySet()) {
 			for (BPMNElement el : mapping.get(str)) {
 				
 				System.out.println(el.getElementText());
@@ -37,14 +37,12 @@ public class JSONDictionaryParser {
 					//System.out.println(attr.name + " " + attr.value);
 				}
 			}
-			}
-		for (String optype: flagMapping.keySet()){
+			}*/
+		/*for (String optype: flagMapping.keySet()){
 			for (String flagName: flagMapping.get(optype)){
-				if(optype.equals("TableInput")){
-					//System.out.println(optype+" "+flagName);
-				}
+					System.out.println(optype+" "+flagName);
 			}
-		}
+		}*/
 
 	}
 	
@@ -139,7 +137,7 @@ public class JSONDictionaryParser {
 			return flagMapping;
 	}
 	
-	public static HashMap<String, ArrayList<String>>  getStartPatternProperties(String name){
+	public static HashMap<String, ArrayList<String>> getStartPatternProperties(String name){
 		JSONArray dictionary = getJSONRootObject("patternDictionary");
 		Integer size = dictionary.size();
 		HashMap<String, ArrayList<String>> startProperties = new HashMap<String, ArrayList<String>>();
@@ -148,12 +146,10 @@ public class JSONDictionaryParser {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
 			if (patternName.equals(name)){
-			JSONArray patternStart = (JSONArray) root.get("start");
-			for (int s =0; s < patternStart.size(); s++){
-				JSONObject start = (JSONObject) patternStart.get(s);
-				String xlmElement = (String) start.get("name");
-				System.out.println(xlmElement);
-				JSONArray properties = (JSONArray) start.get("property");
+			JSONObject patternStart = (JSONObject) root.get("start");
+			String xlmElement = (String) patternStart.get("name");
+				//System.out.println(xlmElement);
+				JSONArray properties = (JSONArray) patternStart.get("property");
 				for(int p=0; p < properties.size(); p++){
 					JSONObject prop = (JSONObject) properties.get(p);
 					String propertyName = (String) prop.get("name");
@@ -167,7 +163,6 @@ public class JSONDictionaryParser {
 			}
 		}
 			}
-		}
 		return startProperties;
 	}
 	
@@ -178,9 +173,7 @@ public class JSONDictionaryParser {
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
-				JSONArray patternMiddle = (JSONArray) root.get("middle");
-				for(int m=0; m < patternMiddle.size(); m++){
-					JSONObject middle = (JSONObject) patternMiddle.get(m);
+					JSONObject middle = (JSONObject) root.get("middle");
 					String xlmElement = (String) middle.get("name");
 					System.out.println(xlmElement);
 					JSONArray properties = (JSONArray) middle.get("property");
@@ -193,7 +186,6 @@ public class JSONDictionaryParser {
 						middleProperties.add(middleProperty);
 					}
 				}
-			}
 			return middleProperties;
 		
 	}
@@ -205,13 +197,11 @@ public class JSONDictionaryParser {
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
-				JSONArray patternEnd = (JSONArray) root.get("end");
-				for(int m=0; m < patternEnd.size(); m++){
-					JSONObject end = (JSONObject) patternEnd.get(m);
-					String xlmElement = (String) end.get("name");
-					System.out.println(xlmElement);
-					JSONArray properties = (JSONArray) end.get("property");
-					for(int p=0; p < properties.size(); p++){
+			JSONObject end = (JSONObject) root.get("end");
+			String xlmElement = (String) end.get("name");
+			System.out.println(xlmElement);
+			JSONArray properties = (JSONArray) end.get("property");
+			for(int p=0; p < properties.size(); p++){
 						JSONObject prop = (JSONObject) properties.get(p);
 						String propertyName = (String) prop.get("name");
 						String propertyValue = (String) prop.get("value");
@@ -220,7 +210,6 @@ public class JSONDictionaryParser {
 						endProperties.add(endProperty);
 					}
 				}
-			}
 			return endProperties;	
 	}
 	

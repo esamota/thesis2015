@@ -67,6 +67,8 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 			e.printStackTrace();
 		}
 	}
+	
+	
 
 	public static String toStringBPMNWithDictionary() {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
@@ -79,9 +81,10 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		//gets an array list of pattern name flags for each optype in the dictionary
 		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getNodePatternFlags();
 		//all elements from the dictionary that belong to the graph of this xLM document
-		ArrayList<BPMNElement> graphElements = BPMNConstructsGenerator.getGraphElements(G, ops, mapping);
+		//ArrayList<BPMNElement> graphElements = BPMNConstructsGenerator.getGraphElements(G, ops, mapping);
+		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
 		//add a dataStore element in case it needs to be references by one of the elements
-		graphElements.add(BPMNConstructsGenerator.createDataStoreElement());
+		//graphElements.add(BPMNConstructsGenerator.createDataStoreElement());
 		//all elements that belong inside of a process tag and require a 
 		// single--one-line self closing tag, like a task without i/o's
 		ArrayList<HashMap> simpleProcessElements = new ArrayList<HashMap>();
@@ -89,8 +92,13 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		ArrayList<HashMap> complexProcessElements = new ArrayList<HashMap>();
 		//all elements that are inside another element, like the data I/O association
 		ArrayList<HashMap> subElements = new ArrayList<HashMap>();
-		//all elements necessary to fill in the collaboration for the bpmn model
-		ArrayList<HashMap> collaborationElements = new ArrayList<HashMap>();
+		//a list of bpmn element collaboration with corresponding subelements
+		ArrayList<BPMNElement> poolElements = BPMNConstructsGenerator.getPoolElements(ops);
+		//all elements & attrs necessary to fill in the collaboration for the bpmn model
+		ArrayList<HashMap> collaborationElements = BPMNConstructsGenerator.getPoolElementsVelocityFormat(poolElements);
+		//all necessary subelements(participant) to fill the collaboration for the bpmn model
+		ArrayList<HashMap> collborationSubElements = BPMNConstructsGenerator.getPoolSubElementsVelocityFormat(poolElements);
+		
 		//all elements that belong after the process tag is over, eg dataStore
 		ArrayList<HashMap> nonProcessElements = new ArrayList<HashMap>();
 		//all header elements that belong in the beginning of each bpmn model before the process starts
@@ -118,9 +126,6 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 				}
 			}
 			else if(el.getSubElements().size() >= 1){
-				if(el.getElementName().equals(BPMNElementTagName.collaboration.name())){
-					collaborationElements.add(element);
-				} else
 					complexProcessElements.add(element);
 			for (BPMNElement subEl: el.getSubElements()){
 				HashMap subElement = new HashMap();
@@ -138,7 +143,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		}
 		}
 		
-		System.out.println(subElements);
+		//System.out.println(subElements);
 		
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
@@ -147,19 +152,21 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		context.put("simpleElements", simpleProcessElements);
 		context.put("complexElements", complexProcessElements);
 		context.put("collaborationElements", collaborationElements);
+		context.put("collaborationSubElements", collborationSubElements);
 		context.put("subElements", subElements);
 		StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 
 		return (writer.toString());
 	}
+	
 
 	public static String toStringBPMN() {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
 
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		Hashtable<String, ArrayList<ETLNonFunctionalCharacteristic>> props = G
-				.getFlowProperties();
+				.getFlowProperties();                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 		Hashtable<String, ArrayList<ETLNonFunctionalCharacteristic>> feats = G
 				.getFlowFeatures();
 		Hashtable<String, ArrayList<ETLNonFunctionalCharacteristic>> resrs = G
@@ -361,8 +368,8 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 			node.put("hasInput", "N");
 
 		// insert a flag if node has db output
-		System.out.println("nodes " + nodesWithDBOutput);
-		System.out.println("op " + op.getNodeID());
+		//System.out.println("nodes " + nodesWithDBOutput);
+		//System.out.println("op " + op.getNodeID());
 		System.out.println("operation id " + op.getNodeID()
 				+ " boolean for nodes with output "
 				+ nodesWithDBOutput.contains(op.getNodeID()));
@@ -370,54 +377,11 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 			node.put("hasOutput", "Y");
 		} else
 			node.put("hasOutput", "N");
-
-		// insert a flag for blocking non-blocking operation
-		// datastores are considered non-blocking; UNION is a bit unclear. for
-		// now included with Joins and Grouper
-		fillInBlockingFlag();
-
-		String opName = op.getOperationType().getOpTypeName().toString();
-		for (OperationTypeName opn : nonBlockingOperations) {
-			if (opName.equals(opn)) {
-				node.put("blocking", "N");
-			}
-		}
-		for (OperationTypeName opn : blockingOperations) {
-			if (opName.equals(opn)) {
-				node.put("blocking", "Y");
-			}
-		}
-
-		for (OperationTypeName opn : uncertainBlockingTypeOperations) {
-			if (opName.equals(opn)) {
-				if (op.getImplementationType().toUpperCase().contains("MERGE")) {
-					node.put("blocking", "N");
-				} else
-					node.put("blocking", "Y");
-			}
-		}
-		if (op.getNodeKind().equals(ETLNodeKind.Datastore)) {
-			node.put("blocking", "N");
-		}
-	}
-
-	
-	public static void fillInBlockingFlag() {
-		nonBlockingOperations.addAll(Arrays.asList(OperationTypeName.Splitter,
-				OperationTypeName.Router, OperationTypeName.Merger,
-				OperationTypeName.Voter, OperationTypeName.Filter,
-				OperationTypeName.AttributeAddition, OperationTypeName.Rename,
-				OperationTypeName.Project));
-		blockingOperations.addAll(Arrays.asList(OperationTypeName.Sort,
-				OperationTypeName.TopK, OperationTypeName.UserDefinedFunction));
-		uncertainBlockingTypeOperations.addAll(Arrays.asList(
-				OperationTypeName.Join, OperationTypeName.LeftOuterJoin,
-				OperationTypeName.Grouper, OperationTypeName.Union));
 	}
 
 	public static void subprocessExtraction(ETLFlowGraph G,
 			Hashtable<Integer, ETLFlowOperation> ops) {
-		fillInBlockingFlag();
+		
 		ArrayList<Integer> subprocess = new ArrayList<Integer>();
 		for (Object e : G.edgeSet()) {
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());

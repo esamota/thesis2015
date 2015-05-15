@@ -14,6 +14,7 @@ public class PatternSearch {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getNodePatternFlags();
+		checkPatternExistence(ops, G, flagMapping);
 
 	}
 	
@@ -33,41 +34,49 @@ public class PatternSearch {
 		return nodeFlagNames;
 	}
 	
-	public static boolean checkPatternExistence(Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G,
+	public static ArrayList<ETLFlowOperation> checkPatternExistence(Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G,
 			HashMap<String, ArrayList<String>> flagMapping) {
 		ArrayList<String> flagNames = new ArrayList<String>();
+		ArrayList<ETLFlowOperation> mappedNodes = new ArrayList<ETLFlowOperation>();
 		boolean pattern = false;
 		
 		for (Integer key : ops.keySet()) {
 			OperationTypeName optypeName = ops.get(key).getOperationType().getOpTypeName();
+			//System.out.println("id= "+ ops.get(key).getNodeID()+ " "+optypeName +" implementationType= "+ops.get(key).getImplementationType());
 			flagNames = getNodeFlags(optypeName);
 			int pointer = 0;		
 			for (String str : flagMapping.keySet()) {
 					if (str.equals(optypeName.toString())) {
-						if (flagNames.size() > 0){
+						if(flagNames.size() == 0){
+							//System.out.println("flagName size= "+ flagNames.size());
+							mappedNodes.add(ops.get(key));
+						}
+						else if (flagNames.size() > 0){
+							//System.out.println("flagName size= "+ flagNames.size());
 							pointer = ops.get(key).getNodeID();
 						for (String flagName: flagMapping.get(str)){
-							if(flagName.equals("sortMerge")){
-								pattern = checkSortMergePattern(ops, G, pointer);
-							}else if(flagName.equals("recoveryPoint")){
-								//call appropriate method
-							}else if(flagName.equals("compensationAction")){
-								//call appropriate method
-							}else if(flagName.equals("subprocess")){
-								//call subprocess pattern method
-							}
-						}
-					
+							//System.out.println("flagName name= "+ flagName);
+								pattern = checkPatternStart(ops, G, pointer, flagName);
+								//System.out.println("sortMerge pattern= "+ pattern);
+								if(pattern == false){
+									mappedNodes.add(ops.get(key));
+								} else if (pattern == true){
+									//pattern = checkMiddlePattern();
+											
 				}
 			}
 		}
 	}
-		return pattern;
+			}
+		}
+		//return pattern;
+		return mappedNodes;
 	
 	}
 	
-	public static boolean checkSortMergePattern(Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G, Integer pointer){
-		HashMap<String, ArrayList<String>> patternProperties = JSONDictionaryParser.getStartPatternProperties("sortMerge");
+	public static boolean checkPatternStart(Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G, Integer pointer, String flagName){
+		HashMap<String, ArrayList<String>> patternStartProperties = JSONDictionaryParser.getStartPatternProperties(flagName);
+		//save ids of nodes that are consumed by a pattern
 		boolean pattern = false;
 		for (Integer key: ops.keySet()){
 			if(ops.get(key).getNodeID() == pointer){
@@ -75,9 +84,12 @@ public class PatternSearch {
 					ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 					ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
 					if (opS.getNodeID() == pointer){
-						for (String str: patternProperties.keySet()){
-							for (String value: patternProperties.get(str)){
-								if(str.equals("implementationType") && opT.getImplementationType().equals(value)){
+						for (String str: patternStartProperties.keySet()){
+							for (String value: patternStartProperties.get(str)){
+								if(str.equals("implementationType") && opT.getImplementationType().equals(str)){
+									pattern = true;
+								}
+								else if(str.equals("type") && opT.getOperationType().getOpTypeName().equals(str)){
 									pattern = true;
 								}
 							}
