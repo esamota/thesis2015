@@ -11,7 +11,7 @@ import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
 
 
-public class BPMNConstructsGenerator {
+/*public class BPMNConstructsGenerator {
 
 	public static void main(String[] args) {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
@@ -33,7 +33,7 @@ public class BPMNConstructsGenerator {
 					System.out.print("subs "+ subEl.getElementName()+", ");
 				}
 			}
-		}*/
+		}
 		HashMap<Integer, ArrayList<BPMNElement>> complexElements = getBPMNElementsOneToMany(mappedNodes, mapping);
 		//System.out.println(allBPMNElements);
 		/*for (Integer key: complexElements.keySet()){
@@ -43,14 +43,14 @@ public class BPMNConstructsGenerator {
 					System.out.print("subs "+ subEl.getElementName()+", ");
 				}
 			}
-		}*/
+		}
 		ArrayList<BPMNElement> elements = getBPMNElementsOfANode(10, allBPMNElements);
 		//System.out.println(elements);
 		
 		
 		/*for(Integer i: mappedNodesAfterPatterns){
 			System.out.println(i);
-		}*/
+		}
 		
 	}
 	
@@ -144,7 +144,7 @@ public class BPMNConstructsGenerator {
 		}
 		
 		return graphElements;
-	}*/
+	}
 	
 	//fill in attr values for nodes that correspond to a single bpmn element. save each node -- corresponding bpmn element pair
 	public static HashMap<Integer, ArrayList<BPMNElement>> getBPMNElementsOneToOne(
@@ -200,7 +200,7 @@ public class BPMNConstructsGenerator {
 		for (ETLFlowOperation ops : mappedNodes) {
 			for (String str : mapping.keySet()) {
 				/*Random randomGenerator = new Random();
-				String randomID= "_0"+randomGenerator.nextInt(100);*/
+				String randomID= "_0"+randomGenerator.nextInt(100);
 				String randomID="_0"+String.valueOf(ops.getNodeID());
 				for(BPMNElement el: mapping.get(str)){
 					//one-to-many mapping for Join and LeftOuterJoin		
@@ -241,7 +241,7 @@ public class BPMNConstructsGenerator {
 						//for a sequence flow coming out of the task
 						/*BPMNElement seqFlow2 = new BPMNElement("sequenceFlow");
 						BPMNAttribute attr1 = new BPMNAttribute("sourceRef", "randomID");
-						BPMNAttribute attr2 = new BPMNAttribute("targetRef", );*/
+						BPMNAttribute attr2 = new BPMNAttribute("targetRef", );
 						}
 					//System.out.println("element "+el);
 					elementsPerOPS.add(el);
@@ -425,4 +425,4 @@ public class BPMNConstructsGenerator {
 		return collaborationSubElements;
 	}
 
-}
+}*/

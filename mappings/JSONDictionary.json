@@ -5,7 +5,7 @@
 "name": "Filter",
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
 												{"name":"name", "value":""}]}],
-"patternFlag":[{"name":""}]
+"patternFlag":[{"name":""}, {"name":""}]
 },
 
 {"category": "optype",
@@ -215,35 +215,25 @@
 
 "patternDictionary":[
 {"name":"sortMerge",
-"origin":{"name":"optype", "value":"Sort"},
-"s1":{{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}},
-"s2":{"name":"*", "value":"*"},
-"whiteList":"",
-"blackList":""
+"origin":[{"name":"optype", "value":"Sort"}],
+"steps":[
+	{"s1":[{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}],
+	"s2":[{"name":"*", "value":"*"}],
+	"s3":""}],
+"whiteList":[{"name":"", "value":""}],
+"blackList":[{"name":"", "value":""}]
 },
 
 {"name":"recoveryPoint",
-"origin":{{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}}
+"origin":[{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}],
 "flow1":[
 {"s1":{"name":"optype", "value":"datastore"},
-"s2":{"name":"position", "value":"flowEnd"]}, 
+"s2":{"name":"position", "value":"flowEnd"}}], 
 "flow2":[
 {"s1":{"name":"*", "value":"*"}}],
 "whiteList":"",
 "blackList":""
 },
-
-{"name":"recoveryPoint",
-"origin":{{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}}
-"flow1":[
-{"s1":{"name":"*", "value":"whiteList"},
-"s2":{"name":"optype", "value":"datastore"},
-"s3":{"name":"position", "value":"flowEnd"}}], 
-"flow2":[
-{"s1":{"name":"*", "value":"*"}}],
-"whiteList":[{"name":"optype", "value":"UserDefinedFuction"}],
-"blackList":""
-}
 
 ]
 }

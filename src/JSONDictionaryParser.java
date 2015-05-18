@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.lang.model.util.Elements;
 
+import operationDictionary.OperationTypeName;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -26,8 +28,10 @@ public class JSONDictionaryParser {
 		// call method
 		HashMap<String, ArrayList<BPMNElement>> mapping = parseNodeDictionary();
 		HashMap<String, ArrayList<String>> flagMapping = getNodePatternFlags();
-		//HashMap<String, ArrayList<String>> startProperties = getStartPatternProperties();
-		//System.out.println(startProperties);
+		HashMap<String, ArrayList<String>> patternOriginOptype = parseJSONPatternOriginOptypes();
+		//System.out.println(patternOriginOptype);
+		ArrayList<HashMap<String,String>> step1Operations = parseJSONSingleFlowPatternStep1("sortMerge");
+		System.out.println(step1Operations);
 	
 		/*for (String str : mapping.keySet()) {
 			for (BPMNElement el : mapping.get(str)) {
@@ -212,6 +216,134 @@ public class JSONDictionaryParser {
 				}
 			return endProperties;	
 	}
+	
+	public static HashMap<String, ArrayList<String>> parseJSONPatternOriginOptypes(){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		HashMap<String, ArrayList<String>> patternOriginOptype = new HashMap<String, ArrayList<String>>();
+		ArrayList<String> optypeValues = new ArrayList<String>(); 
+		
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+				JSONArray origin = (JSONArray) root.get("origin");
+				for(int p=0; p < origin.size(); p++){
+					JSONObject originObj = (JSONObject) origin.get(p);
+					String originType = (String) originObj.get("name");
+					String originTypeName = (String) originObj.get("value");
+					//System.out.println(originType+" "+originTypeName);
+					optypeValues.add(originTypeName);
+			}
+				patternOriginOptype.put(patternName, new ArrayList<String> (optypeValues));
+				optypeValues.clear();
+		}
+		return patternOriginOptype;
+	}
+	
+	public static ArrayList<String> getPatternOrigin(String name){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		ArrayList<String> optypeValues = new ArrayList<String>(); 
+		
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if(patternName.equals(name)){
+				JSONArray origin = (JSONArray) root.get("origin");
+				for(int p=0; p < origin.size(); p++){
+					JSONObject originObj = (JSONObject) origin.get(p);
+					String originType = (String) originObj.get("name");
+					String originTypeName = (String) originObj.get("value");
+					//System.out.println(originType+" "+originTypeName);
+					optypeValues.add(originTypeName);
+			}
+			}
+				
+		}
+		return optypeValues;
+	}
+	
+	public static ArrayList<String> getPatternNames(){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		ArrayList<String> patternNames = new ArrayList<String>(); 
+		
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			patternNames.add(patternName);
+		}
+		return patternNames;
+	}
+	
+	public static ArrayList<HashMap<String, String>> parseJSONSingleFlowPatternStep1(String flagName){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		ArrayList<HashMap<String, String>> step1Operations = new ArrayList<HashMap<String, String>>(); 
+		ArrayList<String> patternOriginOptypes = new ArrayList<String>();
+		
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if(patternName.equals(flagName)){
+				patternOriginOptypes = getPatternOrigin(patternName);
+				if (!patternOriginOptypes.contains(OperationTypeName.Router.name()) && !patternOriginOptypes.contains(OperationTypeName.Splitter.name())){
+				JSONArray stepsArray = (JSONArray) root.get("steps");
+				for(int s=0; s < stepsArray.size(); s++){
+					JSONObject stepsObj = (JSONObject) stepsArray.get(s);
+					
+					JSONArray step1Array = (JSONArray) stepsObj.get("s1");
+					for(int t=0; t < step1Array.size(); t++){
+					JSONObject stepObj = (JSONObject) step1Array.get(t);	
+					HashMap<String, String> stepOperation = new HashMap<String, String>();
+					String name = (String) stepObj.get("name");
+					String value = (String) stepObj.get("value");
+					stepOperation.put(name, value);
+					//System.out.println(name+" "+value);
+					step1Operations.add(stepOperation);
+					}
+			}
+				}
+				}
+		}
+		return step1Operations;
+	}
+	
+	//start here
+	public static HashMap<String, ArrayList<HashMap>> parseJSONSplitFlowPatternStep1(){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		HashMap<String, ArrayList<HashMap>> step1Operations = new HashMap<String, ArrayList<HashMap>>();
+		ArrayList<HashMap> stepOperations = new ArrayList<HashMap>(); 
+		ArrayList<String> patternOriginOptypes = new ArrayList<String>();
+		
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+				patternOriginOptypes = getPatternOrigin(patternName);
+				if (!patternOriginOptypes.contains(OperationTypeName.Router.name()) && !patternOriginOptypes.contains(OperationTypeName.Splitter.name())){
+				JSONArray stepsArray = (JSONArray) root.get("steps");
+				for(int s=0; s < stepsArray.size(); s++){
+					JSONObject stepsObj = (JSONObject) stepsArray.get(s);
+					
+					JSONArray step1Array = (JSONArray) stepsObj.get("s1");
+					for(int t=0; t < step1Array.size(); t++){
+					JSONObject stepObj = (JSONObject) step1Array.get(t);	
+					HashMap stepOperation = new HashMap();
+					String name = (String) stepObj.get("name");
+					String value = (String) stepObj.get("value");
+					stepOperation.put(name, value);
+					//System.out.println(name+" "+value);
+					stepOperations.add(stepOperation);
+					}
+					step1Operations.put(patternName, new ArrayList<HashMap> (stepOperations));
+					stepOperations.clear();
+			}
+				}
+		}
+		return step1Operations;
+	}
+	
 	
 
 }
