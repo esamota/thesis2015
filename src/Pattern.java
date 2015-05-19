@@ -8,6 +8,8 @@ public class Pattern {
 	private String patternName;
 	private String patternID;
 	private ArrayList<ETLFlowOperation> patternNodes;
+	private ETLFlowOperation patternStartNode;
+	private ETLFlowOperation patternEndNode;
 
 	public Pattern() {
 
@@ -19,6 +21,8 @@ public class Pattern {
 		this.patternName = name;
 		this.patternID = randomID;
 		patternNodes = new ArrayList<ETLFlowOperation>();
+		patternStartNode= new ETLFlowOperation();
+		patternEndNode = new ETLFlowOperation();
 	}
 
 	public void addPatternNodes(ArrayList<ETLFlowOperation> nodes){
@@ -29,6 +33,14 @@ public class Pattern {
 	public void addPatternNodes(ETLFlowOperation op1, ETLFlowOperation op2){
 		patternNodes.add(op1);
 		patternNodes.add(op2);
+	}
+	
+	public void addPatternStartNode(ETLFlowOperation startOp){
+		this.patternStartNode = startOp;
+	}
+	
+	public void addPatternEndNode(ETLFlowOperation endOp){
+		this.patternEndNode = endOp;
 	}
 	
 	public void setPatternName(String name) {
@@ -49,6 +61,14 @@ public class Pattern {
 	
 	public ArrayList<ETLFlowOperation> getPatternNodes(){
 		return this.patternNodes;
+	}
+	
+	public ETLFlowOperation getPatternStartNode(){
+		return this.patternStartNode;
+	}
+	
+	public ETLFlowOperation getPatternEndNode(){
+		return this.patternEndNode;
 	}
 
 }

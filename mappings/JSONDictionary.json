@@ -218,22 +218,10 @@
 "origin":[{"name":"optype", "value":"Sort"}],
 "steps":[
 	{"s1":[{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}],
-	"s2":[{"name":"*", "value":"*"}],
-	"s3":""}],
+	"s2":[{"name":"*", "value":"*"}]}],
 "whiteList":[{"name":"", "value":""}],
 "blackList":[{"name":"", "value":""}]
-},
-
-{"name":"recoveryPoint",
-"origin":[{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}],
-"flow1":[
-{"s1":{"name":"optype", "value":"datastore"},
-"s2":{"name":"position", "value":"flowEnd"}}], 
-"flow2":[
-{"s1":{"name":"*", "value":"*"}}],
-"whiteList":"",
-"blackList":""
-},
+}
 
 ]
 }
