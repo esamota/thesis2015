@@ -19,5 +19,8 @@ dataOutputRefs,
 dataInput,
 dataInputRefs,
 dataStore,
-conditionExpression
+conditionExpression,
+subprocess,
+startEvent,
+endEvent
 }

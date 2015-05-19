@@ -12,7 +12,10 @@ private String text;
 
 
 public BPMNElement(){
-	
+	name = "";
+	attributes = new ArrayList<>();	
+	subElements = new ArrayList<>();
+	text = "";
 }
 
 public BPMNElement(String elementName){
@@ -28,7 +31,7 @@ public void addAttribute(BPMNAttribute attr){
 
 public void addAttributes(ArrayList<BPMNAttribute> attrs){
 	for (BPMNAttribute attr: attrs){
-		attributes.add(attr);
+		this.attributes.add(attr);
 	}
 }
 

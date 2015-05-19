@@ -30,6 +30,10 @@ public class Pattern {
 			patternNodes.add(op);
 		}
 	}
+	public void addPatternNode(ETLFlowOperation op1){
+		patternNodes.add(op1);
+	}
+	
 	public void addPatternNodes(ETLFlowOperation op1, ETLFlowOperation op2){
 		patternNodes.add(op1);
 		patternNodes.add(op2);

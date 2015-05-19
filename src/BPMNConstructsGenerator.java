@@ -2,165 +2,207 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Random;
 
 import org.apache.xerces.parsers.XMLParser;
 
 import operationDictionary.OperationTypeName;
+import etlFlowGraph.attribute.Attribute;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
+import etlFlowGraph.operation.ETLNodeKind;
 
 
-/*public class BPMNConstructsGenerator {
+public class BPMNConstructsGenerator {
 
 	public static void main(String[] args) {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser.parseNodeDictionary();
 		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getNodePatternFlags();
-		ArrayList<ETLFlowOperation> mappedNodes = PatternSearch.checkPatternExistence(ops, G, flagMapping);
-		HashMap<Integer, ArrayList<BPMNElement>> allBPMNElements = getBPMNElementsForAllNodes(mappedNodes, G, mapping);
-		for (Integer key: allBPMNElements.keySet()){
-			for (BPMNElement el: allBPMNElements.get(key)){
-				System.out.println(key+" "+el.getElementName());
-			}
-		}
-		HashMap<Integer, ArrayList<BPMNElement>> singleElements = getBPMNElementsOneToOne(G, mappedNodes, mapping);
-		/*for (Integer key: singleElements.keySet()){
-			for (BPMNElement el: singleElements.get(key)){
-				System.out.println(key+" "+el.getElementName());
-				for (BPMNElement subEl: el.getSubElements()){
-					System.out.print("subs "+ subEl.getElementName()+", ");
-				}
-			}
-		}
-		HashMap<Integer, ArrayList<BPMNElement>> complexElements = getBPMNElementsOneToMany(mappedNodes, mapping);
-		//System.out.println(allBPMNElements);
-		/*for (Integer key: complexElements.keySet()){
-			for (BPMNElement el: complexElements.get(key)){
-				System.out.println(key+" "+el.getElementName());
-				for (BPMNElement subEl: el.getSubElements()){
-					System.out.print("subs "+ subEl.getElementName()+", ");
-				}
-			}
-		}
-		ArrayList<BPMNElement> elements = getBPMNElementsOfANode(10, allBPMNElements);
-		//System.out.println(elements);
 		
+		ArrayList<BPMNElement> graphBPMNElements = secondPass(G, ops, mapping);
+		/*for(BPMNElement el: graphBPMNElements){
+			for (BPMNAttribute attr: el.getAttributes()){
+			System.out.println(el.getElementName());
+			}
+		}*/
 		
-		/*for(Integer i: mappedNodesAfterPatterns){
-			System.out.println(i);
-		}
+		/*This is to check what bpmn element is created for each node, no patterns
+		 * for (Integer i: ops.keySet()){
+			ArrayList<BPMNElement> elements = getBPMNElementsOfANode(G, ops, ops.get(i).getNodeID(), mapping);
+			System.out.println("---------------------");
+			for (BPMNElement el: elements){
+				System.out.println(ops.get(i).getNodeID()+ " "+ops.get(i).getOperationName()+" "+el.getElementName());
+			}
+			System.out.println("---------------------");
+		}*/
 		
 	}
 	
 	public static void getGraphElementsPerParticipant(){
 		//for each participant, or unique pool, add all tasks that belong there as subelements of the process element
 		//then return the process elements to the printing method
-		
-		
 	}
 	
-	//combines single and complex elements into a hashmap where each node-id has a corresponding list of bpmn elements
-	public static HashMap<Integer, ArrayList<BPMNElement>> getBPMNElementsForAllNodes(ArrayList<ETLFlowOperation> mappedNodes, ETLFlowGraph G,
-			HashMap<String, ArrayList<BPMNElement>> mapping ){
-		HashMap<Integer, ArrayList<BPMNElement>> allBPMNElements = new HashMap<Integer, ArrayList<BPMNElement>>();
-		HashMap<Integer, ArrayList<BPMNElement>> singleElements = getBPMNElementsOneToOne(G, mappedNodes, mapping);
-		HashMap<Integer, ArrayList<BPMNElement>> complexElements = getBPMNElementsOneToMany(mappedNodes, mapping);
-		
-		ArrayList<BPMNElement> tempElements = new ArrayList<BPMNElement>();
-		//when combining two hashmaps with duplicate keys, they get overwritten
-		//only insert elements that have a non empty array of bpmn elements, cause the hashmap for single elements contains all nodes, 
-		//and the ones that are not single, just have a corresponding empty array
-		for (Integer key: singleElements.keySet()){
-			for (BPMNElement el: singleElements.get(key)){
-					tempElements.add(el);
+	public static ArrayList<BPMNElement> secondPass(ETLFlowGraph G,
+			Hashtable<Integer, ETLFlowOperation> ops,
+			HashMap<String, ArrayList<BPMNElement>> mapping) {
+		ArrayList<Pattern> patternLinksPerNode = new ArrayList<Pattern>();
+		ArrayList<BPMNElement> graphBPMNElements = new ArrayList<BPMNElement>();
+		ArrayList<Integer> visitedNodes = new ArrayList<Integer>();
+		Iterator<Integer> graphIter = G.iterator();
+		while (graphIter.hasNext()) {
+			Integer v = graphIter.next();
+			ETLFlowOperation node = ops.get(v);
+			System.out.println("*******************");
+			System.out.println("node "+ v+", "+node.getOperationName());
+			if (!visitedNodes.contains(v)) {
+				System.out.println("node hasn't been visited");
+				// get links to patterns for this node
+				patternLinksPerNode = PatternSearch.getLinksToPatternsForNode(
+						G, ops, node.getNodeID());
+				if (patternLinksPerNode.size() == 0) {
+					System.out.println("doesn't have pattern links");
+					ArrayList<BPMNElement> nodeElements = getBPMNElementsOfANode(
+							G, ops, v, mapping);
+					System.out.println("----");
+					for (BPMNElement el : nodeElements) {
+						System.out.println(el.getElementName());
+						graphBPMNElements.add(el);
+					}
+					System.out.println("----");
+					visitedNodes.add(node.getNodeID());
 				}
-			if (tempElements.size() != 0){
-				allBPMNElements.put(key, new ArrayList<BPMNElement> (tempElements));
-			}
-			tempElements.clear();
-		}
-		
-		for (Integer key: complexElements.keySet()){
-			for (BPMNElement el: complexElements.get(key)){
-					tempElements.add(el);
+				if (patternLinksPerNode.size() != 0) {
+					// in the future, check is there are overlappings here
+					for (Pattern linkedPattern : patternLinksPerNode) {
+						System.out.println("----");
+						System.out.println("has a subprocess called "+linkedPattern.getPatternName());
+						BPMNElement subprocess = createBPMNSubprocess(linkedPattern);
+						for (ETLFlowOperation op : linkedPattern
+								.getPatternNodes()) {
+							ArrayList<BPMNElement> nodeElements = getBPMNElementsOfANode(
+									G, ops, op.getNodeID(), mapping);
+							for (BPMNElement el : nodeElements) {
+								System.out.println("element in subprocess: "+el.getElementName());
+								subprocess.addSubElement(el);
+								;
+							}
+							visitedNodes.add(op.getNodeID());
+						}
+						System.out.println("----");
+						graphBPMNElements.add(subprocess);
+					}
 				}
-			if (tempElements.size() != 0){
-				allBPMNElements.put(key, new ArrayList<BPMNElement> (tempElements));
 			}
-			tempElements.clear();
+			else System.out.println("node has been visited");
+			System.out.println("*********************");
 		}
-		
-		return allBPMNElements;
+		return graphBPMNElements;
 	}
 	
-	public static void removeSortElement(Integer sortNodeID, HashMap<Integer, ArrayList<BPMNElement>> allNodeElements ){
-		for(Integer key: allNodeElements.keySet()){
-			
-		}
-	}
-	
-	public static ArrayList<BPMNElement> getBPMNElementsOfANode(Integer nodeID, HashMap<Integer, ArrayList<BPMNElement>> allNodeElements){
-		ArrayList<BPMNElement> nodeElements = new ArrayList<BPMNElement>();
-		for (Integer key: allNodeElements.keySet()){
-			if(key == nodeID){
-				for (BPMNElement el: allNodeElements.get(key)){
-				nodeElements.add(el);
+	//this works for the process, for subprocesses, need different attribute values.
+	public static ArrayList<BPMNElement> createBPMNStartEvent(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops){
+		ArrayList<BPMNElement> startEventAndEdges = new ArrayList<BPMNElement>();
+		BPMNElement startEvent = new BPMNElement(BPMNElementTagName.startEvent.name());
+		Random randomGenerator = new Random();
+		String randomID= "_0000"+randomGenerator.nextInt(100);
+		BPMNAttribute id = new BPMNAttribute("id", randomID);
+		BPMNAttribute name= new BPMNAttribute("name", "StartProcess");
+		startEvent.addAttribute(id);
+		startEvent.addAttribute(name);
+		startEventAndEdges.add(startEvent);
+		//-----------------------------------------------------------------
+		//if (type.equals("process")){
+		ArrayList<Integer> allSourceNodes = G.getAllSourceNodes();
+		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
+		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
+		for (Integer i : allSourceNodes) {
+			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
+				//System.out.println("lala: " + i);
+				for (Object e : G.edgeSet()) {
+					// is there a simpler way to do this????
+					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
+					Integer targetId = (Integer) ((ETLEdge) e).getTarget();
+					if (sourceId.intValue() == i.intValue()
+							//why this condition??? where is targetOfSourceNodes getting populated???
+							&& !targetOfSourceNodes.contains(targetId)
+							&& !ops.get(targetId).getOperationType()
+									.getOpTypeName()
+									.equals(OperationTypeName.Join)
+							&& !ops.get(targetId).getOperationType()
+									.getOpTypeName()
+									.equals(OperationTypeName.LeftOuterJoin)) {
+						sourceNodes.add(targetId);
+					}
 				}
+			} else {
+				sourceNodes.add(i);
 			}
 		}
-		return nodeElements;
+		for (Integer i: sourceNodes){
+			BPMNElement seqFlow = new BPMNElement(BPMNElementTagName.sequenceFlow.name());
+			BPMNAttribute sourceRef = new BPMNAttribute("sourceRef", randomID);
+			BPMNAttribute targetRef = new BPMNAttribute("targerRef", "_"+String.valueOf(i));
+			BPMNAttribute flowId = new BPMNAttribute("id", "_"+randomID+"-_"+String.valueOf(i));
+			seqFlow.addAttribute(sourceRef);
+			seqFlow.addAttribute(targetRef);
+			seqFlow.addAttribute(flowId);
+			startEventAndEdges.add(seqFlow);
+		}
+		return startEventAndEdges;
+	}
+	
+	public static void createBPMNEndEvent(){
+		
+	}
+	public static BPMNElement createBPMNSubprocess(Pattern pattern){
+		BPMNElement subprocess = new BPMNElement(pattern.getPatternName()+"_"+"Pattern");
+		//attributes ---------------------------------------------------------------------
+		ArrayList<BPMNAttribute> subprocessAttributes = new ArrayList<BPMNAttribute>();
+		BPMNAttribute completionQuantity = new BPMNAttribute("completionQuantity", "1");
+		BPMNAttribute id = new BPMNAttribute("id", pattern.getPatternID());
+		BPMNAttribute isForCompensation = new BPMNAttribute("isForCompensation", "false");
+		BPMNAttribute name = new BPMNAttribute("name", pattern.getPatternName()+"_"+"Pattern");
+		BPMNAttribute startQuantity = new BPMNAttribute("startQuantity", "1");
+		BPMNAttribute triggeredByEvent = new BPMNAttribute("triggeredByEvent", "false");
+		subprocessAttributes.addAll(Arrays.asList(completionQuantity, id, isForCompensation, name, startQuantity, triggeredByEvent));
+		subprocess.addAttributes(subprocessAttributes);
+		//-------------------------------------------------------------------------------
+		//subelements
+		return subprocess;
 	}
 
-	
-	/*public static ArrayList<BPMNElement> getGraphElements(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
-			HashMap<String, ArrayList<BPMNElement>> mapping){
-		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
-		//call a method that creates a sequence flow element for each edge
-	 
-	/*	ArrayList<BPMNElement> edgeElements = 
-											fillInEdgeAttributeValues(G, ops, mapping);
-		ArrayList<BPMNElement> singleElements = 
-											fillInAttributeValuesOneToOne(G, ops, mapping);
-		//ArrayList<BPMNElement> complexElements = 
-											fillInAtrributeValuesOneToMany(ops, mapping);
-		ArrayList<BPMNElement> poolElements = getPoolElements(ops);*/
-		
-		
-		//add sequence flow elements to graphElements
-		/*for (BPMNElement edgeEl: edgeElements){
-			graphElements.add(edgeEl);
-		}
-		for (BPMNElement singleEl: singleElements){
-			graphElements.add(singleEl);
-		}
-		/*for (BPMNElement complexEl: complexElements){
-			graphElements.add(complexEl);
-		}
-		
-		for (BPMNElement poolEl: poolElements){
-			graphElements.add(poolEl);
-		}
-		
-		return graphElements;
+	public static ArrayList<BPMNElement> getBPMNElementsOfANode(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops, Integer nodeID,  HashMap<String, ArrayList<BPMNElement>> mapping){
+		ArrayList<BPMNElement> nodeElements = new ArrayList<BPMNElement>();
+		ETLFlowOperation node = ops.get(nodeID);
+		for (String str : mapping.keySet()) {
+			if(str.equals(node.getOperationType().getOpTypeName()
+					.toString()) && mapping.get(str).size() == 1){
+				nodeElements = getNodeBPMNElementsOneToOne(G, node, mapping);
+				}
+			else if(str.equals(node.getOperationType().getOpTypeName()
+					.toString()) && mapping.get(str).size() > 1){
+				nodeElements = getBPMNElementsOneToMany(node, mapping);
+			}
+			}
+		return nodeElements;
 	}
 	
 	//fill in attr values for nodes that correspond to a single bpmn element. save each node -- corresponding bpmn element pair
-	public static HashMap<Integer, ArrayList<BPMNElement>> getBPMNElementsOneToOne(
-			ETLFlowGraph G, ArrayList<ETLFlowOperation> mappedNodes,
+	public static ArrayList<BPMNElement> getNodeBPMNElementsOneToOne(
+			ETLFlowGraph G, ETLFlowOperation node,
 			HashMap<String, ArrayList<BPMNElement>> mapping) {
-		//ArrayList<BPMNElement> singleElements = new ArrayList<BPMNElement>();
-		HashMap<Integer, ArrayList<BPMNElement>> singleElements = new HashMap<Integer, ArrayList<BPMNElement>>();
-		ArrayList<BPMNElement> elementsPerOPS = new ArrayList<BPMNElement>();
-
+		ArrayList<BPMNElement> singleElements = new ArrayList<BPMNElement>();
+		
 		//one-to-one mappings
-		//*****************************************************************************************
-		for (ETLFlowOperation ops : mappedNodes) {
-			
+		//*****************************************************************************************	
 			for (String str : mapping.keySet()) {
 				for(BPMNElement el: mapping.get(str)){
-				if (str.equals(ops.getOperationType().getOpTypeName()
+				if (str.equals(node.getOperationType().getOpTypeName()
 						.toString()) && mapping.get(str).size() == 1){
 					
 					for (BPMNAttribute attr : el.getAttributes()) {	
@@ -168,23 +210,19 @@ import etlFlowGraph.operation.ETLFlowOperation;
 						//System.out.println(attr.getAttributeName());
 						switch(attr.getAttributeName()){
 						case "name":
-							attr.setAttributeValue(ops.getOperationName());
+							attr.setAttributeValue(node.getOperationName());
 								break;
 						case "id":
 							attr.setAttributeValue("_"
-									+ String.valueOf(ops.getNodeID()));
+									+ String.valueOf(node.getNodeID()));
 							break;
 					}
 				}
 					}
-					elementsPerOPS.add(el);
-					//singleElements.add(el);
+					
+					singleElements.add(el);
 				} 
 			}
-				singleElements.put(ops.getNodeID(), new ArrayList<BPMNElement>(elementsPerOPS) );
-				
-		}
-			elementsPerOPS.clear();
 		}
 		
 		//System.out.println(graphElements);
@@ -192,27 +230,25 @@ import etlFlowGraph.operation.ETLFlowOperation;
 	}
 	
 	//fill in attr values for xlm nodes that correspond to multiple bpmn elements. save each node-id -- list of bpmn elements pair.
-	public static HashMap<Integer, ArrayList<BPMNElement>> getBPMNElementsOneToMany (ArrayList<ETLFlowOperation> mappedNodes,
+	public static ArrayList<BPMNElement> getBPMNElementsOneToMany (ETLFlowOperation node,
 			HashMap<String, ArrayList<BPMNElement>> mapping){
-		//ArrayList<BPMNElement> complexElements = new ArrayList<BPMNElement>();
-		HashMap<Integer, ArrayList<BPMNElement>> complexElements = new HashMap<Integer, ArrayList<BPMNElement>>();
-		ArrayList<BPMNElement> elementsPerOPS = new ArrayList<BPMNElement>();
-		for (ETLFlowOperation ops : mappedNodes) {
+		ArrayList<BPMNElement> complexElements = new ArrayList<BPMNElement>();
+
 			for (String str : mapping.keySet()) {
-				/*Random randomGenerator = new Random();
-				String randomID= "_0"+randomGenerator.nextInt(100);
-				String randomID="_0"+String.valueOf(ops.getNodeID());
+				String randomID="_0"+String.valueOf(node.getNodeID());
+				
 				for(BPMNElement el: mapping.get(str)){
 					//one-to-many mapping for Join and LeftOuterJoin		
-					if (str.equals(ops.getOperationType().getOpTypeName()
+					if (str.equals(node.getOperationType().getOpTypeName()
 							.toString()) && mapping.get(str).size()>1){	
 						//System.out.println(str);
+						
 					for (BPMNAttribute attr : el.getAttributes()) {
 							
 						switch(attr.getAttributeName()){
 						case "name":
 							if(attr.getAttributeValue().equals("")){
-								attr.setAttributeValue(ops.getOperationName());
+								attr.setAttributeValue(node.getOperationName());
 								break;
 							} else if (attr.getAttributeValue().equals("create")){
 								attr.setAttributeValue(str);
@@ -221,41 +257,32 @@ import etlFlowGraph.operation.ETLFlowOperation;
 							break;
 						case "id":
 							if(attr.getAttributeValue().equals("") && !el.getElementName().equals("sequenceFlow")){
-								attr.setAttributeValue("_"+ String.valueOf(ops.getNodeID()));
+								attr.setAttributeValue("_"+ String.valueOf(node.getNodeID()));
 								break;
 							} else if (attr.getAttributeValue().equals("create")){
 								attr.setAttributeValue(randomID);
 							} else if (el.getElementName().equals("sequenceFlow")){
 								//System.out.println("source and target ref from inside the case id "+sourceRef+"-"+targetRef);
-								attr.setAttributeValue("_"+String.valueOf(ops.getNodeID())+"-"+randomID);
+								attr.setAttributeValue("_"+String.valueOf(node.getNodeID())+"-"+randomID);
 								break;
 							}
 							break;
 						case "sourceRef":
-							attr.setAttributeValue("_"+String.valueOf(ops.getNodeID()));
+							attr.setAttributeValue("_"+String.valueOf(node.getNodeID()));
 							break;
 						case "targetRef":
 							attr.setAttributeValue(randomID);
 							break;
 						}
-						//for a sequence flow coming out of the task
-						/*BPMNElement seqFlow2 = new BPMNElement("sequenceFlow");
-						BPMNAttribute attr1 = new BPMNAttribute("sourceRef", "randomID");
-						BPMNAttribute attr2 = new BPMNAttribute("targetRef", );
-						}
-					//System.out.println("element "+el);
-					elementsPerOPS.add(el);
-					//System.out.println(elementsPerOPS);
+					
 						
 					}
+					complexElements.add(el);
 					
 			}
-				complexElements.put(ops.getNodeID(), new ArrayList<BPMNElement>(elementsPerOPS) );
 			
 			}
-			elementsPerOPS.clear();
 		}
-
 			//System.out.println(complexElements);
 			return complexElements;
 	}
@@ -425,4 +452,4 @@ import etlFlowGraph.operation.ETLFlowOperation;
 		return collaborationSubElements;
 	}
 
-}*/
+}
