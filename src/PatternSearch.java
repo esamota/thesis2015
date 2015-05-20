@@ -173,35 +173,40 @@ public class PatternSearch extends DirectedAcyclicGraph {
 	public static ArrayList<ETLFlowOperation> getNodesOfExistingPatterns(
 			Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G,
 			ETLFlowOperation flagNode, String flagName) {
-		ArrayList<HashMap<String, String>> step1Operations = JSONDictionaryParser
-				.parseJSONSingleFlowPatternStep1(flagName);
+		HashMap<String, ArrayList<String>> stepOperations =  new HashMap<>();
 		ArrayList<ETLFlowOperation> targetNodes = getTargetNodesGivenSource(G, ops, flagNode);
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<ETLFlowOperation>();
-		//ArrayList<ETLFlowOperation> nodesPerPattern = new ArrayList<ETLFlowOperation>();
 		ArrayList<String> patternNames = JSONDictionaryParser.getPatternNames();
-		// save ids of nodes that are consumed by a pattern
+		Integer numOfVersions = 0;
+		Integer numOfFlows = 0;
+		Integer numOfSteps = 0;
 		boolean pattern = false;
 		int counter =0;
 		if (patternNames.contains(flagName)) {
 			for (ETLFlowOperation opT : targetNodes) {
 				//******System.out.println("source node: "+flagNode.getNodeID()+", target node: "+opT.getNodeID());
 			//in the HashMap: string1 =name (ex.implementationType), string2=value(ex.MERGE)
-			for (HashMap<String, String> map : step1Operations) {
-				for (String str : map.keySet()) {
-					// doesn't take into account other dictionary structures
-						if ((str.equals("implementationType")
-								&& opT.getImplementationType().equals(map.get(str))) || (str.equals("type")
-								&& opT.getOperationType().getOpTypeName()
-								.equals(map.get(str)))) {
+				numOfVersions = JSONDictionaryParser.getNumberOfPatternVersions(flagName);
+				for (int v = 0; v < numOfVersions; v++){
+					numOfFlows = JSONDictionaryParser.getNumberOfPatternFlows(flagName, v);
+					for (int f=0; f < numOfFlows; f++){
+						numOfSteps = JSONDictionaryParser.getNumberOfVersionFlowSteps(flagName, v, f);
+						for (int s=0; s< numOfSteps; s++){
+							stepOperations = JSONDictionaryParser.parseJSONPatternSteps(flagName, v, f, s);
+							for (String name: stepOperations.keySet()){
+								for (String value: stepOperations.get(name)){
+						if ((name.equals("implementationType")
+								&& opT.getImplementationType().equals(value)) || (name.equals("type")
+								&& opT.getNodeKind().name().equals(value)) || (name.equals("optype") && opT.getOperationType().getOpTypeName().equals(value))) {
 							pattern = true;
 							patternNodes.add(flagNode);
 							patternNodes.add(opT);
-						} else
-							pattern = false;
+						} else if ()
 					}
 				}
 			}
 		}
+				}}}
 		return patternNodes;	
 	}
 

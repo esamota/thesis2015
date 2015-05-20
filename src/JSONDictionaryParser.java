@@ -29,25 +29,33 @@ public class JSONDictionaryParser {
 		HashMap<String, ArrayList<BPMNElement>> mapping = parseNodeDictionary();
 		HashMap<String, ArrayList<String>> flagMapping = getNodePatternFlags();
 		HashMap<String, ArrayList<String>> patternOriginOptype = parseJSONPatternOriginOptypes();
-		//System.out.println(patternOriginOptype);
-		ArrayList<HashMap<String,String>> step1Operations = parseJSONSingleFlowPatternStep1("sortMerge");
-		System.out.println(step1Operations);
-	
-		/*for (String str : mapping.keySet()) {
-			for (BPMNElement el : mapping.get(str)) {
-				
-				System.out.println(el.getElementText());
-				for (BPMNAttribute attr : el.getAttributes()) {
-					//System.out.println(attr.name + " " + attr.value);
-				}
+		
+		/*test parsing version-flow-step of a pattern -- reused in pattern search class
+		 * Integer numOfVersions = getNumberOfPatternVersions("recoveryPoint");
+		for (int v = 0; v < numOfVersions; v++){
+			Integer numOfFlows = getNumberOfPatternFlows("recoveryPoint", v);
+			for (int f=0; f < numOfFlows; f++){
+				Integer numOfSteps = getNumberOfVersionFlowSteps("recoveryPoint", v, f);
+				//System.out.println("v = "+v+", f = "+f+ " numOfSteps = " + numOfSteps);
+				for (int s=0; s< numOfSteps; s++){
+					HashMap<String, ArrayList<String>> stepOperations = parseJSONPatternSteps("recoveryPoint", v, f, s);
+					for (String name: stepOperations.keySet()){
+						for (String value: stepOperations.get(name)){
+							System.out.println("version "+(v+1)+", flow "+(f+1)+", step "+ (s+1)+", name = "+name+", value = "+value);
+						}
+					}
+					
 			}
-			}*/
-		/*for (String optype: flagMapping.keySet()){
-			for (String flagName: flagMapping.get(optype)){
-					System.out.println(optype+" "+flagName);
-			}
+		}
+		
 		}*/
-
+		
+        HashMap<String, ArrayList<String>> wListOperations = getBlackListItems("recoveryPoint");
+        for (String name: wListOperations.keySet()){
+        	for(String value: wListOperations.get(name)){
+        		System.out.println(name+" "+value);
+        	}
+        }
 	}
 	
 	public static JSONArray getJSONRootObject(String rootName){
@@ -200,74 +208,162 @@ public class JSONDictionaryParser {
 		return patternNames;
 	}
 	
-	public static ArrayList<HashMap<String, String>> parseJSONSingleFlowPatternStep1(String flagName){
+	public static Integer getNumberOfPatternVersions(String flagName){
 		JSONArray dictionary = getJSONRootObject("patternDictionary");
 		Integer size = dictionary.size();
-		ArrayList<HashMap<String, String>> step1Operations = new ArrayList<HashMap<String, String>>(); 
-		ArrayList<String> patternOriginOptypes = new ArrayList<String>();
-		
+		Integer numOfVersions = 0;
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
 			if(patternName.equals(flagName)){
-				patternOriginOptypes = getPatternOrigin(patternName);
-				if (!patternOriginOptypes.contains(OperationTypeName.Router.name()) && !patternOriginOptypes.contains(OperationTypeName.Splitter.name())){
-				JSONArray stepsArray = (JSONArray) root.get("steps");
-				for(int s=0; s < stepsArray.size(); s++){
-					JSONObject stepsObj = (JSONObject) stepsArray.get(s);
-					
-					JSONArray step1Array = (JSONArray) stepsObj.get("s1");
-					for(int t=0; t < step1Array.size(); t++){
-					JSONObject stepObj = (JSONObject) step1Array.get(t);	
-					HashMap<String, String> stepOperation = new HashMap<String, String>();
-					String name = (String) stepObj.get("name");
-					String value = (String) stepObj.get("value");
-					stepOperation.put(name, value);
-					//System.out.println(name+" "+value);
-					step1Operations.add(stepOperation);
-					}
+				JSONArray versionsArray = (JSONArray) root.get("patternVersions");	
+				numOfVersions = versionsArray.size();
 			}
-				}
-				}
 		}
-		return step1Operations;
+		return numOfVersions;	
 	}
 	
-	//start here
-	public static HashMap<String, ArrayList<HashMap>> parseJSONSplitFlowPatternStep1(){
+	public static Integer getNumberOfPatternFlows(String flagName, Integer versionNumber){
 		JSONArray dictionary = getJSONRootObject("patternDictionary");
 		Integer size = dictionary.size();
-		HashMap<String, ArrayList<HashMap>> step1Operations = new HashMap<String, ArrayList<HashMap>>();
-		ArrayList<HashMap> stepOperations = new ArrayList<HashMap>(); 
-		ArrayList<String> patternOriginOptypes = new ArrayList<String>();
-		
+		Integer numOfFlows = 0;
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
-				patternOriginOptypes = getPatternOrigin(patternName);
-				if (!patternOriginOptypes.contains(OperationTypeName.Router.name()) && !patternOriginOptypes.contains(OperationTypeName.Splitter.name())){
-				JSONArray stepsArray = (JSONArray) root.get("steps");
-				for(int s=0; s < stepsArray.size(); s++){
-					JSONObject stepsObj = (JSONObject) stepsArray.get(s);
-					
-					JSONArray step1Array = (JSONArray) stepsObj.get("s1");
-					for(int t=0; t < step1Array.size(); t++){
-					JSONObject stepObj = (JSONObject) step1Array.get(t);	
-					HashMap stepOperation = new HashMap();
-					String name = (String) stepObj.get("name");
-					String value = (String) stepObj.get("value");
-					stepOperation.put(name, value);
-					//System.out.println(name+" "+value);
-					stepOperations.add(stepOperation);
-					}
-					step1Operations.put(patternName, new ArrayList<HashMap> (stepOperations));
-					stepOperations.clear();
+			if(patternName.equals(flagName)){
+				JSONArray versionsArray = (JSONArray) root.get("patternVersions");	
+				for(int p=0; p < versionsArray.size(); p++){
+					JSONObject versionsObj = (JSONObject) versionsArray.get(versionNumber);
+					JSONArray flowsObj =(JSONArray) versionsObj.get("flows");
+					numOfFlows = flowsObj.size();
 			}
-				}
 		}
-		return step1Operations;
+		}
+		return numOfFlows;
 	}
 	
+	public static Integer getNumberOfVersionFlowSteps(String flagName, Integer versionID, Integer flowID){
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		Integer numOfSteps = 0;
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if(patternName.equals(flagName)){
+				JSONArray versionsArray = (JSONArray) root.get("patternVersions");	
+				JSONObject versionsObj = (JSONObject) versionsArray.get(versionID);
+					
+				JSONArray flowsArray = (JSONArray) versionsObj.get("flows");
+				JSONObject flowsObj = (JSONObject) flowsArray.get(flowID);
+					
+				JSONArray flow1Array = (JSONArray) flowsObj.get("flow"+String.valueOf((flowID+1)));
+				for (int q=0; q< flow1Array.size(); q++){
+				JSONObject flowObj = (JSONObject) flow1Array.get(q);
+					
+				JSONArray stepsArray = (JSONArray) flowObj.get("steps");
+				numOfSteps = stepsArray.size();
+				}
+				}
+		}
+		return numOfSteps;
+	}
 	
+	public static HashMap<String, ArrayList<String>> getWhiteListItems(String flagName){
+		HashMap<String, ArrayList<String>> wListOperations = new HashMap<>();
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if (patternName.equals(flagName)) {
+				JSONArray wListArray = (JSONArray) root.get("whiteList");
+				for (int w=0; w < wListArray.size(); w++){
+					JSONObject wListObj = (JSONObject) wListArray.get(w);
+					String name = (String) wListObj.get("name");
+					String value = (String) wListObj.get("value");
+					if (wListOperations.get(name) == null){
+						wListOperations.put(name, new ArrayList<String>());
+						wListOperations.get(name).add(value);
+					} else wListOperations.get(name).add(value);
+				}
+			}
+	}
+		return wListOperations;
+	}
+	
+	public static HashMap<String, ArrayList<String>> getBlackListItems(String flagName){
+		HashMap<String, ArrayList<String>> bListOperations = new HashMap<>();
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if (patternName.equals(flagName)) {
+				JSONArray bListArray = (JSONArray) root.get("blackList");
+				for (int b=0; b < bListArray.size(); b++){
+					JSONObject bListObj = (JSONObject) bListArray.get(b);
+					String name = (String) bListObj.get("name");
+					String value = (String) bListObj.get("value");
+					if (bListOperations.get(name) == null){
+						bListOperations.put(name, new ArrayList<String>());
+						bListOperations.get(name).add(value);
+					} else bListOperations.get(name).add(value);
+				}
+			}
+	}
+		return bListOperations;
+	}
+	//based on the pattern name, returns name-value pairs for each version-flow-step combination
+	public static HashMap<String, ArrayList<String>> parseJSONPatternSteps(
+			String flagName, Integer versionID, Integer flowID, Integer stepID) {
+		JSONArray dictionary = getJSONRootObject("patternDictionary");
+		Integer size = dictionary.size();
+		HashMap<String, ArrayList<String>> stepOperations = new HashMap<String, ArrayList<String>>();
+		ArrayList<String> patternOriginOptypes = new ArrayList<String>();
+
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if (patternName.equals(flagName)) {
+
+				JSONArray versionsArray = (JSONArray) root
+						.get("patternVersions");
+				// for(int p=0; p < versionsArray.size(); p++){
+				JSONObject versionsObj = (JSONObject) versionsArray
+						.get(versionID);
+				JSONArray flowsArray = (JSONArray) versionsObj.get("flows");
+				// for(int f=0; f < flowsArray.size(); f++){
+				JSONObject flowsObj = (JSONObject) flowsArray.get(flowID);
+
+				JSONArray flowNArray = (JSONArray) flowsObj.get("flow"
+						+ String.valueOf((flowID + 1)));
+				for (int q = 0; q < flowNArray.size(); q++) {
+					JSONObject flowObj = (JSONObject) flowNArray.get(q);
+
+					JSONArray stepsArray = (JSONArray) flowObj.get("steps");
+					// for(int s=0; s < stepsArray.size(); s++){
+					JSONObject stepsObj = (JSONObject) stepsArray.get(stepID);
+
+					JSONArray stepNArray = (JSONArray) stepsObj.get("s"
+							+ String.valueOf((stepID + 1)));
+					for (int t = 0; t < stepNArray.size(); t++) {
+						JSONObject stepObj = (JSONObject) stepNArray.get(t);
+						String name = (String) stepObj.get("name");
+						String value = (String) stepObj.get("value");
+						if (stepOperations.get(name) == null) {
+							stepOperations.put(name, new ArrayList<String>());
+							stepOperations.get(name).add(value);
+						} else
+							stepOperations.get(name).add(value);
+					}
+				}
+			}
+		}
+		// }
+		// }
+		// }
+		return stepOperations;
+	}
+
 
 }

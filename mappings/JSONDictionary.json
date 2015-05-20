@@ -216,10 +216,35 @@
 "patternDictionary":[
 {"name":"sortMerge",
 "origin":[{"name":"optype", "value":"Sort"}],
-"steps":[
-	{"s1":[{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}],
-	"s2":[{"name":"*", "value":"*"}]}],
+"patternVersions":[
+	{"flows":[
+		{"flow1":[
+			{"steps":[
+				{"s1":[{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}]},
+				{"s2":[{"name":"*", "value":"*"}]}]}]}]}],
 "whiteList":[{"name":"", "value":""}],
+"blackList":[{"name":"", "value":""}]
+},
+
+{"name":"recoveryPoint",
+"origin":[{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}],
+"patternVersions":[
+{"flows": [
+	{"flow1":[
+		{"steps":[
+			{"s1":[{"name":"type", "value":"datastore"}]}]}]}, 
+	{"flow2":[
+		{"steps":[
+			{"s1":[{"name":"*", "value":"*"}]}]}]}]},
+{"flows": [
+	{"flow1":[
+		{"steps":[
+			{"s1":[{"name":"*", "value":"whiteList"}]},
+			{"s2":[{"name":"type", "value":"datastore"}]}]}]}, 
+	{"flow2":[
+		{"steps":[{"s1":[{"name":"*", "value":"*"}]}]}]}]}
+],
+"whiteList":[{"name":"optype", "value":"UserDefinedFuction"}],
 "blackList":[{"name":"", "value":""}]
 }
 
