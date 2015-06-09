@@ -8,12 +8,13 @@ import java.util.List;
 
 import javax.lang.model.util.Elements;
 
-import operationDictionary.OperationTypeName;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import operationDictionary.OperationTypeName;
+
 
 public class JSONDictionaryParser {
 
@@ -30,8 +31,17 @@ public class JSONDictionaryParser {
 		HashMap<String, ArrayList<String>> flagMapping = getNodePatternFlags();
 		HashMap<String, ArrayList<String>> patternOriginOptype = parseJSONPatternOriginOptypes();
 		
-		/*test parsing version-flow-step of a pattern -- reused in pattern search class
-		 * Integer numOfVersions = getNumberOfPatternVersions("recoveryPoint");
+		HashMap<String, ArrayList<String>> stepOperations = parseJSONPatternSteps("subprocess", 0, 0, 0);
+		for (String name: stepOperations.keySet()){
+			for (String value: stepOperations.get(name)){
+				System.out.println("name = "+name+", value = "+value);
+				//if (value.equals("whiteList")) System.out.println("true");
+			}
+		}
+		System.out.println(stepOperations.get("*").contains("whiteList"));
+		
+		//test parsing version-flow-step of a pattern -- reused in pattern search class
+		/* Integer numOfVersions = getNumberOfPatternVersions("recoveryPoint");
 		for (int v = 0; v < numOfVersions; v++){
 			Integer numOfFlows = getNumberOfPatternFlows("recoveryPoint", v);
 			for (int f=0; f < numOfFlows; f++){
@@ -275,6 +285,7 @@ public class JSONDictionaryParser {
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String patternName = (String) root.get("name");
+			System.out.println("inside getWhiteList items "+ patternName + " "+ flagName);
 			if (patternName.equals(flagName)) {
 				JSONArray wListArray = (JSONArray) root.get("whiteList");
 				for (int w=0; w < wListArray.size(); w++){

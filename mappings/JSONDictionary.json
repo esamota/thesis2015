@@ -17,15 +17,17 @@
 
 {"category": "optype",
 "name": "Sort",
-"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
-												{"name":"name", "value":""}]}],
-"patternFlag":[{"name":"sortMerge"}]																				
+"bpmnElement": 
+[{"name":"task", "attributes":[{"name":"id", "value":""}, 
+							{"name":"name", "value":""}]}],
+"patternFlag":[{"name":"sortMerge"}, {"name":"subprocess"}]																				
 },
 
 {"category": "optype",
 "name": "Project",
-"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":""}, 
-												{"name":"name", "value":""}]}],
+"bpmnElement":
+[{"name":"task", "attributes":[{"name":"id", "value":""}, 
+							{"name":"name", "value":""}]}],
 "patternFlag":[{"name":""}]
 },
 
@@ -120,13 +122,13 @@
 {"category":"optype",
 "name": "Join",
 "bpmnElement":[{"name":"parallelGateway","attributes":[{"name":"gatewayDirection", "value":"Converging"},
-												{"name":"id", "value":""}, 
-												{"name":"name", "value":""}]},
-				{"name":"sequenceFlow", "attributes":[{"name":"id", "value": ""},
-													{"name":"sourceRef", "value":""},
-													{"name":"targetRef", "value": ""}]},
-				{"name":"task", "attributes":[{"name":"id", "value":"create"}, 
-												{"name":"name", "value":"create"}]}],
+														{"name":"id", "value":""}, 
+														{"name":"name", "value":""}]},
+			   {"name":"sequenceFlow", "attributes":[{"name":"id", "value": ""},
+														{"name":"sourceRef", "value":""},
+														{"name":"targetRef", "value": ""}]},
+			   {"name":"task", "attributes":[{"name":"id", "value":"create"}, 
+														{"name":"name", "value":"create"}]}],
 "patternFlag":[{"name":"subprocess"}]
 },
 
@@ -220,31 +222,49 @@
 	{"flows":[
 		{"flow1":[
 			{"steps":[
-				{"s1":[{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}]},
-				{"s2":[{"name":"*", "value":"*"}]}]}]}]}],
+				{"s1":[{"name":"implementationType", "value":"MERGE"},{"name":"implementationType", "value":"LEFTOUTERMERGE"}]}]}]}]}],
 "whiteList":[{"name":"", "value":""}],
 "blackList":[{"name":"", "value":""}]
 },
 
 {"name":"recoveryPoint",
 "origin":[{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}],
+"bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
+												{"name":"id", "value":""},
+												{"name":"isForCompensation", "value":"false"},
+												{"name":"name", "value":"Recovery Point"}
+												{"name": "startQuantity", "value":"1"},
+												{"name": "triggeredByEvent", "value":"false"}]}],
 "patternVersions":[
 {"flows": [
 	{"flow1":[
 		{"steps":[
-			{"s1":[{"name":"type", "value":"datastore"}]}]}]}, 
-	{"flow2":[
-		{"steps":[
-			{"s1":[{"name":"*", "value":"*"}]}]}]}]},
+			{"s1":[{"name":"type", "value":"Operator"}]}]}]}
+			]},
 {"flows": [
 	{"flow1":[
 		{"steps":[
 			{"s1":[{"name":"*", "value":"whiteList"}]},
-			{"s2":[{"name":"type", "value":"datastore"}]}]}]}, 
-	{"flow2":[
-		{"steps":[{"s1":[{"name":"*", "value":"*"}]}]}]}]}
+			{"s2":[{"name":"type", "value":"Datastore"}]}]}]}
+			]}
 ],
-"whiteList":[{"name":"optype", "value":"UserDefinedFuction"}],
+"whiteList":[{"name":"optype", "value":"LeftOuterJoin"},{"name":"optype", "value":"Sort"}],
+"blackList":[{"name":"", "value":""}]
+},
+
+{"name":"compensation",
+"origin":[{"name":"optype", "value":"Splitter"},{"name":"optype", "value":"Router"}],
+"patternVersions":[
+{"flows": [
+	{"flow1":[
+		{"steps":[
+			{"s1":[{"name":"#1", "value":"whiteList"}]},
+			{"s2":[{"name":"type", "value":"Datastore"}]}]}]}, 
+	{"flow2":[
+		{"steps":[
+			{"s1":[{"name":"*", "value":"*"}]}]}]}]}
+],
+"whiteList":[{"name":"optype", "value":"UserDefinedFunction"}],
 "blackList":[{"name":"", "value":""}]
 }
 
