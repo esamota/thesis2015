@@ -77,9 +77,9 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		//parsed JSON dictionary
 		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser
-				.parseNodeDictionary();
+				.parseSingleOperationPatterns();
 		//gets an array list of pattern name flags for each optype in the dictionary
-		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getNodePatternFlags();
+		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getOperatorPatternFlags();
 		//all elements from the dictionary that belong to the graph of this xLM document
 		//ArrayList<BPMNElement> graphElements = BPMNConstructsGenerator.getGraphElements(G, ops, mapping);
 		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();

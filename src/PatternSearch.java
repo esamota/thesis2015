@@ -27,7 +27,7 @@ public class PatternSearch extends DirectedAcyclicGraph {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser
-				.getNodePatternFlags();
+				.getOperatorPatternFlags();
 
 		/*
 		 * for (Integer i: ops.keySet()){ ArrayList<Pattern> nodePatterns =
@@ -69,7 +69,7 @@ public class PatternSearch extends DirectedAcyclicGraph {
 	// can obtain a list of pattern names that belong to a node
 	public static ArrayList<String> getNodeFlags(OperationTypeName optypeName) {
 		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser
-				.getNodePatternFlags();
+				.getOperatorPatternFlags();
 		ArrayList<String> nodeFlagNames = new ArrayList<String>();
 		for (String opName : flagMapping.keySet()) {
 			if (opName.equals(optypeName.name())) {
@@ -197,19 +197,16 @@ public class PatternSearch extends DirectedAcyclicGraph {
 			patternNodes.add(flagNode);
 			for (ETLFlowOperation opT : targetNodes) {
 
-				numOfVersions = JSONDictionaryParser
-						.getNumberOfPatternVersions(flagName);
+				numOfVersions = 0;
 				System.out.println("new version^^^^^^^^^^^^^^^^^^^");
 				for (int v = 0; v < numOfVersions; v++) {
 
-					numOfFlows = JSONDictionaryParser.getNumberOfPatternFlows(
-							flagName, v);
+					numOfFlows = 0;
 					System.out.println("new flow------------------------------");
 					for (int f = 0; f < numOfFlows; f++) {
 
 						if (pattern == false) break;
-						numOfSteps = JSONDictionaryParser
-								.getNumberOfVersionFlowSteps(flagName, v, f);
+						numOfSteps = 0;
 						System.out.println("new step************************");
 						
 						for (int s = 0; s < numOfSteps; s++) {

@@ -1,126 +1,126 @@
 {
 "patternDictionary":[
 
-{"name":"filter",
+{"name":"Filter",
 "description" : "A simple mapping for any node with operation type Filter",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Filter"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Filter"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 											{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"grouper",
+{"name":"Grouper",
 "description" : "A simple mapping for any node with operation type Grouper",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Grouper"]}]],
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Grouper"}]}}]}
+],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 											{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"sort",
+{"name":"Sort",
 "description": "A simple mapping for any node with 
 				operation type Sort",
 "pattern":[
 	{"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Sort"]}]}],
+		{"s1": {"name": "optype", "values": [{"value": "Sort"}]}}]}
+],
 "bpmnElement": 
 	[{"name":"task", 
 	"attributes":[{"name":"id", "value":"$id"}, 
-				{"name":"name", "value":"$name"}]}]																			
+				{"name":"name", "value":"$name"}]}],
+"patternFlag":[{"name":"mergeJoin"}]																			
 },
 
-
-,
-"patternFlag":[{"name":"mergeJoin"}]	
-{"name":"project",
+{"name":"Project",
 "description": "A simple mapping for any node with operation type Project",
 "pattern": [
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Project"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Project"}]}}]}
 ],
 "bpmnElement":[{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 							{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"attributeAddition",
+{"name":"AttributeAddition",
 "description": "A simple mapping for any node with operation type AttributeAddition",
 "pattern": [
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "AttributeAddition"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "AttributeAddition"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"distinct",
+{"name":"Distinct",
 "description": "A simple mapping for any node with operation type Distinct",
 "pattern": [
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Distinct"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Distinct"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":""}]
 },
 
-{"name":"rename",
+{"name":"Rename",
 "description": "A simple mapping for any node with operation type Rename",
 "pattern": [
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Rename"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Rename"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"topK",
+{"name":"TopK",
 "description": "A simple mapping for any node with operation type TopK",
 "pattern": [
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "TopK"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "TopK"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":""}]
 },
 
-{"name":"userDefinedFunction",
+{"name":"UserDefinedFunction",
 "description": "A simple mapping for any node with operation type UserDefinedFunction",
 "pattern": [
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "UserDefinedFunction"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "UserDefinedFunction"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]}],
 "patternFlag":[{"name":""}]
 },
 
-{"name":"router",
+{"name":"Router",
 "description": "A simple mapping for any node with operation type Router",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Router"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Router"}]}}]}
 ],
 "bpmnElement": [{"name":"complexGateway", "attributes":[{"name":"gatewayDirection","value":"Unspecified"}, 
 												{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]},
 				{"name":"conditionExpression", "attributes":[], "text":"$condition"}],
-"patternFlag":[{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}]
+"patternFlag":[{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}, {"name":"externalDataValidation"}]
 },
 							 
-{"name":"union",
+{"name":"Union",
 "description": "A simple mapping for any node with operation type Union",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Union"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Union"}]}}]}
 ],
 "bpmnElement": [{"name":"parallelGateway","attributes":[{"name":"gatewayDirection","value":"Converging"},
 														{"name":"id", "value":"$id"}, 
@@ -128,11 +128,11 @@
 "patternFlag":[{"name":""}]
 },
 							 
-{"name":"merger",
+{"name":"Merger",
 "description": "A simple mapping for any node with operation type Merger",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Merger"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Merger"}]}}]}
 ],
 "bpmnElement": [{"name":"parallelGateway", "attributes":[{"name":"gatewayDirection","value":"Converging"},
 														{"name":"id", "value":"$id"}, 
@@ -145,11 +145,11 @@
 "patternFlag":[{"name":"subprocess"}]
 },
 							 
-{"name":"voter",
+{"name":"Voter",
 "description": "A simple mapping for any node with operation type Voter",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Voter"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Voter"}]}}]}
 ],
 "bpmnElement": [{"name":"eventBasedGateway","attributes":[{"name":"gatewayDirection","value":"Mixed"},
 														{"name":"id", "value":"$id"}, 
@@ -157,23 +157,23 @@
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"splitter",
+{"name":"Splitter",
 "description": "A simple mapping for any node with operation type Splitter",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Splitter"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Splitter"}]}}]}
 ],
 "bpmnElement": [{"name":"parallelGateway","attributes":[{"name":"gatewayDirection","value":"Diverging"},
 														{"name":"id", "value":"$id"}, 
 														{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"recoveryPoint"},{"name":"compensation"}, {"name":"subprocess"}]
+"patternFlag":[{"name":"recoveryPoint"},{"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}]
 },
 
-{"name":"join",
+{"name":"Join",
 "description": "A simple mapping for any node with operation type Join",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "Join"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Join"}]}}]}
 ],
 "bpmnElement":[{"name":"parallelGateway","attributes":[{"name":"gatewayDirection", "value":"Converging"},
 														{"name":"id", "value":"$id"}, 
@@ -186,11 +186,11 @@
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"leftOuterJoin",
+{"name":"LeftOuterJoin",
 "description": "A simple mapping for any node with operation type LeftOuterJoin",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "LeftOuterJoin"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "LeftOuterJoin"}]}}]}
 ],
 "bpmnElement":[{"name":"parallelGateway","attributes":[{"name":"gatewayDirection", "value":"Converging"},
 														{"name":"id", "value":"$id"}, 
@@ -203,11 +203,11 @@
 "patternFlag":[{"name":"subprocess"}]
 },
 
-{"name":"tableInput",
+{"name":"TableInput",
 "description": "A simple mapping for any node with operation type TableInput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "TableInput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "TableInput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -215,11 +215,11 @@
 "patternFlag":[{"name":""}]
 },
 
-{"name":"tableOutput",
+{"name":"TableOutput",
 "description": "A simple mapping for any node with operation type TableOutput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "TableOutput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "TableOutput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -227,11 +227,11 @@
 "patternFlag":[{"name":""}]
 },
 
-{"name":"fileInput",
+{"name":"FileInput",
 "description": "A simple mapping for any node with operation type FileInput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "FileInput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "FileInput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -239,11 +239,11 @@
 "patternFlag":[{"name":""}]
 },
 
-{"name":"fileOutput",
+{"name":"FileOutput",
 "description": "A simple mapping for any node with operation type FileOutput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "FileOutput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "FileOutput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -254,8 +254,8 @@
 {"name":"XMLInput",
 "description": "A simple mapping for any node with operation type XMLInput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "XMLInput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "XMLInput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -266,8 +266,8 @@
 {"name":"XMLOutput",
 "description": "A simple mapping for any node with operation type XMLOutput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "XMLOutput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "XMLOutput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -278,8 +278,8 @@
 {"name":"ExcelInput",
 "description": "A simple mapping for any node with operation type ExcelInput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "ExcelInput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "ExcelInput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -290,8 +290,8 @@
 {"name":"ExcelOutput",
 "description": "A simple mapping for any node with operation type ExcelOutput",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": ["value": "ExcelOutput"]}]
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "ExcelOutput"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -302,8 +302,8 @@
 {"name":"edge",
 "description": "A simple mapping for any xLM edge",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "edge", "values": ["value": "N/A"]}]
+	{"sequence":[
+		{"s1": {"name": "edge", "values": [{"value": "N/A"}]}}]}
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
@@ -314,18 +314,20 @@
 {"name":"mergeJoin",
 "description": "A user-defined control-flow pattern that depicts a merge Join between two sorted data inputs in an ETL flow",
 "pattern":[
-	"splitFlow":[
+	{"sequence": []},
+	{"splitFlow":[
 		{"flow1":[
-			"repeat": "=1",
+			{"repeat": "=1",
 			"sequence":[
-				"s1": {"name": "optype", "values":["value": "Sort"]}]]},
+				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]},
 		{"flow2":[
-			"repeat": "=1",
+			{"repeat": "=1",
 			"sequence":[
-				"s1": {"name": "optype", "values":["value": "Sort"]}]]}
-		],
-	"sequence": [
-		"s1": {"name":"optype", "values": ["value": "Join", "value": "LeftOuterJoin"]}]
+				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]}]
+	},
+	{"sequence": [
+		{"s1": {"name":"optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}}]
+	}
 ],
 "bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
 												{"name":"id", "value":"$id"},
@@ -336,19 +338,19 @@
 },
 
 {"name":"recoveryPoint",
-"description": "A user-defined control-flow pattern that 
-				identifies check-pointing in an ETL flow",
-"pattern":[{
-	"sequence":[
-		"s1": {"name": "optype", "values": 
-								["value": "Splitter", "value": "Router"]}],
-	"splitFlow":[
+"description": "A user-defined control-flow pattern that identifies check-pointing in an ETL flow",
+"pattern":[
+	{"sequence":[
+		{"s1": {"name": "optype", "values": 
+								[{"value": "Splitter"}, {"value": "Router"}]}}]},
+	{"splitFlow":[
 		{"flow1":[
-			"repeat": "=1",
-			"sequence":[{
-				"s1":{"name":"*", "values": ["value": "whiteList"]},
-				"s2":{"name":"type", "values": ["value": "Datastore"]}]}]}]
-}],
+			{"repeat": "=1",
+			"sequence":[
+				{"s1":{"name":"*", "values": [{"value": "whiteList"}]},
+				"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
+	}
+],
 "bpmnElement":[
 	{"name":"subprocess", 
 	 "attributes":[{"name":"name", "value":"$create"},
@@ -357,22 +359,22 @@
 				{"name":"isForCompensation", "value":"false"},
 				{"name": "startQuantity", "value":"1"},
 				{"name": "triggeredByEvent", "value":"false"}]}],
-"whiteList":[{"name": "optype", "values": ["value": "UserDefinedFunction"]}]
+"whiteList":[{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
 },
 
 {"name":"compensation",	
-"description": "A user-defined control-flow pattern to depict 
-				compensation action operations in an ETL flow",
-"pattern":[{
-	"sequence": [
-		{"s1": {"name": "optype", "values": ["value": "Splitter", "value": "Router"]}}],
-	"splitFlow":[
+"description": "A user-defined control-flow pattern to depict compensation action operations in an ETL flow",
+"pattern":[
+	{"sequence": [
+		{"s1": {"name": "optype", "values": [{"value": "Splitter"}, {"value": "Router"}]}}]},
+	{"splitFlow":[
 		{"flow1":[
-			"repeat": "=1",
+			{"repeat": "=1",
 			"sequence":[
-				{"s1": {"name":"#1", "values": ["value": "whiteList"]}},
-				{"s2": {"name":"type", "values":["value": "Datastore"]}}]]}]
-}],
+				{"s1": {"name":"#1", "values": [{"value": "whiteList"}]}},
+				{"s2": {"name":"type", "values":[{"value": "Datastore"}]}}]}]}]
+	}
+],
 "bpmnElement":[
 	{"name":"subprocess", 
 	 "attributes":[{"name":"name", "value":"$create"},
@@ -381,40 +383,42 @@
 				{"name":"isForCompensation", "value":"true"},
 				{"name": "startQuantity", "value":"1"},
 				{"name": "triggeredByEvent", "value":"false"}]}], 
-"whiteList": [{"name": "optype", "values": ["value": "UserDefinedFunction"]}]
+"whiteList": [{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
 },
 
 {"name":"subprocess",
 "description": "A user-defined ETL flow pattern that groups parts on the flow that can be pipelined",
-"pattern":[{
-	"sequence":[							
-		{"s1":{"name": "*", "values":["value": "whiteList"]}}]
-}],
+"pattern":[
+	{"sequence":[							
+		{"s1":{"name": "*", "values":[{"value": "whiteList"}]}}]
+	}
+],
 "bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
 												{"name":"id", "value":"$id"},
 												{"name":"isForCompensation", "value":"false"},
 												{"name":"name", "value":"$create"}
 												{"name": "startQuantity", "value":"1"},
 												{"name": "triggeredByEvent", "value":"false"}]}],
-"whiteList":[{"name":"optype", "values": ["value": "Router", "value":"Splitter", "value":"Merger", "value":"Voter", 
-				"value":"Filter", "value":"AttributeAddition", "value":"Rename", "value":"Project"]},
-			{"name": "implementationType", "values": ["value": "MERGE", "value": "LEFTOUTERMERGE"]}],
-"blackList":[{"name": "optype", "values": ["value":"Sort", "value":"Distinct", "value":"TopK",  "value":"UserDefinedFunction", "value":"Union"]},
-				{"name": "implementationType", "values": ["value": "HASH", "value":"LEFTOUTERHASH"]}]
+"whiteList":[{"name":"optype", "values": [{"value": "Router"}, {"value":"Splitter"}, {"value":"Merger"}, {"value":"Voter"}, 
+				{"value":"Filter"}, {"value":"AttributeAddition"}, {"value":"Rename"}, {"value":"Project"}]},
+			{"name": "implementationType", "values": [{"value": "MERGE"}, {"value": "LEFTOUTERMERGE"}]}],
+"blackList":[{"name": "optype", "values": [{"value":"Sort"}, {"value":"Distinct"}, {"value":"TopK"},  {"value":"UserDefinedFunction"}, {"value":"Union"}]},
+				{"name": "implementationType", "values": [{"value": "HASH"}, {"value":"LEFTOUTERHASH"}]}]
 },
 
 {"name":"replication",
-"description": "A user-defined control-flow pattern that 
-				identifies replication in an ETL flow",
+"description": "A user-defined control-flow pattern that identifies replication in an ETL flow",
 "pattern":[
-	"sequence":[
-		"s1": {"name": "optype", "values": 
-								["value": "Splitter", "value": "Router"]}],
-	"splitFlow":[
+	{"sequence":[
+		{"s1": {"name": "optype", "values": 
+								[{"value": "Splitter"}, {"value": "Router"}]}}]
+	},
+	{"splitFlow":[
 		{"flow1":[
-			"repeat": ">1",
+			{"repeat": ">1",
 			"sequence":[
-				"s1":{"name":"*", "values": ["value": "*"]}]]}]
+				{"s1":{"name":"*", "values": [{"value": "*"}]}}]}]}]
+	}
 ],
 "bpmnElement":[
 	{"name":"subprocess", 
@@ -429,7 +433,33 @@
 				{"name":"isSequential", "value":"false"}]}]
 },
 
-
+{"name":"externalDataValidation",
+"description": "A user-defined pattern that identifies data quality actions to fill in null values in an ETL flow data input via a web service call",
+"pattern":[
+	{"sequence":[
+		{"s1": {"name": "optype", "values": 
+								[{"value": "Router"}]}}]
+	},
+	{"splitFlow":[
+		{"flow1":[
+			{"repeat": "=1",
+			"sequence":[
+				{"s1":{"name":"*", "values": [{"value": "*"}]},
+				"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}, 
+				"s3":{"name":"*", "values": [{"value": "*"}]}}]}]}]
+	},		
+	{"sequence": {"name":"optype", "values": [{"value": "Union"}]}
+	}
+],
+"bpmnElement":[
+	{"name":"subprocess", 
+	 "attributes":[{"name":"name", "value":"$create"},
+				{"name":"id", "value":"$id"},
+				{"name":"completionQuantity", "value":"1"},
+				{"name":"isForCompensation", "value":"false"},
+				{"name": "startQuantity", "value":"1"},
+				{"name": "triggeredByEvent", "value":"false"}]}]
+}
 ]
 }
 
