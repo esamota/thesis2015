@@ -1,3 +1,4 @@
+package toBPMN;
 import importXLM.ImportXLMToETLGraph;
 
 import java.io.BufferedWriter;
@@ -24,6 +25,9 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
+import utilities.BPMNElementTagName;
+import utilities.JSONDictionaryParser;
+import utilities.XLMParser;
 import etlFlowGraph.ETLNonFunctionalCharacteristic;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;

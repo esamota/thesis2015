@@ -1,3 +1,4 @@
+package patternDiscovery;
 
 public class PatternFlow {
 	

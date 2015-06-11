@@ -1,3 +1,4 @@
+package toBPMN;
 
 public class BPMNAttribute {
 

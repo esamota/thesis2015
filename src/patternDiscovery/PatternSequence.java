@@ -1,3 +1,4 @@
+package patternDiscovery;
 import java.util.ArrayList;
 
 public class PatternSequence {

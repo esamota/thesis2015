@@ -1,3 +1,4 @@
+package utilities;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,6 +17,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import operationDictionary.OperationTypeName;
+import toBPMN.BPMNAttribute;
+import toBPMN.BPMNElement;
 
 
 public class JSONDictionaryParser {
@@ -456,6 +459,33 @@ public class JSONDictionaryParser {
 		}}
 		return splitFlowSteps;
 		}
+	
+	public static String getFlowRepeatValue(String flagName, Integer flowID){
+		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
+		Integer size = dictionary.size();
+		String repeat="";
+		
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if(patternName.equals(flagName)){
+				JSONArray pattern = (JSONArray) root.get("pattern");
+				for (int p = 0; p < pattern.size(); p++){
+					JSONObject patternObj = (JSONObject) pattern.get(p);
+					if (patternObj.get("splitFlow") != null){
+						JSONArray splitFlow = (JSONArray) patternObj.get("splitFlow");
+							JSONObject splitFlowObj = (JSONObject) splitFlow.get(flowID);
+							JSONArray flow = (JSONArray) splitFlowObj.get("flow"+String.valueOf(flowID+1));
+							for (int q=0; q< flow.size(); q++){
+							JSONObject flowObj = (JSONObject) flow.get(q);
+							if (flowObj.get("repeat") != null) repeat = (String) flowObj.get("repeat");
+							}
+					}
+				}
+			}
+		}
+		return repeat;
+	}
 	
 	public static HashMap<String, ArrayList<String>> getWhiteListItems(String flagName){
 		HashMap<String, ArrayList<String>> wListOperations = new HashMap<>();

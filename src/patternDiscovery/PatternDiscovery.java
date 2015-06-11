@@ -1,3 +1,4 @@
+package patternDiscovery;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -14,10 +15,12 @@ import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
 import operationDictionary.OperationTypeName;
+import utilities.JSONDictionaryParser;
+import utilities.XLMParser;
 
-public class PatternSearch extends DirectedAcyclicGraph {
+public class PatternDiscovery extends DirectedAcyclicGraph {
 
-	public PatternSearch(Class arg0) {
+	public PatternDiscovery(Class arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
@@ -106,10 +109,7 @@ public class PatternSearch extends DirectedAcyclicGraph {
 		// In the HashMap: vector id, and an array of patterns that it points to
 		HashMap<Integer, ArrayList<PatternElement>> patternLinks = new HashMap<Integer, ArrayList<PatternElement>>();
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<ETLFlowOperation>();
-		// HashMap<Pattern, ArrayList<ETLFlowOperation>> patternNodes = new
-		// HashMap<Pattern, ArrayList<ETLFlowOperation>>();
 		int counter = 1;
-		// start to iterate the graph in topological order
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
 			Integer v = graphIter.next();

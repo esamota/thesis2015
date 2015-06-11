@@ -1,3 +1,4 @@
+package toBPMN;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +9,11 @@ import java.util.Random;
 import org.apache.xerces.parsers.XMLParser;
 
 import operationDictionary.OperationTypeName;
+import patternDiscovery.PatternDiscovery;
+import patternDiscovery.PatternElement;
+import utilities.BPMNElementTagName;
+import utilities.JSONDictionaryParser;
+import utilities.XLMParser;
 import etlFlowGraph.attribute.Attribute;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
@@ -62,7 +68,7 @@ public class BPMNConstructsGenerator {
 			if (!visitedNodes.contains(v)) {
 				System.out.println("node hasn't been visited");
 				// get links to patterns for this node
-				patternLinksPerNode = PatternSearch.getLinksToPatternsForNode(
+				patternLinksPerNode = PatternDiscovery.getLinksToPatternsForNode(
 						G, ops, node.getNodeID());
 				if (patternLinksPerNode.size() == 0) {
 					System.out.println("doesn't have pattern links");
