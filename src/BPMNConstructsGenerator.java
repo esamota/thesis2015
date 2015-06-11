@@ -50,7 +50,7 @@ public class BPMNConstructsGenerator {
 	public static ArrayList<BPMNElement> secondPass(ETLFlowGraph G,
 			Hashtable<Integer, ETLFlowOperation> ops,
 			HashMap<String, ArrayList<BPMNElement>> mapping) {
-		ArrayList<Pattern> patternLinksPerNode = new ArrayList<Pattern>();
+		ArrayList<PatternElement> patternLinksPerNode = new ArrayList<PatternElement>();
 		ArrayList<BPMNElement> graphBPMNElements = new ArrayList<BPMNElement>();
 		ArrayList<Integer> visitedNodes = new ArrayList<Integer>();
 		Iterator<Integer> graphIter = G.iterator();
@@ -78,7 +78,7 @@ public class BPMNConstructsGenerator {
 				}
 				if (patternLinksPerNode.size() != 0) {
 					// in the future, check is there are overlappings here
-					for (Pattern linkedPattern : patternLinksPerNode) {
+					for (PatternElement linkedPattern : patternLinksPerNode) {
 						System.out.println("----");
 						System.out.println("has a subprocess called "+linkedPattern.getPatternName());
 						BPMNElement subprocess = createBPMNSubprocess(linkedPattern);
@@ -159,7 +159,7 @@ public class BPMNConstructsGenerator {
 	public static void createBPMNEndEvent(){
 		
 	}
-	public static BPMNElement createBPMNSubprocess(Pattern pattern){
+	public static BPMNElement createBPMNSubprocess(PatternElement pattern){
 		BPMNElement subprocess = new BPMNElement(pattern.getPatternName()+"_"+"Pattern");
 		//attributes ---------------------------------------------------------------------
 		ArrayList<BPMNAttribute> subprocessAttributes = new ArrayList<BPMNAttribute>();

@@ -3,7 +3,7 @@ import java.util.Random;
 
 import etlFlowGraph.operation.ETLFlowOperation;
 
-public class Pattern {
+public class PatternElement {
 
 	private String patternName;
 	private String patternID;
@@ -11,11 +11,11 @@ public class Pattern {
 	private ETLFlowOperation patternStartNode;
 	private ETLFlowOperation patternEndNode;
 
-	public Pattern() {
+	public PatternElement() {
 
 	}
 
-	public Pattern(String name) {
+	public PatternElement(String name) {
 		Random randomGenerator = new Random();
 		String randomID= "_p"+randomGenerator.nextInt(100);
 		this.patternName = name;

@@ -83,14 +83,14 @@ public class PatternSearch extends DirectedAcyclicGraph {
 		return nodeFlagNames;
 	}
 
-	public static ArrayList<Pattern> getLinksToPatternsForNode(ETLFlowGraph G,
+	public static ArrayList<PatternElement> getLinksToPatternsForNode(ETLFlowGraph G,
 			Hashtable<Integer, ETLFlowOperation> ops, Integer nodeID) {
-		HashMap<Integer, ArrayList<Pattern>> patternLinks = getLinksToPatterns(
+		HashMap<Integer, ArrayList<PatternElement>> patternLinks = getLinksToPatterns(
 				G, ops);
-		ArrayList<Pattern> patternLinksPerNode = new ArrayList<Pattern>();
+		ArrayList<PatternElement> patternLinksPerNode = new ArrayList<PatternElement>();
 		for (Integer key : patternLinks.keySet()) {
 			if (key.intValue() == nodeID.intValue()) {
-				for (Pattern pattern : patternLinks.get(key)) {
+				for (PatternElement pattern : patternLinks.get(key)) {
 					patternLinksPerNode.add(pattern);
 				}
 			}
@@ -100,11 +100,11 @@ public class PatternSearch extends DirectedAcyclicGraph {
 
 	// returns each node with a list of links to pattern objects that it belongs
 	// to
-	public static HashMap<Integer, ArrayList<Pattern>> getLinksToPatterns(
+	public static HashMap<Integer, ArrayList<PatternElement>> getLinksToPatterns(
 			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops) {
 		ArrayList<String> flagNames = new ArrayList<String>();
 		// In the HashMap: vector id, and an array of patterns that it points to
-		HashMap<Integer, ArrayList<Pattern>> patternLinks = new HashMap<Integer, ArrayList<Pattern>>();
+		HashMap<Integer, ArrayList<PatternElement>> patternLinks = new HashMap<Integer, ArrayList<PatternElement>>();
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<ETLFlowOperation>();
 		// HashMap<Pattern, ArrayList<ETLFlowOperation>> patternNodes = new
 		// HashMap<Pattern, ArrayList<ETLFlowOperation>>();
@@ -124,13 +124,13 @@ public class PatternSearch extends DirectedAcyclicGraph {
 					patternNodes = getNodesOfExistingPatterns(ops, G, node,
 							flagName);
 					if (patternNodes.size() != 0) {
-						Pattern patternObj = new Pattern(flagName);
+						PatternElement patternObj = new PatternElement(flagName);
 
 						for (ETLFlowOperation op : patternNodes) {
 							patternObj.addPatternNode(op);
 							if (patternLinks.get(op.getNodeID()) == null) {
 								patternLinks.put(op.getNodeID(),
-										new ArrayList<Pattern>());
+										new ArrayList<PatternElement>());
 								patternLinks.get(op.getNodeID())
 										.add(patternObj);
 							} else
@@ -139,7 +139,7 @@ public class PatternSearch extends DirectedAcyclicGraph {
 						}
 					}
 				}
-			} else patternLinks.put(node.getNodeID(), new ArrayList<Pattern>());
+			} else patternLinks.put(node.getNodeID(), new ArrayList<PatternElement>());
 		}
 		// System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
 		return patternLinks;
