@@ -1,79 +1,53 @@
 package patternDiscovery;
+
 import java.util.ArrayList;
 import java.util.Random;
 
+import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
 
-public class PatternElement {
-
-	private String patternName;
-	private String patternID;
-	private ArrayList<ETLFlowOperation> patternNodes;
-	private ETLFlowOperation patternStartNode;
-	private ETLFlowOperation patternEndNode;
-
-	public PatternElement() {
-
-	}
-
-	public PatternElement(String name) {
-		Random randomGenerator = new Random();
-		String randomID= "_p"+randomGenerator.nextInt(100);
-		this.patternName = name;
-		this.patternID = randomID;
-		patternNodes = new ArrayList<ETLFlowOperation>();
-		patternStartNode= new ETLFlowOperation();
-		patternEndNode = new ETLFlowOperation();
-	}
-
-	public void addPatternNodes(ArrayList<ETLFlowOperation> nodes){
-		for (ETLFlowOperation op: nodes){
-			patternNodes.add(op);
-		}
-	}
-	public void addPatternNode(ETLFlowOperation op1){
-		patternNodes.add(op1);
-	}
+public abstract class PatternElement {
 	
-	public void addPatternNodes(ETLFlowOperation op1, ETLFlowOperation op2){
-		patternNodes.add(op1);
-		patternNodes.add(op2);
-	}
+	private ArrayList<PatternElement> subElements;
+	private String elementName;
+	private String elementID;
 	
-	public void addPatternStartNode(ETLFlowOperation startOp){
-		this.patternStartNode = startOp;
-	}
-	
-	public void addPatternEndNode(ETLFlowOperation endOp){
-		this.patternEndNode = endOp;
-	}
-	
-	public void setPatternName(String name) {
-		this.patternName = name;
+	public PatternElement(){
+		subElements = new ArrayList<>();
+		elementName = "";
+		elementID = "";
 	}
 
-	public void setPatternID(String id) {
-		this.patternID = id;
-	}
-
-	public String getPatternName() {
-		return this.patternName;
-	}
-
-	public String getPatternID() {
-		return this.patternID;
-	}
+public void setElementName(String name){
+	elementName = name;
 	
-	public ArrayList<ETLFlowOperation> getPatternNodes(){
-		return this.patternNodes;
-	}
-	
-	public ETLFlowOperation getPatternStartNode(){
-		return this.patternStartNode;
-	}
-	
-	public ETLFlowOperation getPatternEndNode(){
-		return this.patternEndNode;
-	}
+}
 
+public void setElementID(String id){
+	elementID = id;
+	
+}
+
+public String getElementName(){
+	return elementName;
+	
+}
+
+public String getElementID(){
+	return elementID;
+	
+}
+public void addPatternSubElement(PatternElement element){
+	this.subElements.add(element);
+}
+
+public ArrayList<PatternElement> getSubElements(){
+	return this.subElements;
+}
+
+public abstract ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes);
+	
+	
+	
+	
 }

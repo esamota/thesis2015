@@ -2,34 +2,38 @@ package patternDiscovery;
 import java.util.ArrayList;
 import java.util.Random;
 
+import etlFlowGraph.graph.ETLFlowGraph;
+import etlFlowGraph.operation.ETLFlowOperation;
 
-public class PatternStep {
 
-	private String stepName;
-	private ArrayList<String> stepValues;
+public class PatternStep extends PatternElement{
+private ArrayList<String> stepValues;
 	
 	public PatternStep (){
-		stepName="";
-		stepValues = new ArrayList<String>();
+		super();
+		stepValues = new ArrayList<>();
 	}
 	
-	public void addStep (String name, String value){
-		this.stepName = name;
-		this.stepValues.add(value);
-	}
 	
-	public void addStep (String name, ArrayList<String> values){
-		this.stepName = name;
-		for (String value: values){
-			this.stepValues.add(value);
+	public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
+		if(getElementName().equals("optype") && stepValues.contains(node.getOperationType().getOpTypeName().name())){
+			patternNodes.add(node);
 		}
-	}
-	
-	public String getStepName(){
-		return stepName;
-	}
-	
-	public ArrayList<String> getStepValus(){
+		return patternNodes;
+		}
+
+
+	public ArrayList<String> getStepValues() {
 		return stepValues;
 	}
+
+
+	public void setStepValues(ArrayList<String> stepValues) {
+		this.stepValues = stepValues;
+	}
+	
+	public void addStepValue(String stepValue){
+		this.stepValues.add(stepValue);
+	}
+	
 }

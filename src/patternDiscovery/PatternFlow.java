@@ -1,23 +1,22 @@
 package patternDiscovery;
 
-public class PatternFlow {
+import java.util.ArrayList;
+
+import etlFlowGraph.graph.ETLFlowGraph;
+import etlFlowGraph.operation.ETLFlowOperation;
+
+public class PatternFlow extends PatternElement{
 	
-private String flowID;
 private String repeat;
-private Integer counter = 1;
-private PatternSequence flowSequence;
+
 
 public PatternFlow(){
+	super();
 	this.repeat = "";
-	this.flowID = "f"+counter;
-	this.flowSequence = new PatternSequence();
-	this.counter = counter +1;
-}
-public void addPatternFlowSequence(PatternSequence sequence){
-	this.flowSequence = sequence;
 }
 
-public void addPatternFlowRepeatValue(String repeat){
+
+public void setPatternFlowRepeatValue(String repeat){
 	this.repeat = repeat;
 }
 
@@ -25,8 +24,11 @@ public String getFlowRepeatValue(){
 	return this.repeat;
 }
 
-public PatternSequence getFlowSequence(){
-	return this.flowSequence;
+public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
+	ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList<>(patternNodes);
+	outPatternNodes = getSubElements().get(0).match(node, G, outPatternNodes);
+	return outPatternNodes;
+	
 }
 
 }

@@ -1,36 +1,31 @@
 package patternDiscovery;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
-public class PatternSequence {
+import etlFlowGraph.graph.ETLFlowGraph;
+import etlFlowGraph.operation.ETLFlowOperation;
 
-private Integer counter;
-private String stepID;
-private PatternStep seqStep;
-private ArrayList<PatternStep> seqSteps;
- 
+public class PatternSequence extends PatternElement{
+	
 	public PatternSequence(){
-		counter = 1;
-		stepID = "";
-		seqStep = new PatternStep();
-		seqSteps = new ArrayList<>();
+		super();
 	}
 	
-	public void addSequenceStep(PatternStep step){
-		this.stepID = "s"+counter;
-		this.seqStep = step;
-		counter = counter+1;
-	}
-	
-	public void addSequenceSteps(ArrayList<PatternStep> steps){
-		for (PatternStep step: steps){
-			this.stepID = "s"+counter;
-			this.seqSteps.add(step);
-			counter = counter+1;
+
+	public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList();
+		outPatternNodes.addAll(patternNodes);
+		ETLFlowOperation nextNode = node;
+		for (PatternElement step: getSubElements()){
+			outPatternNodes = step.match(nextNode, G, outPatternNodes);
+			if (outPatternNodes.size() == patternNodes.size()){
+				return outPatternNodes;
 			}
+			if (patternDiscovery.PatternDiscovery.getTargetNodesGivenSource(G, ops, nextNode).size() != 0)
+				nextNode = patternDiscovery.PatternDiscovery.getTargetNodesGivenSource(G, ops, nextNode).get(0);
 		}
-		
-	public ArrayList<PatternStep> getSequenceSteps(){
-		return seqSteps;	
-	}
+		return outPatternNodes;
+		}
 
 }

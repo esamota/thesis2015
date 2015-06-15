@@ -314,7 +314,6 @@
 {"name":"mergeJoin",
 "description": "A user-defined control-flow pattern that depicts a merge Join between two sorted data inputs in an ETL flow",
 "pattern":[
-	{"sequence": []},
 	{"splitFlow":[
 		{"flow1":[
 			{"repeat": "=1",
@@ -418,6 +417,10 @@
 			{"repeat": ">1",
 			"sequence":[
 				{"s1":{"name":"*", "values": [{"value": "*"}]}}]}]}]
+	},
+	{"sequence":[
+		{"s1": {"name": "optype", "values": 
+								[{"value": "Union"}]}}]
 	}
 ],
 "bpmnElement":[
