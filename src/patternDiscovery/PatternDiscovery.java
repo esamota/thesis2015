@@ -32,41 +32,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser
 				.getOperatorPatternFlags();
 
-		/*
-		 * for (Integer i: ops.keySet()){ ArrayList<Pattern> nodePatterns =
-		 * getLinksToPatternsForNode(G, ops, ops.get(i).getNodeID()); for
-		 * (Pattern pattern: nodePatterns){
-		 * System.out.println(ops.get(i).getNodeID
-		 * ()+" "+pattern.getPatternName()); } }
-		 */
-
-		/*
-		 * HashMap<Integer, ArrayList<Pattern>> patternLinks =
-		 * getLinksToPatterns(G, ops); for (Integer i: patternLinks.keySet()){
-		 * for (Pattern pattern: patternLinks.get(i)){
-		 * System.out.println(i+" "+pattern.getPatternName()); } }
-		 */
-
-		for (Integer i : ops.keySet()) {
-			ArrayList<String> flagNames = getNodeFlags(ops.get(i)
-					.getOperationType().getOpTypeName());
-			if (flagNames.size() == 0) {
-				System.out.println(ops.get(i).getNodeID() + " no pattern flag");
-			} else if (flagNames.size() > 0) {
-				for (String flagName : flagNames) {
-					System.out.println("--------------");
-					ArrayList<ETLFlowOperation> patternNodes = getNodesOfExistingPatterns(
-							ops, G, ops.get(i), flagName);
-					for (ETLFlowOperation op : patternNodes) {
-
-						System.out.println(flagName + ", " + op.getNodeID()
-								+ ", " + op.getOperationName());
-
-					}
-					System.out.println("--------------");
-				}
-			}
-		}
+	
 	}
 
 	// can obtain a list of pattern names that belong to a node
@@ -103,21 +69,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 	}
 	
 	
-	public static ArrayList<Pattern> getLinksToPatternsForNode(ETLFlowGraph G,
-			Hashtable<Integer, ETLFlowOperation> ops, Integer nodeID) {
-		HashMap<Integer, ArrayList<Pattern>> patternLinks = getLinksToPatterns(
-				G, ops);
-		ArrayList<Pattern> patternLinksPerNode = new ArrayList<Pattern>();
-		for (Integer key : patternLinks.keySet()) {
-			if (key.intValue() == nodeID.intValue()) {
-				for (Pattern pattern : patternLinks.get(key)) {
-					patternLinksPerNode.add(pattern);
-				}
-			}
-		}
-		return patternLinksPerNode;
-	}
-
 	public static void getPotentialMaxMatch () {
 		
 		Iterator<Integer> graphIter = G.iterator();
@@ -129,8 +80,9 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 	
 
 	public static ArrayList<ETLFlowOperation> getTargetNodesGivenSource(
-			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
+			ETLFlowGraph G,
 			ETLFlowOperation sourceNode) {
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<ETLFlowOperation> targetNodes = new ArrayList<ETLFlowOperation>();
 		for (Object e : G.edgeSet()) {
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
@@ -144,8 +96,9 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 	}
 
 	public static ArrayList<ETLFlowOperation> getSourceNodesGivenTarget(
-			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
+			ETLFlowGraph G,
 			ETLFlowOperation targetNode) {
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<ETLFlowOperation> sourceNodes = new ArrayList<ETLFlowOperation>();
 		for (Object e : G.edgeSet()) {
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());

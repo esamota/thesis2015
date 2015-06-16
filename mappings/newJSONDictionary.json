@@ -8,8 +8,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "Filter"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-											{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"subprocess"}]
+											{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Grouper",
@@ -19,8 +18,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "Grouper"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-											{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"subprocess"}]
+											{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Sort",
@@ -33,8 +31,7 @@
 "bpmnElement": 
 	[{"name":"task", 
 	"attributes":[{"name":"id", "value":"$id"}, 
-				{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"mergeJoin"}]																			
+				{"name":"name", "value":"$name"}]}]																			
 },
 
 {"name":"Project",
@@ -44,8 +41,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "Project"}]}}]}
 ],
 "bpmnElement":[{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-							{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"subprocess"}]
+							{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"AttributeAddition",
@@ -55,8 +51,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "AttributeAddition"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-												{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"subprocess"}]
+												{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Distinct",
@@ -66,8 +61,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "Distinct"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-												{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+												{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Rename",
@@ -77,8 +71,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "Rename"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-												{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"subprocess"}]
+												{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"TopK",
@@ -88,8 +81,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "TopK"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-												{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+												{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"UserDefinedFunction",
@@ -99,8 +91,7 @@
 		{"s1": {"name": "optype", "values": [{"value": "UserDefinedFunction"}]}}]}
 ],
 "bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
-												{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+												{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Router",
@@ -112,8 +103,7 @@
 "bpmnElement": [{"name":"complexGateway", "attributes":[{"name":"gatewayDirection","value":"Unspecified"}, 
 												{"name":"id", "value":"$id"}, 
 												{"name":"name", "value":"$name"}]},
-				{"name":"conditionExpression", "attributes":[], "text":"$condition"}],
-"patternFlag":[{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}, {"name":"externalDataValidation"}]
+				{"name":"conditionExpression", "attributes":[], "text":"$condition"}]
 },
 							 
 {"name":"Union",
@@ -124,8 +114,7 @@
 ],
 "bpmnElement": [{"name":"parallelGateway","attributes":[{"name":"gatewayDirection","value":"Converging"},
 														{"name":"id", "value":"$id"}, 
-														{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+														{"name":"name", "value":"$name"}]}]
 },
 							 
 {"name":"Merger",
@@ -141,8 +130,7 @@
 													{"name":"sourceRef", "value":"$sourceRef"},
 													{"name":"targetRef", "value":"$targetRef"}]},
 				{"name":"task", "attributes":[{"name":"name","value":"$create"},
-											{"name":"id", "value":"$create"}]}],
-"patternFlag":[{"name":"subprocess"}]
+											{"name":"id", "value":"$create"}]}]
 },
 							 
 {"name":"Voter",
@@ -153,8 +141,7 @@
 ],
 "bpmnElement": [{"name":"eventBasedGateway","attributes":[{"name":"gatewayDirection","value":"Mixed"},
 														{"name":"id", "value":"$id"}, 
-														{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"subprocess"}]
+														{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Splitter",
@@ -165,8 +152,7 @@
 ],
 "bpmnElement": [{"name":"parallelGateway","attributes":[{"name":"gatewayDirection","value":"Diverging"},
 														{"name":"id", "value":"$id"}, 
-														{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":"recoveryPoint"},{"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}]
+														{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"Join",
@@ -182,8 +168,7 @@
 														{"name":"sourceRef", "value":"$sourceRef"},
 														{"name":"targetRef", "value": "$targetRef"}]},
 			   {"name":"task", "attributes":[{"name":"id", "value":"$create"}, 
-														{"name":"name", "value":"$create"}]}],
-"patternFlag":[{"name":"subprocess"}]
+														{"name":"name", "value":"$create"}]}]
 },
 
 {"name":"LeftOuterJoin",
@@ -199,8 +184,7 @@
 														{"name":"sourceRef", "value":"$sourceRef"},
 														{"name":"targetRef", "value": "$targetRef"}]},
 			   {"name":"task", "attributes":[{"name":"id", "value":"$create"}, 
-														{"name":"name", "value":"$create"}]}],
-"patternFlag":[{"name":"subprocess"}]
+														{"name":"name", "value":"$create"}]}]
 },
 
 {"name":"TableInput",
@@ -212,7 +196,6 @@
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
 															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
 },
 
 {"name":"TableOutput",
@@ -223,8 +206,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"FileInput",
@@ -235,8 +217,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"FileOutput",
@@ -247,8 +228,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"XMLInput",
@@ -259,8 +239,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"XMLOutput",
@@ -271,8 +250,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"ExcelInput",
@@ -283,8 +261,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"ExcelOutput",
@@ -295,8 +272,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"edge",
@@ -307,8 +283,7 @@
 ],
 "bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
 															{"name":"id", "value":"$id"}, 
-															{"name":"name", "value":"$name"}]}],
-"patternFlag":[{"name":""}]
+															{"name":"name", "value":"$name"}]}]
 },
 
 {"name":"mergeJoin",
@@ -346,8 +321,8 @@
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1":{"name":"*", "values": [{"value": "whiteList"}]},
-				"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
+				{"s1":{"name":"*", "values": [{"value": "whiteList"}]}},
+				{"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
 	}
 ],
 "bpmnElement":[
@@ -447,12 +422,12 @@
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1":{"name":"*", "values": [{"value": "*"}]},
-				"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}, 
-				"s3":{"name":"*", "values": [{"value": "*"}]}}]}]}]
-	},		
-	{"sequence": {"name":"optype", "values": [{"value": "Union"}]}
-	}
+				{"s1":{"name":"*", "values": [{"value": "*"}]}},
+				{"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}}, 
+				{"s3":{"name":"*", "values": [{"value": "*"}]}}]}]}]
+	},
+	
+	{"sequence":[{"s1": {"name":"optype", "values": [{"value": "Union"}]}}]}
 ],
 "bpmnElement":[
 	{"name":"subprocess", 
@@ -466,4 +441,32 @@
 ]
 }
 
+{
+"flagDictionary":[
+{"optype":"Filter", "patterns":[{"name":"Filter"},{"name":"subprocess"}]},
+{"optype":"Grouper", "patterns":[{"name":"Grouper"},{"name":"subprocess"}]},
+{"optype":"Sort", "patterns":[{"name":"Sort"},{"name":"mergeJoin"}]},
+{"optype":"Project", "patterns":[{"name":"Project"},{"name":"subprocess"}]},
+{"optype":"AttributeAddition", "patterns":[{"name":"AttributeAddition"},{"name":"subprocess"}]},
+{"optype":"Distinct", "patterns":[{"name":"Distinct"}]},
+{"optype":"Rename", "patterns":[{"name":"Rename"},{"name":"subprocess"}]},
+{"optype":"TopK", "patterns":[{"name":"TopK"}]},
+{"optype":"UserDefinedFunction", "patterns":[{"name":"UserDefinedFunction"}]},
+{"optype":"Router", "patterns":[{"name":"Router"},{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}, {"name":"externalDataValidation"}]},
+{"optype":"Union", "patterns":[{"name":"Union"}]},
+{"optype":"Merger", "patterns":[{"name":"Merger"},{"name":"subprocess"}]},
+{"optype":"Voter", "patterns":[{"name":"Voter"},{"name":"subprocess"}]},
+{"optype":"Splitter", "patterns":[{"name":"Splitter"},{"name":"recoveryPoint"},{"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}]},
+{"optype":"Join", "patterns":[{"name":"Join"},{"name":"subprocess"}]},
+{"optype":"LeftOuterJoin", "patterns":[{"name":"LeftOuterJoin"},{"name":"subprocess"}]},
+{"optype":"TableInput", "patterns":[{"name":"TableInput"}]},
+{"optype":"TableOutput", "patterns":[{"name":"TableOutput"}]},
+{"optype":"FileInput", "patterns":[{"name":"FileInput"}]},
+{"optype":"FileOutput", "patterns":[{"name":"LeftOuterJoin"}]},
+{"optype":"XMLInput", "patterns":[{"name":"LeftOuterJoin"}]},
+{"optype":"XMLOutput", "patterns":[{"name":"XMLOutput"}]},
+{"optype":"ExcelInput", "patterns":[{"name":"ExcelInput"}]},
+{"optype":"ExcelOutput", "patterns":[{"name":"ExcelOutput"}]}
+]
+}
 

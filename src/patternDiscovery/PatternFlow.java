@@ -1,6 +1,7 @@
 package patternDiscovery;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
@@ -25,10 +26,26 @@ public String getFlowRepeatValue(){
 }
 
 public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
-	ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList<>(patternNodes);
-	outPatternNodes = getSubElements().get(0).match(node, G, outPatternNodes);
-	return outPatternNodes;
+	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+	ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList();
 	
-}
+	if (PatternDiscovery.getTargetNodesGivenSource(G, node).size() == 1){
+		return patternNodes;
+	}
+	outPatternNodes.addAll(patternNodes);
+	ArrayList<ETLFlowOperation> nextNodes = PatternDiscovery.getTargetNodesGivenSource(G, node);
+	int counter = 0;
+	for (ETLFlowOperation nextNode: nextNodes){
+		for (int s=0; s < getSubElements().size(); s++){
+			outPatternNodes = getSubElements().get(s).match(nextNode, G, outPatternNodes);
+			if (outPatternNodes.size() > patternNodes.size()){
+				counter++;
+			}
+			if (repeat.equals("=1") && counter == 1) return outPatternNodes;
+		}
+	}
+	if (repeat.equals(">1") && counter > 1) return outPatternNodes;
+	else return patternNodes;
+	}
 
 }

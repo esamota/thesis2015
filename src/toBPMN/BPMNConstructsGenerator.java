@@ -27,7 +27,7 @@ public class BPMNConstructsGenerator {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser.getSingleOperationPatterns();
-		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getOperatorPatternFlags();
+		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getOperationStartPatternFlags();
 		
 		ArrayList<BPMNElement> graphBPMNElements = secondPass(G, ops, mapping);
 		/*for(BPMNElement el: graphBPMNElements){

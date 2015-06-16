@@ -49,17 +49,14 @@ private HashMap<String, ArrayList<String>> blackList;
 	public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList<>(patternNodes);
-		ArrayList<ETLFlowOperation> nextNodes = new ArrayList<>();
-		nextNodes.add(node);
+		ETLFlowOperation nextNode = node;
+		
 		for (PatternElement element: getSubElements()){
-			for (ETLFlowOperation nextNode: nextNodes){
 			outPatternNodes = element.match(nextNode, G, outPatternNodes);
 			if (outPatternNodes.size() == patternNodes.size()){
 				return outPatternNodes;
 			}
-		}
-			nextNodes.clear();
-			nextNodes.addAll(patternDiscovery.PatternDiscovery.getTargetNodesGivenSource(G, ops, outPatternNodes.get(outPatternNodes.size()-1)));
+			nextNode = outPatternNodes.get(outPatternNodes.size()-1);
 		}
 		return outPatternNodes;
 		}
@@ -75,6 +72,7 @@ private HashMap<String, ArrayList<String>> blackList;
 	public void addBpmnElement (BPMNElement bpmnElement){
 		this.bpmnElements.add(bpmnElement);
 	}
+
 	}
 
 
