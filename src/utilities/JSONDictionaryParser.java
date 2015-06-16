@@ -31,9 +31,11 @@ public class JSONDictionaryParser {
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
 	public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
+	public static final String patternFlagMappingPath = "mappings//patternFlags.json";
 	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
 
 	public static void main(String[] args) {
+		System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Router));
 
 	}
 	
@@ -68,7 +70,7 @@ public class JSONDictionaryParser {
 	
 	//returns a list of pattern names that could start with a given optype
 	public static ArrayList<String> getPatternNamesByOriginOperation(OperationTypeName optypeName){
-		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "flagDictionary");
+		JSONArray dictionary = getJSONRootObject(patternFlagMappingPath, "flagDictionary");
 		Integer size = dictionary.size();
 		
 		ArrayList<String> flagNames = new ArrayList<String>();

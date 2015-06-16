@@ -1,4 +1,5 @@
 package patternDiscovery;
+import utilities.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -6,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.xerces.parsers.XMLParser;
 import org.jgraph.graph.Edge;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
@@ -27,90 +29,71 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ETLFlowGraph G = XLMParser.getXLMGraph();
+		ETLFlowGraph G = utilities.XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser
-				.getOperatorPatternFlags();
 
-	
+getGraphPatterns(G);
+		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
+		//System.out.println(maxMatchingPatternSubgraph.size());
 	}
-
-	// can obtain a list of pattern names that belong to a node
-	public static ArrayList<String> getNodeFlags(OperationTypeName optypeName, HashMap<String, ArrayList<String>> flagMapping) {
-		ArrayList<String> nodeFlagNames = new ArrayList<String>();
-		for (String opName : flagMapping.keySet()) {
-			if (opName.equals(optypeName.name())) {
-				for (String flagName : flagMapping.get(opName)) {
-					if (!flagName.equals("")) {
-						nodeFlagNames.add(flagName);
-					}
+	
+	
+	public static ArrayList<ETLFlowOperation> getMaxSubgraphMatch (ETLFlowOperation node, ETLFlowGraph G) {
+		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
+		HashMap<Pattern, ArrayList<ETLFlowOperation>> matchedPatterns = new HashMap<>();
+		Integer maxSize = 0;
+		Pattern maxPattern = new Pattern();
+		
+		flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
+		if (flagNamesPerOptype.size() >= 1){
+			for (String flagName: flagNamesPerOptype){
+				Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
+				patternNodes.addAll(pattern.match(node, G, patternNodes));
+				if (patternNodes.size() != 0){
+					System.out.println(pattern.getElementName()+" is present in the graph");
+					matchedPatterns.put(pattern, new ArrayList<>(patternNodes));
 				}
+				patternNodes.clear();
 			}
 		}
-		return nodeFlagNames;
-	}
-	
-	public static void getPotentialMaxMatch(ETLFlowOperation node, HashMap<String, ArrayList<String>> flagMapping){
-		ArrayList<String> nodeFlagNames = new ArrayList<String>();
-		String maxPatternName = "";
-		for (String opName : flagMapping.keySet()) {
-			if (opName.equals(node.getOperationType().getOpTypeName().name())) {
-				for (String flagName : flagMapping.get(opName)) {
-					if (flagMapping.get(opName).size() != 0) {
-						nodeFlagNames.add(flagName);
+			if (matchedPatterns.size() > 1){
+				for(Pattern pattern: matchedPatterns.keySet()){
+					if (matchedPatterns.get(pattern).size() > maxSize) {
+						maxSize = matchedPatterns.get(pattern).size();
+						maxPattern = pattern;
 					}
 				}
+				return matchedPatterns.get(maxPattern);
 			}
-		}
-		
-		if (nodeFlagNames.size() == 1) maxPatternName = nodeFlagNames.get(0);
-		else 
-		
+			else return patternNodes;	
+	
 	}
 	
-	
-	public static void getPotentialMaxMatch () {
+	public static void getGraphPatterns(ETLFlowGraph G){
+		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
 		
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
 			Integer v = graphIter.next();
 			ETLFlowOperation node = ops.get(v);
+			flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
+			if (flagNamesPerOptype.size() >= 1){
+				for (String flagName: flagNamesPerOptype){
+					Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
+					patternNodes.addAll(pattern.match(node, G, patternNodes));
+					if (patternNodes.size() != 0){
+						System.out.println(pattern.getElementName()+" is present in the graph");
+					}
+					patternNodes.clear();
+				}
+			}
 		}
 	}
 	
-
-	public static ArrayList<ETLFlowOperation> getTargetNodesGivenSource(
-			ETLFlowGraph G,
-			ETLFlowOperation sourceNode) {
-		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		ArrayList<ETLFlowOperation> targetNodes = new ArrayList<ETLFlowOperation>();
-		for (Object e : G.edgeSet()) {
-			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
-			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
-			if (sourceNode == opS) {
-				targetNodes.add(opT);
-			}
-
-		}
-		return targetNodes;
-	}
-
-	public static ArrayList<ETLFlowOperation> getSourceNodesGivenTarget(
-			ETLFlowGraph G,
-			ETLFlowOperation targetNode) {
-		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		ArrayList<ETLFlowOperation> sourceNodes = new ArrayList<ETLFlowOperation>();
-		for (Object e : G.edgeSet()) {
-			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
-			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
-			if (targetNode == opT) {
-				sourceNodes.add(opS);
-			}
-
-		}
-		return sourceNodes;
-	}
-
 	// transforming old to new, calls jsonDictionary to check if a pattern
 	// exists
 	/*public static ArrayList<ETLFlowOperation> getNodesOfExistingPatterns(
@@ -204,27 +187,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 			return new ArrayList<ETLFlowOperation>();
 	}*/
 	
-	public static boolean checkSimplePattern(Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G,
-			ETLFlowOperation opT, String flagName, HashMap<String, ArrayList<String>> stepOperations){
-		boolean pattern = false;
-		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
-		if ((stepOperations
-				.containsKey("implementationType") && stepOperations
-				.get("implementationType").contains(
-						opT.getImplementationType()
-								.toUpperCase()))
-				|| (stepOperations.containsKey("type") && stepOperations
-						.get("type").contains(
-								opT.getNodeKind().name()))
-				|| (stepOperations.containsKey("optype") && stepOperations
-						.get("optype").contains(
-								opT.getOperationType()
-										.getOpTypeName()))) {
-				pattern = true;
-		}
-		return pattern;
-	}
-
 	public static HashMap<ETLFlowOperation, ArrayList<ETLFlowOperation>> checkTargetTypeInWhiteList(
 			ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops,
 			ETLFlowOperation opT,
@@ -234,8 +196,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		String key = "";
 		ArrayList<ETLFlowOperation> nodes = new ArrayList<>();
 		HashMap <ETLFlowOperation, ArrayList<ETLFlowOperation>> lastIndexPlusPatternNodes = new HashMap<>();
-			ArrayList<ETLFlowOperation> targetNodes = getTargetNodesGivenSource(
-					G, ops, opT);
+			ArrayList<ETLFlowOperation> targetNodes = utilities.XLMParser.getTargetOperationsGivenSource(opT, G);
 			for (ETLFlowOperation op : targetNodes) {
 				if (whiteList.containsKey("optype")) {
 					nodeValue = op.getOperationType().getOpTypeName().name();
@@ -271,8 +232,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 	String nodeValue = "";
 	String key = "";
 		ArrayList<ETLFlowOperation> nodes = new ArrayList<>();
-		ArrayList<ETLFlowOperation> targetNodes = getTargetNodesGivenSource(
-					G, ops, opT);
+		ArrayList<ETLFlowOperation> targetNodes = utilities.XLMParser.getTargetOperationsGivenSource(opT, G);
 			for (ETLFlowOperation op : targetNodes) {
 				if (blackList.size() == 0 || (blackList.containsKey("implementationType") && !blackList
 						.get("implementationType").contains(

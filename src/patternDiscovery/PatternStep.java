@@ -13,10 +13,11 @@ private ArrayList<String> stepValues;
 		super();
 		stepValues = new ArrayList<>();
 	}
-	
-	
+
 	public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
-		if(getElementName().equals("optype") && stepValues.contains(node.getOperationType().getOpTypeName().name())){
+		if((getElementName().equals("optype") && stepValues.contains(node.getOperationType().getOpTypeName().name()))||
+				(getElementName().equals("implementationType") && stepValues.contains(node.getImplementationType()))||
+				(getElementName().equals("type") && stepValues.contains(node.getNodeKind().name()))){
 			patternNodes.add(node);
 		}
 		return patternNodes;

@@ -29,11 +29,11 @@ public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, 
 	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 	ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList();
 	
-	if (PatternDiscovery.getTargetNodesGivenSource(G, node).size() == 1){
+	if (utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() == 1){
 		return patternNodes;
 	}
 	outPatternNodes.addAll(patternNodes);
-	ArrayList<ETLFlowOperation> nextNodes = PatternDiscovery.getTargetNodesGivenSource(G, node);
+	ArrayList<ETLFlowOperation> nextNodes = utilities.XLMParser.getTargetOperationsGivenSource(node, G);
 	int counter = 0;
 	for (ETLFlowOperation nextNode: nextNodes){
 		for (int s=0; s < getSubElements().size(); s++){

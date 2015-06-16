@@ -35,17 +35,33 @@ public class XLMParser {
 		return G;
 	}
 	
-	public static ArrayList<ETLFlowOperation> getTargetOperation(ETLFlowOperation sourceNode, ETLFlowGraph G,
-			Hashtable<Integer, ETLFlowOperation> ops){	
+	public static ArrayList<ETLFlowOperation> getTargetOperationsGivenSource (ETLFlowOperation sourceNode, ETLFlowGraph G){	
+	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 	ArrayList<ETLFlowOperation> targetNodes = new ArrayList<ETLFlowOperation>();
 		for (Object e : G.edgeSet()) {
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
-			if (sourceNode.getNodeID() == opS.getNodeID()){
+			if (sourceNode == opS){
 				targetNodes.add(opT);
 			}
 		}
 		return targetNodes;
+	}
+
+	public static ArrayList<ETLFlowOperation> getSourceNodesGivenTarget(
+			ETLFlowGraph G,
+			ETLFlowOperation targetNode) {
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<ETLFlowOperation> sourceNodes = new ArrayList<ETLFlowOperation>();
+		for (Object e : G.edgeSet()) {
+			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+			if (targetNode == opT) {
+				sourceNodes.add(opS);
+			}
+
+		}
+		return sourceNodes;
 	}
 	
 	// identify all nodes that have a data input going in
