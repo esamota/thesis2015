@@ -23,6 +23,7 @@
 {"optype":"XMLInput", "patterns":[{"name":"LeftOuterJoin"}]},
 {"optype":"XMLOutput", "patterns":[{"name":"XMLOutput"}]},
 {"optype":"ExcelInput", "patterns":[{"name":"ExcelInput"}]},
-{"optype":"ExcelOutput", "patterns":[{"name":"ExcelOutput"}]}
+{"optype":"ExcelOutput", "patterns":[{"name":"ExcelOutput"}]},
+{"optype":"WSLookup", "patterns":[{"name":"WSLookup"}]}
 ]
 }

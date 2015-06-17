@@ -20,6 +20,17 @@ private ArrayList<String> stepValues;
 				(getElementName().equals("type") && stepValues.contains(node.getNodeKind().name()))){
 			patternNodes.add(node);
 		}
+		else if (getElementName().equals("$whiteList")){
+			if(stepValues.contains("*v")){
+				getWhiteList();
+			}
+			else{ //Value should be the #n
+				
+			}
+		}
+		else if (getElementName().equals("*t")){
+			
+		}
 		return patternNodes;
 		}
 

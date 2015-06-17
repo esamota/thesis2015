@@ -1,7 +1,10 @@
 package patternDiscovery;
+import toBPMN.BPMNElement;
 import utilities.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -32,66 +35,182 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		ETLFlowGraph G = utilities.XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 
-getGraphPatterns(G);
+		//System.out.println(G.getEtlFlowOperations().size());
+		//getAllGraphPatterns(G);
+	/*	Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(17), G);
+		ArrayList<ETLFlowOperation> patternNodes = maxMatchedPattern.getPatternSubgraph();
+		System.out.println("Max Pattern "+ maxMatchedPattern.getElementName());*/
+	/*	for (ETLFlowOperation op: patternNodes){
+			System.out.println("---------------------> "+op.getOperationName());
+		}*/
+		
+		//createSubGraphByCloningGraph(G, patternNodes);
+	//ArrayList<ETLEdge> edges = getEdgesForSubGraph(G, patternNodes);
+	//System.out.println("EDGES: "+edges);
+	
+	//ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
+	//System.out.println("SUBGRAPH: "+subGraph);
 		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
 		//System.out.println(maxMatchingPatternSubgraph.size());
+		
+		ArrayList<BPMNElement> graphElements = translateToBPMN(G);
+		for (BPMNElement element: graphElements){
+			System.out.println(element.getElementName());
+			for (BPMNElement BPMN: element.getSubElements())
+			System.out.println("subElement "+BPMN.getElementName());
+		}
+		
 	}
 	
+	public static ArrayList<ETLEdge> getEdgesForSubGraph(ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
+		ArrayList<ETLEdge> subGraphEdges = new ArrayList<ETLEdge>();
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		Integer counter =0;
+		for (Object e : G.edgeSet()) {
+			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
+			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
+			
+			if (patternNodes.contains(opS) && patternNodes.contains(opT)){
+				counter++;
+				subGraphEdges.add((ETLEdge) e);
+			}
+	}
+		return subGraphEdges;
+	}
 	
-	public static ArrayList<ETLFlowOperation> getMaxSubgraphMatch (ETLFlowOperation node, ETLFlowGraph G) {
+	public static ETLFlowGraph createSubGraph(ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<ETLEdge> edges = getEdgesForSubGraph(G, patternNodes);
+		ETLFlowGraph subGraph = new ETLFlowGraph();
+		
+		for (ETLFlowOperation v: patternNodes){
+			subGraph.addVertex(v.getNodeID());
+			subGraph.addEtlFlowOperations(v.getNodeID(), v);
+		}
+		
+		for (ETLEdge e: edges){
+			ETLFlowOperation opS = ops.get(e.getSource());
+			ETLFlowOperation opT = ops.get(e.getTarget());
+			try {
+				subGraph.addDagEdge(opS.getNodeID(), opT.getNodeID());
+			} catch (CycleFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		return subGraph;
+	}
+	
+	public static ETLFlowGraph createSubGraphByCloningGraph(ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ETLFlowGraph subGraph = new ETLFlowGraph();
+		Iterator<Integer> graphIter = G.iterator();
+		while (graphIter.hasNext()) {
+			Integer v = graphIter.next();
+			ETLFlowOperation node = ops.get(v);
+			if (patternNodes.contains(node)){
+				subGraph.addVertex(v);
+				subGraph.addEtlFlowOperations(v, node);
+			}
+		}
+		return subGraph;
+	}
+	
+	public static Pattern getMaxSubgraphMatch (ETLFlowOperation node, ETLFlowGraph G) {
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
 		HashMap<Pattern, ArrayList<ETLFlowOperation>> matchedPatterns = new HashMap<>();
 		Integer maxSize = 0;
 		Pattern maxPattern = new Pattern();
+		Pattern pattern = new Pattern();
 		
 		flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
-		if (flagNamesPerOptype.size() >= 1){
+		System.out.println("flag names per optype "+flagNamesPerOptype);
 			for (String flagName: flagNamesPerOptype){
-				Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
+				pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
 				patternNodes.addAll(pattern.match(node, G, patternNodes));
-				if (patternNodes.size() != 0){
+				if (patternNodes.size() != 0 && patternNodes.size() != G.getEtlFlowOperations().size()){
+					System.out.println(G.getEtlFlowOperations().size());
 					System.out.println(pattern.getElementName()+" is present in the graph");
 					matchedPatterns.put(pattern, new ArrayList<>(patternNodes));
 				}
 				patternNodes.clear();
 			}
-		}
-			if (matchedPatterns.size() > 1){
-				for(Pattern pattern: matchedPatterns.keySet()){
-					if (matchedPatterns.get(pattern).size() > maxSize) {
-						maxSize = matchedPatterns.get(pattern).size();
-						maxPattern = pattern;
+				for(Pattern matchedPattern: matchedPatterns.keySet()){
+					if (matchedPatterns.get(matchedPattern).size() > maxSize) {
+						maxSize = matchedPatterns.get(matchedPattern).size();
+						maxPattern = matchedPattern;
 					}
 				}
-				return matchedPatterns.get(maxPattern);
-			}
-			else return patternNodes;	
-	
+				System.out.println("max pattern "+maxPattern.getElementName());
+				maxPattern.setPatternSubgraph(matchedPatterns.get(maxPattern));
+				return maxPattern;
+			
 	}
 	
-	public static void getGraphPatterns(ETLFlowGraph G){
+	public static void getAllGraphPatterns(ETLFlowGraph G){
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
+		HashSet<String> optypes = JSONDictionaryParser.getOperationTypeEnums();
 		
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
+			System.out.println("------------------------------");
 			Integer v = graphIter.next();
 			ETLFlowOperation node = ops.get(v);
+			System.out.println("start node "+node.getOperationName()+" node id "+ node.getNodeID());
 			flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
-			if (flagNamesPerOptype.size() >= 1){
-				for (String flagName: flagNamesPerOptype){
+			for (String flagName: flagNamesPerOptype){
+					System.out.println(flagName);
 					Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
 					patternNodes.addAll(pattern.match(node, G, patternNodes));
 					if (patternNodes.size() != 0){
-						System.out.println(pattern.getElementName()+" is present in the graph");
+						System.out.println(pattern.getElementName()+" pattern is present in the graph");
+						System.out.println(patternNodes.size());
 					}
 					patternNodes.clear();
+			}
+			}
+	}
+	
+	public static ArrayList<BPMNElement> translateToBPMN(ETLFlowGraph G){
+		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
+		Pattern pattern = new Pattern();
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<BPMNElement> graphBpmnElements = new ArrayList<>();
+		ArrayList<ETLFlowOperation> visitedNodes = new ArrayList<>();
+		System.out.println("Graph "+G);
+		Iterator<Integer> graphIter = G.iterator();
+		while (graphIter.hasNext()) {
+			System.out.println("----------------------------------");
+			Integer v = graphIter.next();
+				System.out.println("we are at node "+v);
+			ETLFlowOperation node = ops.get(v);
+				System.out.println(node);
+			if (!visitedNodes.contains(node)){
+			pattern = getMaxSubgraphMatch(node, G);
+			patternNodes = pattern.getPatternSubgraph();
+			if (patternNodes.size() > 1){
+					System.out.println("pattern size > 1");
+				ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
+					System.out.println("Max subGraph "+subGraph);
+					ArrayList<BPMNElement> MaxBpmn = pattern.getBpmnElements();
+					ArrayList<BPMNElement> nestedBpmn = translateToBPMN(subGraph);
+					System.out.println("go into recursion");
+					MaxBpmn.get(0).addSubElements(nestedBpmn);
+				graphBpmnElements.addAll(MaxBpmn);
+				for (ETLFlowOperation op: patternNodes){
+					visitedNodes.add(op);
 				}
 			}
+			else graphBpmnElements.addAll(pattern.getBpmnElements());	
+			System.out.println("bpmn element added to graph elements");
+			}
+			System.out.println("----------------------------------");
 		}
+		return graphBpmnElements;
 	}
 	
 	// transforming old to new, calls jsonDictionary to check if a pattern
@@ -225,9 +344,10 @@ getGraphPatterns(G);
 
 	}
 	
-	public static ArrayList<ETLFlowOperation> getDoubleStarPatternNodes(Hashtable<Integer, ETLFlowOperation> ops, ETLFlowGraph G,
+	public static ArrayList<ETLFlowOperation> getDoubleStarPatternNodes(ETLFlowGraph G,
 		ETLFlowOperation opT, String flagName, HashMap<String, ArrayList<String>> stepOperations,
 		HashMap<String, ArrayList<String>> blackList){
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		
 	String nodeValue = "";
 	String key = "";
@@ -246,7 +366,7 @@ getGraphPatterns(G);
 										op.getOperationType()
 												.getOpTypeName()))){
 					nodes.add(op);
-					nodes.addAll(getDoubleStarPatternNodes(ops, G, op, flagName, stepOperations, blackList));
+					nodes.addAll(getDoubleStarPatternNodes(G, op, flagName, stepOperations, blackList));
 				}
 			
 		}

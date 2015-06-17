@@ -26,10 +26,10 @@ public class BPMNConstructsGenerator {
 	public static void main(String[] args) {
 		ETLFlowGraph G = XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser.getSingleOperationPatterns();
-		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getOperationStartPatternFlags();
+		//HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser.getSingleOperationPatterns();
+		//HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getOperationStartPatternFlags();
 		
-		ArrayList<BPMNElement> graphBPMNElements = secondPass(G, ops, mapping);
+		//ArrayList<BPMNElement> graphBPMNElements = secondPass(G, ops, mapping);
 		/*for(BPMNElement el: graphBPMNElements){
 			for (BPMNAttribute attr: el.getAttributes()){
 			System.out.println(el.getElementName());
@@ -52,66 +52,10 @@ public class BPMNConstructsGenerator {
 		//for each participant, or unique pool, add all tasks that belong there as subelements of the process element
 		//then return the process elements to the printing method
 	}
-	
-	public static ArrayList<BPMNElement> secondPass(ETLFlowGraph G,
-			Hashtable<Integer, ETLFlowOperation> ops,
-			HashMap<String, ArrayList<BPMNElement>> mapping) {
-		ArrayList<Pattern> patternLinksPerNode = new ArrayList<Pattern>();
-		ArrayList<BPMNElement> graphBPMNElements = new ArrayList<BPMNElement>();
-		ArrayList<Integer> visitedNodes = new ArrayList<Integer>();
-		Iterator<Integer> graphIter = G.iterator();
-		while (graphIter.hasNext()) {
-			Integer v = graphIter.next();
-			ETLFlowOperation node = ops.get(v);
-			System.out.println("*******************");
-			System.out.println("node "+ v+", "+node.getOperationName());
-			if (!visitedNodes.contains(v)) {
-				System.out.println("node hasn't been visited");
-				// get links to patterns for this node
-				patternLinksPerNode = PatternDiscovery.getLinksToPatternsForNode(
-						G, ops, node.getNodeID());
-				if (patternLinksPerNode.size() == 0) {
-					System.out.println("doesn't have pattern links");
-					ArrayList<BPMNElement> nodeElements = getBPMNElementsOfANode(
-							G, ops, v, mapping);
-					System.out.println("----");
-					for (BPMNElement el : nodeElements) {
-						System.out.println(el.getElementName());
-						graphBPMNElements.add(el);
-					}
-					System.out.println("----");
-					visitedNodes.add(node.getNodeID());
-				}
-				if (patternLinksPerNode.size() != 0) {
-					// in the future, check is there are overlappings here
-					for (Pattern linkedPattern : patternLinksPerNode) {
-						System.out.println("----");
-						System.out.println("has a subprocess called "+linkedPattern.getPatternName());
-						BPMNElement subprocess = createBPMNSubprocess(linkedPattern);
-						for (ETLFlowOperation op : linkedPattern
-								.getPatternNodes()) {
-							ArrayList<BPMNElement> nodeElements = getBPMNElementsOfANode(
-									G, ops, op.getNodeID(), mapping);
-							for (BPMNElement el : nodeElements) {
-								System.out.println("element in subprocess: "+el.getElementName());
-								subprocess.addSubElement(el);
-								;
-							}
-							visitedNodes.add(op.getNodeID());
-						}
-						System.out.println("----");
-						graphBPMNElements.add(subprocess);
-					}
-				}
-			}
-			else System.out.println("node has been visited");
-			System.out.println("*********************");
-		}
-		return graphBPMNElements;
-	}
-	
+		
 	//this works for the process, for subprocesses, need different attribute values.
-	public static ArrayList<BPMNElement> createBPMNStartEvent(ETLFlowGraph G, Hashtable<Integer, ETLFlowOperation> ops){
+	public static ArrayList<BPMNElement> createProcessStartEvent(ETLFlowGraph G){
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<BPMNElement> startEventAndEdges = new ArrayList<BPMNElement>();
 		BPMNElement startEvent = new BPMNElement(BPMNElementTagName.startEvent.name());
 		Random randomGenerator = new Random();
@@ -121,16 +65,15 @@ public class BPMNConstructsGenerator {
 		startEvent.addAttribute(id);
 		startEvent.addAttribute(name);
 		startEventAndEdges.add(startEvent);
-		//-----------------------------------------------------------------
-		//if (type.equals("process")){
+		
 		ArrayList<Integer> allSourceNodes = G.getAllSourceNodes();
 		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
 		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
+		//loop through all source nodes of a given graph
 		for (Integer i : allSourceNodes) {
+			//if the node is a datastore connect start event to their target unless it is a join
 			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
-				//System.out.println("lala: " + i);
 				for (Object e : G.edgeSet()) {
-					// is there a simpler way to do this????
 					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 					Integer targetId = (Integer) ((ETLEdge) e).getTarget();
 					if (sourceId.intValue() == i.intValue()
@@ -145,10 +88,12 @@ public class BPMNConstructsGenerator {
 						sourceNodes.add(targetId);
 					}
 				}
+				// if not a datastore, connect the start event to the node itself
 			} else {
 				sourceNodes.add(i);
 			}
 		}
+		// generate sequence flows from start event to all source nodes
 		for (Integer i: sourceNodes){
 			BPMNElement seqFlow = new BPMNElement(BPMNElementTagName.sequenceFlow.name());
 			BPMNAttribute sourceRef = new BPMNAttribute("sourceRef", randomID);
@@ -165,16 +110,16 @@ public class BPMNConstructsGenerator {
 	public static void createBPMNEndEvent(){
 		
 	}
-	public static BPMNElement createBPMNSubprocess(Pattern pattern){
-		BPMNElement subprocess = new BPMNElement(pattern.getPatternName()+"_"+"Pattern");
+	public static BPMNElement createBPMNSubprocess(Pattern pattern, boolean isForCompensationValue, boolean triggeredByEventValue){
+		BPMNElement subprocess = new BPMNElement(pattern.getElementName()+"_"+"Pattern");
 		//attributes ---------------------------------------------------------------------
 		ArrayList<BPMNAttribute> subprocessAttributes = new ArrayList<BPMNAttribute>();
 		BPMNAttribute completionQuantity = new BPMNAttribute("completionQuantity", "1");
-		BPMNAttribute id = new BPMNAttribute("id", pattern.getPatternID());
-		BPMNAttribute isForCompensation = new BPMNAttribute("isForCompensation", "false");
-		BPMNAttribute name = new BPMNAttribute("name", pattern.getPatternName()+"_"+"Pattern");
+		BPMNAttribute id = new BPMNAttribute("id", pattern.getElementID());
+		BPMNAttribute isForCompensation = new BPMNAttribute("isForCompensation", "\""+isForCompensationValue+"\"");
+		BPMNAttribute name = new BPMNAttribute("name", pattern.getElementName()+"_"+"Pattern");
 		BPMNAttribute startQuantity = new BPMNAttribute("startQuantity", "1");
-		BPMNAttribute triggeredByEvent = new BPMNAttribute("triggeredByEvent", "false");
+		BPMNAttribute triggeredByEvent = new BPMNAttribute("triggeredByEvent", "\""+triggeredByEventValue+"\"");
 		subprocessAttributes.addAll(Arrays.asList(completionQuantity, id, isForCompensation, name, startQuantity, triggeredByEvent));
 		subprocess.addAttributes(subprocessAttributes);
 		//-------------------------------------------------------------------------------

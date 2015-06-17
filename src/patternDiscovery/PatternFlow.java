@@ -38,6 +38,7 @@ public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, 
 	for (ETLFlowOperation nextNode: nextNodes){
 		for (int s=0; s < getSubElements().size(); s++){
 			outPatternNodes = getSubElements().get(s).match(nextNode, G, outPatternNodes);
+			System.out.println("outP "+ outPatternNodes.size()+", pNodes "+ patternNodes.size());
 			if (outPatternNodes.size() > patternNodes.size()){
 				counter++;
 			}
@@ -45,7 +46,7 @@ public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, 
 		}
 	}
 	if (repeat.equals(">1") && counter > 1) return outPatternNodes;
-	else return patternNodes;
+	else return new ArrayList<>();
 	}
 
 }

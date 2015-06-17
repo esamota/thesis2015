@@ -275,6 +275,16 @@
 															{"name":"name", "value":"$name"}]}]
 },
 
+{"name":"WSLookup",
+"description": "A simple mapping for any node with operation type WSLookup",
+"pattern":[
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "WSLookup"}]}}]}
+],
+"bpmnElement": [{"name":"task", "attributes":[{"name":"id", "value":"$id"}, 
+												{"name":"name", "value":"$name"}]}]
+},
+
 {"name":"edge",
 "description": "A simple mapping for any xLM edge",
 "pattern":[
@@ -291,11 +301,7 @@
 "pattern":[
 	{"splitFlow":[
 		{"flow1":[
-			{"repeat": "=1",
-			"sequence":[
-				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]},
-		{"flow2":[
-			{"repeat": "=1",
+			{"repeat": ">1",
 			"sequence":[
 				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]}]
 	},
@@ -321,7 +327,7 @@
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1":{"name":"*", "values": [{"value": "whiteList"}]}},
+				{"s1":{"name":"$whiteList", "values": [{"value": "*v"}]}},
 				{"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
 	}
 ],
@@ -345,7 +351,7 @@
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1": {"name":"#1", "values": [{"value": "whiteList"}]}},
+				{"s1": {"name":"$whiteList", "values": [{"value": "#1"}]}},
 				{"s2": {"name":"type", "values":[{"value": "Datastore"}]}}]}]}]
 	}
 ],
@@ -364,7 +370,7 @@
 "description": "A user-defined ETL flow pattern that groups parts on the flow that can be pipelined",
 "pattern":[
 	{"sequence":[							
-		{"s1":{"name": "*", "values":[{"value": "whiteList"}]}}]
+		{"s1":{"name": "$whiteList", "values":[{"value": "*v"}]}}]
 	}
 ],
 "bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
@@ -391,7 +397,7 @@
 		{"flow1":[
 			{"repeat": ">1",
 			"sequence":[
-				{"s1":{"name":"*", "values": [{"value": "*"}]}}]}]}]
+				{"s1":{"name":"optype", "values": [{"value": "LeftOuterJoin"}]}}]}]}]
 	},
 	{"sequence":[
 		{"s1": {"name": "optype", "values": 
@@ -422,9 +428,9 @@
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1":{"name":"*", "values": [{"value": "*"}]}},
+				{"s1":{"name":"*t", "values": [{"value": "*v"}]}},
 				{"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}}, 
-				{"s3":{"name":"*", "values": [{"value": "*"}]}}]}]}]
+				{"s3":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
 	},
 	
 	{"sequence":[{"s1": {"name":"optype", "values": [{"value": "Union"}]}}]}
@@ -439,34 +445,4 @@
 				{"name": "triggeredByEvent", "value":"false"}]}]
 }
 ]
-},
-
-{
-"flagDictionary":[
-{"optype":"Filter", "patterns":[{"name":"Filter"},{"name":"subprocess"}]},
-{"optype":"Grouper", "patterns":[{"name":"Grouper"},{"name":"subprocess"}]},
-{"optype":"Sort", "patterns":[{"name":"Sort"},{"name":"mergeJoin"}]},
-{"optype":"Project", "patterns":[{"name":"Project"},{"name":"subprocess"}]},
-{"optype":"AttributeAddition", "patterns":[{"name":"AttributeAddition"},{"name":"subprocess"}]},
-{"optype":"Distinct", "patterns":[{"name":"Distinct"}]},
-{"optype":"Rename", "patterns":[{"name":"Rename"},{"name":"subprocess"}]},
-{"optype":"TopK", "patterns":[{"name":"TopK"}]},
-{"optype":"UserDefinedFunction", "patterns":[{"name":"UserDefinedFunction"}]},
-{"optype":"Router", "patterns":[{"name":"Router"},{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}, {"name":"externalDataValidation"}]},
-{"optype":"Union", "patterns":[{"name":"Union"}]},
-{"optype":"Merger", "patterns":[{"name":"Merger"},{"name":"subprocess"}]},
-{"optype":"Voter", "patterns":[{"name":"Voter"},{"name":"subprocess"}]},
-{"optype":"Splitter", "patterns":[{"name":"Splitter"},{"name":"recoveryPoint"},{"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}]},
-{"optype":"Join", "patterns":[{"name":"Join"},{"name":"subprocess"}]},
-{"optype":"LeftOuterJoin", "patterns":[{"name":"LeftOuterJoin"},{"name":"subprocess"}]},
-{"optype":"TableInput", "patterns":[{"name":"TableInput"}]},
-{"optype":"TableOutput", "patterns":[{"name":"TableOutput"}]},
-{"optype":"FileInput", "patterns":[{"name":"FileInput"}]},
-{"optype":"FileOutput", "patterns":[{"name":"LeftOuterJoin"}]},
-{"optype":"XMLInput", "patterns":[{"name":"LeftOuterJoin"}]},
-{"optype":"XMLOutput", "patterns":[{"name":"XMLOutput"}]},
-{"optype":"ExcelInput", "patterns":[{"name":"ExcelInput"}]},
-{"optype":"ExcelOutput", "patterns":[{"name":"ExcelOutput"}]}
-]
 }
-
