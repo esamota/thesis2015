@@ -30,12 +30,13 @@ public class JSONDictionaryParser {
 
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
-	public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
+	//public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
+	public static final String dictionaryFilePath = "mappings//temp.json";
 	public static final String patternFlagMappingPath = "mappings//patternFlags.json";
 	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
 
 	public static void main(String[] args) {
-		System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Router));
+		System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Splitter));
 
 	}
 	
@@ -82,6 +83,7 @@ public class JSONDictionaryParser {
 			for (int f=0; f <patternFlag.size(); f++){
 				JSONObject flag = (JSONObject) patternFlag.get(f);
 				String flagName = (String) flag.get("name");
+				System.out.println(flagName);
 				flagNames.add(flagName);
 			}
 			}
@@ -176,12 +178,13 @@ public class JSONDictionaryParser {
 		JSONObject patternObj = (JSONObject) pattern.get(p);
 		if (patternObj.get("sequence") != null){
 			//System.out.println("	sequence yes");
-			PatternSequence patternSequence = parsePatternSequence(patternObj);
+			PatternSequence patternSequence = parsePatternSequence(patternObj, root);
 			patternElement.addPatternSubElement(patternSequence);
+			
 		} 
 		else if (patternObj.get("splitFlow") != null){
 			//System.out.println("	splitFlow yes");
-			patternFlows.addAll(parsePatternFlow(patternObj));	
+			patternFlows.addAll(parsePatternFlow(patternObj, root));	
 			for (PatternFlow patternFlow: patternFlows){
 				patternElement.addPatternSubElement(patternFlow);
 		} 
@@ -191,7 +194,7 @@ public class JSONDictionaryParser {
 	}
 	
 	
-	public static PatternSequence parsePatternSequence(JSONObject patternObj){
+	public static PatternSequence parsePatternSequence(JSONObject patternObj, JSONObject root){
 		ArrayList<String> stepValues = new ArrayList<>();
 		PatternSequence patternSequence = new PatternSequence();
 		JSONArray sequence = (JSONArray) patternObj.get("sequence");
@@ -208,15 +211,22 @@ public class JSONDictionaryParser {
 					stepValues.add(value);
 				}
 				patternStep.setElementName(name);
+				if (name.equals("$whiteList")) {
+					patternSequence.setWhiteList(parsePatternWhiteList(root));
+					patternSequence.setBlackList(parsePatternBlackList(root));
+				}
+				
+				patternStep.setParentElement(patternSequence);
 				patternStep.setElementID("s"+String.valueOf(s+1));
 				patternStep.setStepValues(new ArrayList<String>(stepValues));
 			patternSequence.addPatternSubElement(patternStep);
+			patternSequence.setElementName("Sequence");
 			stepValues.clear();	
 			}
 		return patternSequence;
 	}
 	
-	public static ArrayList<PatternFlow> parsePatternFlow(JSONObject patternObj){
+	public static ArrayList<PatternFlow> parsePatternFlow(JSONObject patternObj, JSONObject root){
 		ArrayList<String> stepValues = new ArrayList<>();
 		ArrayList<PatternFlow> flows = new ArrayList<>();
 		JSONArray splitFlow = (JSONArray) patternObj.get("splitFlow");
@@ -233,10 +243,10 @@ public class JSONDictionaryParser {
 				}
 				if (flowObj.get("sequence") != null){
 					//System.out.println("		sequence under flow yes");
-					PatternSequence flowSequence = parsePatternSequence(flowObj);
+					PatternSequence flowSequence = parsePatternSequence(flowObj, root);
 					patternFlow.addPatternSubElement(flowSequence);
 				} else if (flowObj.get("splitFlow") != null){
-					ArrayList<PatternFlow> subFlows = parsePatternFlow(flowObj);
+					ArrayList<PatternFlow> subFlows = parsePatternFlow(flowObj, root);
 					for (PatternFlow subFlow: subFlows){
 					patternFlow.addPatternSubElement(subFlow);}
 				}
@@ -296,6 +306,7 @@ public class JSONDictionaryParser {
 		ArrayList<String> blackListValues = new ArrayList<>();
 		
 				JSONArray bListArray = (JSONArray) root.get("blackList");
+				if (root.get("blackList") != null){
 				for (int b=0; b < bListArray.size(); b++){
 					JSONObject bListObj = (JSONObject) bListArray.get(b);
 					String name = (String) bListObj.get("name");
@@ -307,6 +318,7 @@ public class JSONDictionaryParser {
 					} 
 					bListOperations.put(name, new ArrayList<>(blackListValues));
 					blackListValues.clear();
+				}
 				}
 		return bListOperations;
 	}

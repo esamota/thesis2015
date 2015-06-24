@@ -28,7 +28,7 @@ public String getFlowRepeatValue(){
 public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
 	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 	ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList();
-	
+	//System.out.println("Flow: we are at node "+ node.getNodeID());
 	if (utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() == 1){
 		return patternNodes;
 	}
@@ -36,17 +36,21 @@ public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, 
 	ArrayList<ETLFlowOperation> nextNodes = utilities.XLMParser.getTargetOperationsGivenSource(node, G);
 	int counter = 0;
 	for (ETLFlowOperation nextNode: nextNodes){
+		System.out.println("Flow: next node is "+ nextNode.getNodeID());
 		for (int s=0; s < getSubElements().size(); s++){
 			outPatternNodes = getSubElements().get(s).match(nextNode, G, outPatternNodes);
 			System.out.println("outP "+ outPatternNodes.size()+", pNodes "+ patternNodes.size());
 			if (outPatternNodes.size() > patternNodes.size()){
 				counter++;
 			}
-			if (repeat.equals("=1") && counter == 1) return outPatternNodes;
+			if (repeat.equals("=1") && counter == 1) {
+				return outPatternNodes;
+			}
 		}
 	}
 	if (repeat.equals(">1") && counter > 1) return outPatternNodes;
-	else return new ArrayList<>();
+	//else return new ArrayList<>();
+	else return patternNodes;
 	}
 
 }

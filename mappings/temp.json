@@ -1,0 +1,23 @@
+{
+"patternDictionary":[
+{"name":"subprocess",
+"description": "A user-defined ETL flow pattern that groups parts on the flow that can be pipelined",
+"pattern":[
+	{"sequence":[							
+		{"s1":{"name": "$whiteList", "values":[{"value": "*v"}]}}]
+	}
+],
+"bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
+												{"name":"id", "value":"$id"},
+												{"name":"isForCompensation", "value":"false"},
+												{"name":"name", "value":"$create"}
+												{"name": "startQuantity", "value":"1"},
+												{"name": "triggeredByEvent", "value":"false"}]}],
+"whiteList":[{"name":"optype", "values": [{"value": "Router"}, {"value":"Splitter"}, {"value":"Merger"}, {"value":"Voter"}, 
+				{"value":"Filter"}, {"value":"AttributeAddition"}, {"value":"Rename"}, {"value":"Project"}, {"value":"WSLookup"},]},
+			{"name": "implementationType", "values": [{"value": "MERGE"}, {"value": "LEFTOUTERMERGE"}]}],
+"blackList":[{"name": "optype", "values": [{"value":"Sort"}, {"value":"Distinct"}, {"value":"TopK"},  {"value":"UserDefinedFunction"}, {"value":"Union"}]},
+				{"name": "implementationType", "values": [{"value": "HASH"}, {"value":"LEFTOUTERHASH"}]}]
+}
+]
+}

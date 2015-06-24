@@ -33,6 +33,7 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 	public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList<>(patternNodes);
+		ArrayList<ETLFlowOperation> output = new ArrayList<>();
 		ETLFlowOperation nextNode = node;
 		//System.out.println("subElement size: "+ getSubElements().size());
 		for (PatternElement element: getSubElements()){
@@ -41,9 +42,20 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 			if (outPatternNodes.size() == patternNodes.size()){
 				return outPatternNodes;
 			}
+			if (element.getElementName().equals("Sequence")){
 			nextNode = outPatternNodes.get(outPatternNodes.size()-1);
+			} else {
+				for (ETLFlowOperation op: outPatternNodes){
+					if (utilities.XLMParser.getTargetOperationsGivenSource(op, G).size() > 1)
+						nextNode = op;
+					break;
+				}
+			}
 		}
-		return outPatternNodes;
+		for (ETLFlowOperation op: outPatternNodes){
+			if (!output.contains(op)) output.add(op);
+		}
+		return output;
 		}
 
 	public ArrayList<BPMNElement> getBpmnElements() {

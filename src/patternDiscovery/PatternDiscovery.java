@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.swing.text.Utilities;
+
 import org.apache.xerces.parsers.XMLParser;
 import org.jgraph.graph.Edge;
 import org.jgrapht.EdgeFactory;
@@ -34,15 +36,17 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		// TODO Auto-generated method stub
 		ETLFlowGraph G = utilities.XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-
+		 
+		//System.out.println(utilities.XLMParser.getTargetOperationsGivenSource(ops.get(895), G).size());
 		//System.out.println(G.getEtlFlowOperations().size());
-		//getAllGraphPatterns(G);
-	/*	Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(17), G);
+		getAllGraphPatterns(G);
+		/*Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(921), G);
 		ArrayList<ETLFlowOperation> patternNodes = maxMatchedPattern.getPatternSubgraph();
-		System.out.println("Max Pattern "+ maxMatchedPattern.getElementName());*/
-	/*	for (ETLFlowOperation op: patternNodes){
+		System.out.println("Max Pattern "+ maxMatchedPattern.getElementName());
+		for (ETLFlowOperation op: patternNodes) {
 			System.out.println("---------------------> "+op.getOperationName());
 		}*/
+		
 		
 		//createSubGraphByCloningGraph(G, patternNodes);
 	//ArrayList<ETLEdge> edges = getEdgesForSubGraph(G, patternNodes);
@@ -53,12 +57,12 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
 		//System.out.println(maxMatchingPatternSubgraph.size());
 		
-		ArrayList<BPMNElement> graphElements = translateToBPMN(G);
+		/*ArrayList<BPMNElement> graphElements = translateToBPMN(G);
 		for (BPMNElement element: graphElements){
 			System.out.println(element.getElementName());
 			for (BPMNElement BPMN: element.getSubElements())
 			System.out.println("subElement "+BPMN.getElementName());
-		}
+		}*/
 		
 	}
 	
@@ -129,9 +133,9 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		System.out.println("flag names per optype "+flagNamesPerOptype);
 			for (String flagName: flagNamesPerOptype){
 				pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
+				System.out.println("Starting to discover pattern: "+flagName);
 				patternNodes.addAll(pattern.match(node, G, patternNodes));
 				if (patternNodes.size() != 0 && patternNodes.size() != G.getEtlFlowOperations().size()){
-					System.out.println(G.getEtlFlowOperations().size());
 					System.out.println(pattern.getElementName()+" is present in the graph");
 					matchedPatterns.put(pattern, new ArrayList<>(patternNodes));
 				}

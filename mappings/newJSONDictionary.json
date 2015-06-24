@@ -295,9 +295,9 @@
 															{"name":"id", "value":"$id"}, 
 															{"name":"name", "value":"$name"}]}]
 },
-
 {"name":"mergeJoin",
-"description": "A user-defined control-flow pattern that depicts a merge Join between two sorted data inputs in an ETL flow",
+"description": "A control-flow pattern that depicts a merge-Join 
+									between two sorted data inputs in an ETL flow",
 "pattern":[
 	{"splitFlow":[
 		{"flow1":[
@@ -306,15 +306,17 @@
 				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]}]
 	},
 	{"sequence": [
-		{"s1": {"name":"optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}}]
+		{"s1": {"name":"optype", "values": [{"value": "Join"}, 
+											{"value": "LeftOuterJoin"}]}}]
 	}
 ],
-"bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
-												{"name":"id", "value":"$id"},
-												{"name":"isForCompensation", "value":"false"},
-												{"name":"name", "value":"$create"}
-												{"name": "startQuantity", "value":"1"},
-												{"name": "triggeredByEvent", "value":"false"}]}]
+"bpmnElement":[{"name":"subprocess", 
+			"attributes":[{"name":"completionQuantity", "value":"1"},
+						{"name":"id", "value":"$node"},
+						{"name":"isForCompensation", "value":"false"},
+						{"name":"name", "value":"$create"}
+						{"name": "startQuantity", "value":"1"},
+						{"name": "triggeredByEvent", "value":"false"}]}]
 },
 
 {"name":"recoveryPoint",
@@ -366,26 +368,6 @@
 "whiteList": [{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
 },
 
-{"name":"subprocess",
-"description": "A user-defined ETL flow pattern that groups parts on the flow that can be pipelined",
-"pattern":[
-	{"sequence":[							
-		{"s1":{"name": "$whiteList", "values":[{"value": "*v"}]}}]
-	}
-],
-"bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
-												{"name":"id", "value":"$id"},
-												{"name":"isForCompensation", "value":"false"},
-												{"name":"name", "value":"$create"}
-												{"name": "startQuantity", "value":"1"},
-												{"name": "triggeredByEvent", "value":"false"}]}],
-"whiteList":[{"name":"optype", "values": [{"value": "Router"}, {"value":"Splitter"}, {"value":"Merger"}, {"value":"Voter"}, 
-				{"value":"Filter"}, {"value":"AttributeAddition"}, {"value":"Rename"}, {"value":"Project"}]},
-			{"name": "implementationType", "values": [{"value": "MERGE"}, {"value": "LEFTOUTERMERGE"}]}],
-"blackList":[{"name": "optype", "values": [{"value":"Sort"}, {"value":"Distinct"}, {"value":"TopK"},  {"value":"UserDefinedFunction"}, {"value":"Union"}]},
-				{"name": "implementationType", "values": [{"value": "HASH"}, {"value":"LEFTOUTERHASH"}]}]
-},
-
 {"name":"replication",
 "description": "A user-defined control-flow pattern that identifies replication in an ETL flow",
 "pattern":[
@@ -430,10 +412,13 @@
 			"sequence":[
 				{"s1":{"name":"*t", "values": [{"value": "*v"}]}},
 				{"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}}, 
-				{"s3":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
-	},
-	
-	{"sequence":[{"s1": {"name":"optype", "values": [{"value": "Union"}]}}]}
+				{"s3":{"name":"*t", "values": [{"value": "*v"}]}},
+				{"s4": {"name":"optype", "values": [{"value": "Union"}]}}]}]}
+		{"flow2":[
+			{"repeat": "=1",
+			"sequence":[
+				{"s1":{"name":"optype", "values": [{"value": "Union"}]}}]}]}]
+	}
 ],
 "bpmnElement":[
 	{"name":"subprocess", 

@@ -10,6 +10,7 @@ import etlFlowGraph.operation.ETLFlowOperation;
 public abstract class PatternElement {
 	
 	private ArrayList<PatternElement> subElements;
+	private PatternElement parentElement;
 	private String elementName;
 	private String elementID;
 	private HashMap<String, ArrayList<String>> whiteList;
@@ -17,6 +18,7 @@ public abstract class PatternElement {
 	
 	public PatternElement(){
 		subElements = new ArrayList<>();
+		parentElement = null;
 		elementName = "";
 		elementID = "";
 		whiteList = new HashMap<>();
@@ -42,6 +44,7 @@ public String getElementID(){
 	return elementID;
 	
 }
+
 public void addPatternSubElement(PatternElement element){
 	this.subElements.add(element);
 }
@@ -66,6 +69,14 @@ public void setBlackList(HashMap<String, ArrayList<String>> blackList) {
 }
 
 public abstract ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes);
+
+public PatternElement getParentElement() {
+	return parentElement;
+}
+
+public void setParentElement(PatternElement parentElement) {
+	this.parentElement = parentElement;
+}
 	
 	
 	
