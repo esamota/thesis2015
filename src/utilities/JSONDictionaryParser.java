@@ -37,6 +37,12 @@ public class JSONDictionaryParser {
 
 	public static void main(String[] args) {
 		System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Splitter));
+		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
+		for (int i = 0; i < dictionary.size(); i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			System.out.println(root.get("name"));
+			HashMap<String, ArrayList<String>> bList = parsePatternBlackList(root);
+		}
 
 	}
 	
@@ -211,7 +217,7 @@ public class JSONDictionaryParser {
 					stepValues.add(value);
 				}
 				patternStep.setElementName(name);
-				if (name.equals("$whiteList")) {
+				if (name.equals("$whiteList") || name.equals("*t")) {
 					patternSequence.setWhiteList(parsePatternWhiteList(root));
 					patternSequence.setBlackList(parsePatternBlackList(root));
 				}
@@ -244,6 +250,8 @@ public class JSONDictionaryParser {
 				if (flowObj.get("sequence") != null){
 					//System.out.println("		sequence under flow yes");
 					PatternSequence flowSequence = parsePatternSequence(flowObj, root);
+					if (root.get("blackList")!= null) flowSequence.setBlackList(parsePatternBlackList(root));
+					if (root.get("whiteList")!= null) flowSequence.setWhiteList(parsePatternWhiteList(root));
 					patternFlow.addPatternSubElement(flowSequence);
 				} else if (flowObj.get("splitFlow") != null){
 					ArrayList<PatternFlow> subFlows = parsePatternFlow(flowObj, root);
@@ -284,6 +292,7 @@ public class JSONDictionaryParser {
 		HashMap<String, ArrayList<String>> wListOperations = new HashMap<>();
 		ArrayList<String> whiteListValues = new ArrayList<>();
 		
+		if (root.get("whiteList") != null){
 		JSONArray wListArray = (JSONArray) root.get("whiteList");
 		for (int w=0; w < wListArray.size(); w++){
 			JSONObject wListObj = (JSONObject) wListArray.get(w);
@@ -298,13 +307,14 @@ public class JSONDictionaryParser {
 			wListOperations.put(name, new ArrayList<>(whiteListValues));
 			whiteListValues.clear();
 				}
+		}
 		return wListOperations;
 	}
 	
 	public static HashMap<String, ArrayList<String>> parsePatternBlackList(JSONObject root){
 		HashMap<String, ArrayList<String>> bListOperations = new HashMap<>();
 		ArrayList<String> blackListValues = new ArrayList<>();
-		
+				if (root.get("blackList") != null){
 				JSONArray bListArray = (JSONArray) root.get("blackList");
 				if (root.get("blackList") != null){
 				for (int b=0; b < bListArray.size(); b++){
@@ -318,6 +328,7 @@ public class JSONDictionaryParser {
 					} 
 					bListOperations.put(name, new ArrayList<>(blackListValues));
 					blackListValues.clear();
+				}
 				}
 				}
 		return bListOperations;

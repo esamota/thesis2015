@@ -52,6 +52,7 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 				}
 			}
 		}
+		//this is a trick for double Union in external data validation pattern
 		for (ETLFlowOperation op: outPatternNodes){
 			if (!output.contains(op)) output.add(op);
 		}

@@ -31,7 +31,7 @@ public class PatternSequence extends PatternElement{
 				System.out.println("Seq: s"+s+", outPat is equal to patNodes");
 				return patternNodes;
 			}
-			if(getSubElements().get(s).getElementName().equals("$whiteList") || getSubElements().get(s).getElementName().equals("*t")){
+			if(outPatternNodes.get(outPatternNodes.size()-1).getOperationName().equals("whiteList")){
 				System.out.println("removing fake node");
 				outPatternNodes.remove(outPatternNodes.size() - 1);
 				nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size() - 1), G).get(0);
