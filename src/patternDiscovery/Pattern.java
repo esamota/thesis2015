@@ -33,30 +33,28 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 	public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList<>(patternNodes);
-		ArrayList<ETLFlowOperation> output = new ArrayList<>();
 		ETLFlowOperation nextNode = node;
 		//System.out.println("subElement size: "+ getSubElements().size());
-		for (PatternElement element: getSubElements()){
-			outPatternNodes = element.match(nextNode, G, outPatternNodes);
+		for (int e = 0; e < getSubElements().size(); e++){
+			outPatternNodes = getSubElements().get(e).match(nextNode, G, outPatternNodes);
 			//System.out.println("outPatternNodes "+outPatternNodes);
 			if (outPatternNodes.size() == patternNodes.size()){
-				return outPatternNodes;
+				return new ArrayList<>();
 			}
-			if (element.getElementName().equals("Sequence")){
-			nextNode = outPatternNodes.get(outPatternNodes.size()-1);
-			} else {
+			else if (e < getSubElements().size()-1 ){
+				if (getSubElements().get(e+1).getElementName().equals("Sequence")){
+				nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size()-1), G).get(0);
+				} else {
 				for (ETLFlowOperation op: outPatternNodes){
 					if (utilities.XLMParser.getTargetOperationsGivenSource(op, G).size() > 1)
 						nextNode = op;
 					break;
 				}
 			}
+			}
+			else return outPatternNodes;
 		}
-		//this is a trick for double Union in external data validation pattern
-		for (ETLFlowOperation op: outPatternNodes){
-			if (!output.contains(op)) output.add(op);
-		}
-		return output;
+		return outPatternNodes;
 		}
 
 	public ArrayList<BPMNElement> getBpmnElements() {

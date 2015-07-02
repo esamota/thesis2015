@@ -240,6 +240,7 @@ public class JSONDictionaryParser {
 			JSONObject splitFlowObj = (JSONObject) splitFlow.get(sf);
 			JSONArray flow = (JSONArray) splitFlowObj.get("flow"+String.valueOf(sf+1));
 			PatternFlow patternFlow = new PatternFlow();
+			patternFlow.setElementName("Flow");
 			for (int f=0; f< flow.size(); f++){
 				JSONObject flowObj = (JSONObject) flow.get(f);
 				if (flowObj.get("repeat") != null) {
@@ -250,6 +251,7 @@ public class JSONDictionaryParser {
 				if (flowObj.get("sequence") != null){
 					//System.out.println("		sequence under flow yes");
 					PatternSequence flowSequence = parsePatternSequence(flowObj, root);
+					flowSequence.setElementName("Sequence");
 					if (root.get("blackList")!= null) flowSequence.setBlackList(parsePatternBlackList(root));
 					if (root.get("whiteList")!= null) flowSequence.setWhiteList(parsePatternWhiteList(root));
 					patternFlow.addPatternSubElement(flowSequence);

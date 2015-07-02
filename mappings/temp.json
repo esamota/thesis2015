@@ -1,34 +1,29 @@
 {
 "patternDictionary":[
-{"name":"externalDataValidation",
-"description": "A user-defined pattern that identifies data quality actions to fill in null values in an ETL flow data input via a web service call",
+{"name":"mergeJoin",
+"description": "A control-flow pattern that depicts a merge-Join 
+				between two sorted data inputs in an ETL flow",
 "pattern":[
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Router"}]}}]
-	},
 	{"splitFlow":[
 		{"flow1":[
-			{"repeat": "=1",
+			{"repeat": ">1",
 			"sequence":[
-				{"s1":{"name":"*t", "values": [{"value": "*v"}]}},
-				{"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}}, 
-				{"s3":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
+				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}},
+				{"s2": {"name": "optype", "values":[{"value": "Splitter"}, {"value":"Router"}]}}]}]}]
 	},
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Union"}]}}]
+	{"sequence": [
+		{"s1": {"name":"optype", "values": [{"value": "Join"}, 
+											{"value": "LeftOuterJoin"}]}}]
 	}
 ],
-"blackList": [{"name": "optype", "values": [{"value": "Union"}]}],
-"bpmnElement":[
-	{"name":"subprocess", 
-	 "attributes":[{"name":"name", "value":"$create"},
-				{"name":"id", "value":"$graph"},
-				{"name":"completionQuantity", "value":"1"},
-				{"name":"isForCompensation", "value":"false"},
-				{"name": "startQuantity", "value":"1"},
-				{"name": "triggeredByEvent", "value":"false"}]}]
+"blackList": [{"name": "optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}],
+"bpmnElement":[{"name":"subprocess", 
+			"attributes":[{"name": "startQuantity", "value":"1"},
+						{"name":"id", "value":"$graph"},
+						{"name":"name", "value":"$create"},
+						{"name":"isForCompensation", "value":"false"},
+						{"name": "triggeredByEvent", "value":"false"},
+						{"name":"completionQuantity", "value":"1"}]}]
 }
 ]
 }

@@ -30,22 +30,29 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 	public PatternDiscovery(Class arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
+		
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ETLFlowGraph G = utilities.XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		 
+		
+		Iterator<Integer> graphIter = G.iterator();
+		while (graphIter.hasNext()) {
+			Integer v = graphIter.next();
+			ETLFlowOperation op = ops.get(v);
+			System.out.println(v+" "+ op.getOperationType().getOpTypeName());
+		}
 		//System.out.println(utilities.XLMParser.getTargetOperationsGivenSource(ops.get(895), G).size());
 		//System.out.println(G.getEtlFlowOperations().size());
 		//getAllGraphPatterns(G);
-		Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(921), G, "default");
+		/*Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(995), G, "default");
 		ArrayList<ETLFlowOperation> patternNodes = maxMatchedPattern.getPatternSubgraph();
 		System.out.println("Max Pattern "+ maxMatchedPattern.getElementName());
 		for (ETLFlowOperation op: patternNodes) {
 			System.out.println("---------------------> "+op.getOperationName());
-		}
+		}*/
 		
 		
 		//createSubGraphByCloningGraph(G, patternNodes);
