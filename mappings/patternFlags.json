@@ -1,7 +1,7 @@
 {
 "flagDictionary":[
 {"optype":"Filter", "patterns":[{"name":"Filter"},{"name":"subprocess"}]},
-{"optype":"Grouper", "patterns":[{"name":"Grouper"},{"name":"subprocess"}]},
+{"optype":"Grouper", "patterns":[{"name":"Grouper"},{"name":"subprocess"}, {"name":"testPattern"}]},
 {"optype":"Sort", "patterns":[{"name":"Sort"},{"name":"mergeJoin"}]},
 {"optype":"Project", "patterns":[{"name":"Project"},{"name":"subprocess"}]},
 {"optype":"AttributeAddition", "patterns":[{"name":"AttributeAddition"},{"name":"subprocess"}]},
@@ -9,7 +9,7 @@
 {"optype":"Rename", "patterns":[{"name":"Rename"},{"name":"subprocess"}]},
 {"optype":"TopK", "patterns":[{"name":"TopK"}]},
 {"optype":"UserDefinedFunction", "patterns":[{"name":"UserDefinedFunction"}]},
-{"optype":"Router", "patterns":[{"name":"Router"},{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"}, {"name":"externalDataValidation"}]},
+{"optype":"Router", "patterns":[{"name":"Router"},{"name":"recoveryPoint"}, {"name":"compensation"}, {"name":"subprocess"}, {"name":"replication"},{"name":"externalDataValidation"}]},
 {"optype":"Union", "patterns":[{"name":"Union"}]},
 {"optype":"Merger", "patterns":[{"name":"Merger"},{"name":"subprocess"}]},
 {"optype":"Voter", "patterns":[{"name":"Voter"},{"name":"subprocess"}]},

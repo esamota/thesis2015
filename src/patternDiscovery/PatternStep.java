@@ -40,23 +40,14 @@ private ArrayList<String> stepValues;
 			System.out.println("Simple match true");
 			outPatternNodes.add(node);
 			return outPatternNodes;
-		} 
-			
-		else if (stepName.equals("$whiteList")){
+		} else if (stepName.equals("$whiteList")){
 			if(stepValues.contains("*v")){
-				//a case when the first node isn't in the whiteList, return patternNodes, no need to look further
-				// this does not mean that the pattern failed, it just needs to go to the next step
-				//therefore, we need to pass back something else than just patternNodes. because in sequence is checks the size
-				//of patternNodes, and if didn't increase, it says that pattern failed. In this case, it is not true.
 				outPatternNodes.addAll(matchWhiteListStep(node, patternNodes, G, blackList, whiteList, nextStepName, nextStepValues));
-					return outPatternNodes;
-				} 
-		}
-		else if (stepName.equals("*t")){
-				outPatternNodes.addAll(matchDoubleStarStep(node, patternNodes, G, blackList, nextStepName, nextStepValues));
-				
-					return outPatternNodes;
-			
+				return outPatternNodes;
+			} 
+		} else if (stepName.equals("*t")){
+			outPatternNodes.addAll(matchDoubleStarStep(node, patternNodes, G, blackList, nextStepName, nextStepValues));
+			return outPatternNodes;	
 		}
 	return patternNodes;
 	}

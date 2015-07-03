@@ -34,14 +34,15 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList<>(patternNodes);
 		ETLFlowOperation nextNode = node;
-		//System.out.println("subElement size: "+ getSubElements().size());
 		for (int e = 0; e < getSubElements().size(); e++){
 			outPatternNodes = getSubElements().get(e).match(nextNode, G, outPatternNodes);
-			//System.out.println("outPatternNodes "+outPatternNodes);
 			if (outPatternNodes.size() == patternNodes.size()){
 				return new ArrayList<>();
 			}
-			else if (e < getSubElements().size()-1 ){
+			for (ETLFlowOperation outNode: outPatternNodes){
+				if (!patternNodes.contains(outNode)) patternNodes.add(outNode);
+			}
+			if (e < getSubElements().size()-1 ){
 				if (getSubElements().get(e+1).getElementName().equals("Sequence")){
 				nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size()-1), G).get(0);
 				} else {

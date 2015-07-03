@@ -304,13 +304,16 @@
 		{"flow1":[
 			{"repeat": ">1",
 			"sequence":[
-				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]}]
+				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}},
+				{"s2": {"name": "$whiteList", "values":[{"value": "*v"}]}}]}]}]
 	},
 	{"sequence": [
 		{"s1": {"name":"optype", "values": [{"value": "Join"}, 
 											{"value": "LeftOuterJoin"}]}}]
 	}
 ],
+"whiteList": [{"name": "optype", "values":[{"value": "Splitter"}, {"value":"Router"}]}],
+"blackList": [{"name": "optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}],
 "bpmnElement":[{"name":"subprocess", 
 			"attributes":[{"name": "startQuantity", "value":"1"},
 						{"name":"id", "value":"$graph"},
@@ -422,6 +425,24 @@
 	}
 ],
 "blackList": [{"name": "optype", "values": [{"value": "Union"}]}],
+"bpmnElement":[
+	{"name":"subprocess", 
+	 "attributes":[{"name":"name", "value":"$create"},
+				{"name":"id", "value":"$graph"},
+				{"name":"completionQuantity", "value":"1"},
+				{"name":"isForCompensation", "value":"false"},
+				{"name": "startQuantity", "value":"1"},
+				{"name": "triggeredByEvent", "value":"false"}]}]
+},
+
+{"name":"testPattern",
+"description": "testPattern",
+"pattern":[
+	{"sequence":[
+		{"s1": {"name": "optype", "values": [{"value": "Grouper"}]}},
+		{"s2": {"name": "optype", "values": [{"value": "Grouper"}]}}]
+	}
+],
 "bpmnElement":[
 	{"name":"subprocess", 
 	 "attributes":[{"name":"name", "value":"$create"},

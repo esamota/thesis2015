@@ -30,19 +30,24 @@ public class JSONDictionaryParser {
 
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
-	//public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
-	public static final String dictionaryFilePath = "mappings//temp.json";
+	public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
+	//public static final String dictionaryFilePath = "mappings//temp.json";
 	public static final String patternFlagMappingPath = "mappings//patternFlags.json";
 	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
 
 	public static void main(String[] args) {
-		System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Splitter));
+		/*System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Splitter));
 		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
 		for (int i = 0; i < dictionary.size(); i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			System.out.println(root.get("name"));
 			HashMap<String, ArrayList<String>> bList = parsePatternBlackList(root);
-		}
+		}*/
+		
+		ArrayList<String> flagNames = getPatternNamesByOriginOperation(OperationTypeName.Filter);
+		System.out.println("1 "+flagNames.size());
+		removeFlagNameFromFlagDictionary(OperationTypeName.Filter, "Filter");
+		System.out.println("2 "+flagNames.size());
 
 	}
 	
@@ -95,6 +100,28 @@ public class JSONDictionaryParser {
 			}
 		}
 			return flagNames;
+	}
+	
+	public static void removeFlagNameFromFlagDictionary(OperationTypeName optypeName, String patternName){
+		JSONArray dictionary = getJSONRootObject(patternFlagMappingPath, "flagDictionary");
+		Integer size = dictionary.size();
+		
+		ArrayList<String> flagNames = new ArrayList<String>();
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String optype = (String) root.get("optype");
+			if (optypeName.name().equals(optype)){
+			JSONArray patternFlag = (JSONArray) root.get("patterns");
+			for (int f=0; f <patternFlag.size(); f++){
+				JSONObject flag = (JSONObject) patternFlag.get(f);
+				String flagName = (String) flag.get("name");
+				if (flagName.equals(patternName)){
+					System.out.println("flagName "+ flagName+", patternName "+patternName);
+				System.out.println(flag.remove("name"));
+				}
+			}
+			}
+		}
 	}
 		
 	public static ArrayList<String> getPatternNames(){

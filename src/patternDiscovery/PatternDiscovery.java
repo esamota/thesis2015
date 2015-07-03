@@ -38,23 +38,22 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		ETLFlowGraph G = utilities.XLMParser.getXLMGraph();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		
-		Iterator<Integer> graphIter = G.iterator();
+		/*Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
 			Integer v = graphIter.next();
 			ETLFlowOperation op = ops.get(v);
 			System.out.println(v+" "+ op.getOperationType().getOpTypeName());
-		}
+		}*/
 		//System.out.println(utilities.XLMParser.getTargetOperationsGivenSource(ops.get(895), G).size());
 		//System.out.println(G.getEtlFlowOperations().size());
 		//getAllGraphPatterns(G);
-		/*Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(995), G, "default");
+		/*Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(921), G, "default");
 		ArrayList<ETLFlowOperation> patternNodes = maxMatchedPattern.getPatternSubgraph();
-		System.out.println("Max Pattern "+ maxMatchedPattern.getElementName());
+		
 		for (ETLFlowOperation op: patternNodes) {
 			System.out.println("---------------------> "+op.getOperationName());
-		}*/
-		
-		
+		}
+		*/
 		//createSubGraphByCloningGraph(G, patternNodes);
 	//ArrayList<ETLEdge> edges = getEdgesForSubGraph(G, patternNodes);
 	//System.out.println("EDGES: "+edges);
@@ -64,12 +63,12 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
 		//System.out.println(maxMatchingPatternSubgraph.size());
 		
-		/*ArrayList<BPMNElement> graphElements = translateToBPMN(G);
+		ArrayList<BPMNElement> graphElements = translateToBPMN(G);
 		for (BPMNElement element: graphElements){
 			System.out.println(element.getElementName());
 			for (BPMNElement BPMN: element.getSubElements())
 			System.out.println("subElement "+BPMN.getElementName());
-		}*/
+		}
 		
 	}
 	
@@ -112,21 +111,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		return subGraph;
 	}
 	
-	public static ETLFlowGraph createSubGraphByCloningGraph(ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
-		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		ETLFlowGraph subGraph = new ETLFlowGraph();
-		Iterator<Integer> graphIter = G.iterator();
-		while (graphIter.hasNext()) {
-			Integer v = graphIter.next();
-			ETLFlowOperation node = ops.get(v);
-			if (patternNodes.contains(node)){
-				subGraph.addVertex(v);
-				subGraph.addEtlFlowOperations(v, node);
-			}
-		}
-		return subGraph;
-	}
-	
 	public static Pattern getMaxSubgraphMatch (ETLFlowOperation node, ETLFlowGraph G, String bigPatternName) {
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
@@ -137,20 +121,19 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		Pattern pattern = new Pattern();
 		
 		flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
-		System.out.println("flag names per optype "+flagNamesPerOptype);
-			for (String flagName: flagNamesPerOptype){
-				if (!bigPatternName.equals("subprocess")){
-				System.out.println("flagName "+flagName+". BigPattern "+bigPatternName);
+		for (String flagName: flagNamesPerOptype){
+			if (!bigPatternName.equals(flagName)){
 				pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
 				System.out.println("Starting to discover pattern: "+flagName);
-				patternNodes.addAll(pattern.match(node, G, patternNodes));
+				patternNodes.retainAll(pattern.match(node, G, patternNodes));
 				}
 				if (patternNodes.size() != 0 && patternNodes.size() != G.getEtlFlowOperations().size()){
 					System.out.println(pattern.getElementName()+" is present in the graph");
 					matchedPatterns.put(pattern, new ArrayList<>(patternNodes));
-				}
+				} else System.out.println(pattern.getElementName()+" pattern failed");
 				patternNodes.clear();
-			}
+				}
+				if (matchedPatterns.size() != 0){
 				for(Pattern matchedPattern: matchedPatterns.keySet()){
 					if (matchedPatterns.get(matchedPattern).size() > maxSize) {
 						maxSize = matchedPatterns.get(matchedPattern).size();
@@ -160,7 +143,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				System.out.println("max pattern "+maxPattern.getElementName());
 				maxPattern.setPatternSubgraph(matchedPatterns.get(maxPattern));
 				return maxPattern;
-			
+				} else return new Pattern();
 	}
 	
 	public static ArrayList<BPMNElement> translateToBPMN(ETLFlowGraph G){
@@ -169,7 +152,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<BPMNElement> graphBpmnElements = new ArrayList<>();
 		ArrayList<ETLFlowOperation> visitedNodes = new ArrayList<>();
-		String bigPatternName = "";
 		System.out.println("Graph "+G);
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
@@ -178,10 +160,10 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				System.out.println("we are at node "+v);
 			ETLFlowOperation node = ops.get(v);
 			if (!visitedNodes.contains(node)){
-			pattern = getMaxSubgraphMatch(node, G, bigPatternName);
+			pattern = getMaxSubgraphMatch(node, G, "default");
 			patternNodes = pattern.getPatternSubgraph();
 			if (patternNodes.size() > 1){
-				bigPatternName = pattern.getElementName();
+				String bigPatternName = pattern.getElementName();
 					System.out.println("pattern size > 1");
 				ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
 					System.out.println("Max subGraph "+subGraph);
