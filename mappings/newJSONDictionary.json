@@ -287,13 +287,10 @@
 
 {"name":"edge",
 "description": "A simple mapping for any xLM edge",
-"pattern":[
-	{"sequence":[
-		{"s1": {"name": "edge", "values": [{"value": "N/A"}]}}]}
-],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"pattern":[],
+"bpmnElement": [{"name":"sequenceFlow", "attributes":[{"name":"id", "value":"$graph"},
+															{"name":"sourceRef", "value":"$graph"}, 
+															{"name":"targetRef", "value":"$graph"}]}]
 },
 
 {"name":"mergeJoin",
@@ -338,13 +335,17 @@
 	}
 ],
 "bpmnElement":[
-	{"name":"subprocess", 
-	 "attributes":[{"name":"name", "value":"$create"},
-				{"name":"id", "value":"$graph"},
-				{"name":"completionQuantity", "value":"1"},
-				{"name":"isForCompensation", "value":"false"},
-				{"name": "startQuantity", "value":"1"},
-				{"name": "triggeredByEvent", "value":"false"}]}],
+	{"name":"textAnnotation", 
+	 "attributes":[{"name":"id", "value":"$create"},
+				{"name":"textFormat", "value":"text/plain"}],
+	"text":"recoveryPoint"
+	},
+	{"name":"association",
+	"attributes":[{"name":"associationDirection", "value":"None"},
+				{"name":"id", "value":"$create"},
+				{"name":"sourceRef", "value":"$graph"},
+				{"name":"targetRef", "value":"$create"}]}
+],
 "whiteList":[{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
 },
 

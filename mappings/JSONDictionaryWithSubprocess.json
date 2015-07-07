@@ -304,13 +304,16 @@
 		{"flow1":[
 			{"repeat": ">1",
 			"sequence":[
-				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}}]}]}]
+				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}},
+				{"s2": {"name": "$whiteList", "values":[{"value": "*v"}]}}]}]}]
 	},
 	{"sequence": [
 		{"s1": {"name":"optype", "values": [{"value": "Join"}, 
 											{"value": "LeftOuterJoin"}]}}]
 	}
 ],
+"whiteList": [{"name": "optype", "values":[{"value": "Splitter"}, {"value":"Router"}]}],
+"blackList": [{"name": "optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}],
 "bpmnElement":[{"name":"subprocess", 
 			"attributes":[{"name": "startQuantity", "value":"1"},
 						{"name":"id", "value":"$graph"},

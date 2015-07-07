@@ -1,4 +1,5 @@
 package toBPMN;
+import patternDiscovery.*;
 import importXLM.ImportXLMToETLGraph;
 
 import java.io.BufferedWriter;
@@ -51,8 +52,9 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// String BPMN = toStringBPMN();
-		String BPMN = toStringBPMNWithDictionary();
-		toFileBPMN(BPMN);
+		//ETLFlowGraph G = XLMParser.getXLMGraph();
+		//String BPMN = toStringBPMNWithDictionary();
+		//toFileBPMN(BPMN);
 	}
 	
 	public static void toFileBPMN(String writerInput) {
@@ -71,79 +73,86 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 			e.printStackTrace();
 		}
 	}
-	
-	
 
-	public static String toStringBPMNWithDictionary() {
-		ETLFlowGraph G = XLMParser.getXLMGraph();
-		
+	public static String toStringBPMNWithDictionary(ETLFlowGraph G) {
 		//all graph operations
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		//parsed JSON dictionary
-		HashMap<String, ArrayList<BPMNElement>> mapping = JSONDictionaryParser
-				.getSingleOperationPatterns();
+		
 		//gets an array list of pattern name flags for each optype in the dictionary
-		HashMap<String, ArrayList<String>> flagMapping = JSONDictionaryParser.getOperationStartPatternFlags();
+		
 		//all elements from the dictionary that belong to the graph of this xLM document
-		//ArrayList<BPMNElement> graphElements = BPMNConstructsGenerator.getGraphElements(G, ops, mapping);
-		ArrayList<BPMNElement> graphElements = new ArrayList<BPMNElement>();
-		//add a dataStore element in case it needs to be references by one of the elements
-		//graphElements.add(BPMNConstructsGenerator.createDataStoreElement());
+		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G);
+		//edges
+		ArrayList<BPMNElement> edges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
+		graphElements.addAll(edges);
+		//startEvent and edges
+		ArrayList<BPMNElement> startAndEgdes = BPMNConstructsGenerator.createProcessStartEvent(G);
+		graphElements.addAll(startAndEgdes);
+		//end event and edges
+		ArrayList<BPMNElement> endAndEgdes = BPMNConstructsGenerator.createBPMNEndEvent(G);
+		graphElements.addAll(endAndEgdes);
 		//all elements that belong inside of a process tag and require a 
 		// single--one-line self closing tag, like a task without i/o's
 		ArrayList<HashMap> simpleProcessElements = new ArrayList<HashMap>();
+		
 		//all elements that belong inside of a process but have subelements inside, like a task with an I/O
 		ArrayList<HashMap> complexProcessElements = new ArrayList<HashMap>();
+		
 		//all elements that are inside another element, like the data I/O association
 		ArrayList<HashMap> subElements = new ArrayList<HashMap>();
+		
 		//a list of bpmn element collaboration with corresponding subelements
 		ArrayList<BPMNElement> poolElements = BPMNConstructsGenerator.getPoolElements(ops);
+		
 		//all elements & attrs necessary to fill in the collaboration for the bpmn model
 		ArrayList<HashMap> collaborationElements = BPMNConstructsGenerator.getPoolElementsVelocityFormat(poolElements);
+		
 		//all necessary subelements(participant) to fill the collaboration for the bpmn model
 		ArrayList<HashMap> collborationSubElements = BPMNConstructsGenerator.getPoolSubElementsVelocityFormat(poolElements);
 		
+		ArrayList<HashMap> processTagElements = BPMNConstructsGenerator.getProcessTagElementsVelocityFormat(poolElements);
+		
 		//all elements that belong after the process tag is over, eg dataStore
-		ArrayList<HashMap> nonProcessElements = new ArrayList<HashMap>();
+		ArrayList<HashMap> dataStoreElements = new ArrayList<HashMap>();
+		
 		//all header elements that belong in the beginning of each bpmn model before the process starts
 		ArrayList<HashMap> headerElements = new ArrayList<HashMap>();
 		
-		String stringAttributes = "";		
+		String stringAttributes = "";	
+		int counter = 0;
 		for (BPMNElement el : graphElements) {
 			//System.out.println(el.getElementName()+" "+el.getSubElements().size());
 			HashMap element = new HashMap();
-			
+			if (el.getElementName().equals("dataStoreReference")) counter++;
+			String dataStoreName="";
 			for (BPMNAttribute attr : el.getAttributes()) {
+				if (attr.name.equals("dataStoreRef")) attr.setAttributeValue("DS_"+String.valueOf(counter));
+				System.out.println(attr.name+" "+attr.value+" "+counter);
 				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
-			
 			element.put("attributes", stringAttributes);
 			stringAttributes = "";
 			// System.out.println(optypeMapping.get(str).getElementName());
 			element.put("name", el.getElementName());
-			if(el.getSubElements().size() < 1){
-				//create a dataStore for each process even if it is not being referenced later
-				if(el.getElementName().equals(BPMNElementTagName.dataStore.name())){
-					nonProcessElements.add(element);
-				} else if (!el.getElementName().equals(BPMNElementTagName.conditionExpression.name())){
-				simpleProcessElements.add(element);
-				}
-			}
-			else if(el.getSubElements().size() >= 1){
-					complexProcessElements.add(element);
-			for (BPMNElement subEl: el.getSubElements()){
-				HashMap subElement = new HashMap();
-				subElement.put("elName", el.getElementName());
-				subElement.put("subName", subEl.getElementName());
-				subElement.put("text", subEl.getElementText());
-				//TODO:edge after splitter has a text value and not just attributes. How to deal with that?
-				for (BPMNAttribute attr : subEl.getAttributes()) {
-					stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
-			}
-				subElement.put("attributes", stringAttributes);		
+			element.put("id", el.getElementID());
+			
+			if (el.getElementName().equals("dataStoreReference")){
+				HashMap dsElement = new HashMap();
+				dsElement.put("name", "dataStore");
+				stringAttributes = "id=\""+"DS_"+counter+ "\""+" isUnlimited=\""+"false"+"\"";
+				dsElement.put("attributes", stringAttributes);
 				stringAttributes = "";
-			subElements.add(subElement);
-			}
+				dataStoreElements.add(dsElement);
+			// for recovery point: need to test
+			} if (el.getElementName().equals(BPMNElementTagName.textAnnotation.name())){
+				String text = "<text>recoveryPoint</text>";
+				el.setText(text);
+				collborationSubElements.add(element);
+			} if(el.getSubElements().size() < 1 && !el.getElementName().equals(BPMNElementTagName.conditionExpression.name())){
+				simpleProcessElements.add(element);
+			} else if(el.getSubElements().size() >= 1){
+					complexProcessElements.add(element);
+					subElements.addAll(loadSubElements(el));
 		}
 		}
 		
@@ -158,15 +167,36 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		context.put("collaborationElements", collaborationElements);
 		context.put("collaborationSubElements", collborationSubElements);
 		context.put("subElements", subElements);
+		context.put("processTagElements", processTagElements);
+		context.put("dataStoreElements", dataStoreElements);
 		StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 
 		return (writer.toString());
 	}
 	
+	public static ArrayList<HashMap> loadSubElements(BPMNElement el){
+		ArrayList<HashMap> subElements = new ArrayList<HashMap>();
+		String stringAttributes="";
+		for (BPMNElement subEl: el.getSubElements()){
+			HashMap subElement = new HashMap();
+			subElement.put("elementID", el.getElementID());
+			subElement.put("subName", subEl.getElementName());
+			System.out.println(el.getElementName()+" "+subEl.getElementName()+" "+ subEl.getElementText());
+			subElement.put("text", subEl.getElementText());
+			//TODO:edge after splitter has a text value and not just attributes. How to deal with that?
+			for (BPMNAttribute attr : subEl.getAttributes()) {
+				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
+			}
+			subElement.put("attributes", stringAttributes);		
+			stringAttributes = "";
+			subElements.add(subElement);
+		}
+		return subElements;
+	}
 
-	public static String toStringBPMN() {
-		ETLFlowGraph G = XLMParser.getXLMGraph();
+	public static String toStringBPMN(ETLFlowGraph G) {
+		//ETLFlowGraph G = XLMParser.getXLMGraph();
 
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		Hashtable<String, ArrayList<ETLNonFunctionalCharacteristic>> props = G
@@ -189,8 +219,8 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		ArrayList<Integer> nodesWithOutput = new ArrayList<Integer>();
 
 		// populate arraylists of nodes with inputs and outputs
-		nodesWithInput = XLMParser.nodesWithDataInput(G, ops);
-		nodesWithOutput = XLMParser.nodesWithDataOutput(G, ops);
+		nodesWithInput = XLMParser.nodesWithDataInput(G);
+		nodesWithOutput = XLMParser.nodesWithDataOutput(G);
 		pools = XLMParser.flowEngineTypes(ops);
 
 		// source nodes of the graph to use when connecting the start even in
@@ -382,34 +412,4 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		} else
 			node.put("hasOutput", "N");
 	}
-
-	public static void subprocessExtraction(ETLFlowGraph G,
-			Hashtable<Integer, ETLFlowOperation> ops) {
-		
-		ArrayList<Integer> subprocess = new ArrayList<Integer>();
-		for (Object e : G.edgeSet()) {
-			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
-			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
-			for (OperationTypeName opn : nonBlockingOperations) {
-				// nonBlockingOperations.contains(arg0)
-				if (opS.getOperationName().equals(opn)
-						&& opT.getOperationName().equals(opn)) {
-					subprocess.add(opS.getNodeID());
-					subprocess.add(opT.getNodeID());
-				} else if (opS.getOperationName().equals(opn)
-						&& !opT.getOperationName().equals(opn)) {
-					if (subprocess.size() > 1) {
-						// add subprocess id, and
-
-					}
-				}
-
-			}
-		}
-	}
-	
-
-
-
-
 }

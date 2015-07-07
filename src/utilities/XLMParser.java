@@ -15,7 +15,8 @@ import etlFlowGraph.operation.ETLFlowOperation;
 
 public class XLMParser {
 	
-	public static final String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml";
+	//public static final String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q1.xml";
+	//public static final String XLMFilePathInput = display.Demo.xlmFile.getAbsolutePath();
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-1.xml";
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
@@ -23,10 +24,9 @@ public class XLMParser {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
 	}
 	
-	public static ETLFlowGraph getXLMGraph(){
+	public static ETLFlowGraph getXLMGraph(String XLMFilePathInput){
 		ImportXLMToETLGraph importXlm = new ImportXLMToETLGraph();
 		ETLFlowGraph G = new ETLFlowGraph();
 		try {
@@ -68,8 +68,9 @@ public class XLMParser {
 	}
 	
 	// identify all nodes that have a data input going in
-	public static ArrayList<Integer> nodesWithDataInput(ETLFlowGraph G,
-			Hashtable<Integer, ETLFlowOperation> ops) {
+	public static ArrayList<Integer> nodesWithDataInput(ETLFlowGraph G) {
+		
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<Integer> nodesWithDBInput = new ArrayList<Integer>();
 		// ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
 		for (Object e : G.edgeSet()) {
@@ -95,8 +96,9 @@ public class XLMParser {
 	}
 
 // identify all nodes that have a data output coming out
-public static ArrayList<Integer> nodesWithDataOutput(ETLFlowGraph G,
-		Hashtable<Integer, ETLFlowOperation> ops) {
+public static ArrayList<Integer> nodesWithDataOutput(ETLFlowGraph G) {
+	
+	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 	ArrayList<Integer> nodesWithDBOutput = new ArrayList<Integer>();
 	ArrayList<HashMap> dbOutputNodes = new ArrayList<HashMap>();
 	for (Object e : G.edgeSet()) {

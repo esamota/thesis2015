@@ -31,6 +31,7 @@ public class JSONDictionaryParser {
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
 	public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
+
 	//public static final String dictionaryFilePath = "mappings//temp.json";
 	public static final String patternFlagMappingPath = "mappings//patternFlags.json";
 	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
@@ -293,6 +294,21 @@ public class JSONDictionaryParser {
 		return flows;
 	}
 	
+	public static ArrayList<BPMNElement> parseBPMNForEdges(){
+		ArrayList<BPMNElement> bpmnElements = new ArrayList<>();
+		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
+		Integer size = dictionary.size();
+	
+		for (int i = 0; i < size; i++) {
+			JSONObject root = (JSONObject) dictionary.get(i);
+			String patternName = (String) root.get("name");
+			if (patternName.equals("edge")){
+			bpmnElements.addAll(parsePatternBPMNElements(root));
+		}
+		}
+		return bpmnElements;
+	}
+	
 	public static ArrayList<BPMNElement> parsePatternBPMNElements(JSONObject root){
 		ArrayList<BPMNElement> bpmnElements = new ArrayList<>();
 		
@@ -308,10 +324,10 @@ public class JSONDictionaryParser {
 				String attrName = (String) attribute.get("name");
 				String attrValue = (String) attribute.get("value");
 				BPMNAttribute bpmnAttr = new BPMNAttribute(attrName, attrValue);
-				element.addAttribute(bpmnAttr);
+				element.setAttribute(bpmnAttr);
 			}
 			String text = (String) bpmn.get("text");
-			element.addText(text);
+			element.setText(text);
 			bpmnElements.add(element);
 		}			
 		return bpmnElements;

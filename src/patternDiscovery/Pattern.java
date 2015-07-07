@@ -36,7 +36,7 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 		ETLFlowOperation nextNode = node;
 		for (int e = 0; e < getSubElements().size(); e++){
 			outPatternNodes = getSubElements().get(e).match(nextNode, G, outPatternNodes);
-			if (outPatternNodes.size() == patternNodes.size()){
+			if ((patternNodes.size() != 0 && outPatternNodes.size() == 0) || outPatternNodes.size() == patternNodes.size()){
 				return new ArrayList<>();
 			}
 			for (ETLFlowOperation outNode: outPatternNodes){

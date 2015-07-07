@@ -1,6 +1,7 @@
 package patternDiscovery;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
@@ -26,21 +27,45 @@ public class PatternSequence extends PatternElement{
 		for (int s=0; s < getSubElements().size(); s++){
 			outPatternNodes = getSubElements().get(s).match(nextNode, G, outPatternNodes);
 			
-			if (outPatternNodes.size() == patternNodes.size()){
+			if (outPatternNodes.size() == 0 || outPatternNodes.size() == patternNodes.size()){
 				System.out.println("Seq match failed");
-				return patternNodes;
+				return new ArrayList<>();
 			}
 			if(outPatternNodes.get(outPatternNodes.size()-1).getOperationName().equals("whiteList")){
 				outPatternNodes.remove(outPatternNodes.size() - 1);
-				nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size() - 1), G).get(0);
-				for (ETLFlowOperation op: outPatternNodes){
-					if (!patternNodes.contains(op)) patternNodes.add(op);
+				//old:
+				//nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size() - 1), G).get(0);
+				//new:
+				Iterator<Integer> graphIter = G.iterator();
+				while (graphIter.hasNext()) {
+					Integer v = graphIter.next();
+					if (v.intValue() == outPatternNodes.get(outPatternNodes.size() - 1).getNodeID()){
+					nextNode = ops.get(graphIter.next());
+					break;
+					}
+				}
+				if (s < getSubElements().size()){
+					for (ETLFlowOperation op: outPatternNodes){
+						if (!patternNodes.contains(op)) patternNodes.add(op);
+					}
 				}
 			} else patternNodes.add(node);
 			
 			if (s <= getSubElements().size()-1 && !getSubElements().get(s).getElementName().equals("$whiteList") && !getSubElements().get(s).getElementName().equals("*t")){
-				if (utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).size() == 1)
-					nextNode = utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).get(0);
+				if (utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).size() <= 1){
+					//old:
+					//nextNode = utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).get(0);
+					//new:
+					Iterator<Integer> graphIter = G.iterator();
+				while (graphIter.hasNext()) {
+					Integer v = graphIter.next();
+					if (v.intValue() == node.getNodeID()){
+						if (graphIter.hasNext()) nextNode = ops.get(graphIter.next());
+						else nextNode = new ETLFlowOperation("dummy");
+						break;
+					}
+				}
+				}
 				else return patternNodes;
 			}
 		}

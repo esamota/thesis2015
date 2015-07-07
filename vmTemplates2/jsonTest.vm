@@ -1,24 +1,43 @@
+## template for the whole bpmn document
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions id="Definition"
+             targetNamespace= "http://sourceforge.net/bpmn/definitions/_1421940801539"
+             typeLanguage= "http://www.w3.org/2001/XMLSchema"
+             expressionLanguage= "http://www.w3.org/1999/XPath"
+             xmlns= "http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsd= "http://www.w3.org/2001/XMLSchema"
+             xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation= "http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+             
 ## print collaboration block here
 #foreach ($element in $collaborationElements)
 <$element.name $element.attributes>
 	#foreach ($sub in $collaborationSubElements)
-		<$sub.name $sub.attributes />
+		<$sub.name $sub.attributes/>
 	#end
-<$element.name />
+</$element.name>
 #end
 
-#foreach ($element in $simpleElements)
-<$element.name $element.attributes />
-#end
-
-#foreach ($element in $complexElements)
-<$element.name $element.attributes>
-	#foreach ($sub in $subElements)
-	 #if ($element.name == $sub.elName)
-		<$sub.subName $sub.attributes>$sub.text<$sub.subName/>
-		#end
+## start pool here
+#foreach ($pool in $processTagElements)
+<$pool.name $pool.attributes>
+	## start process here
+	#foreach ($element in $simpleElements)
+		<$element.name $element.attributes/>
 	#end
-<$element.name />
+	#foreach ($element in $complexElements)
+		<$element.name $element.attributes>
+			#foreach ($sub in $subElements)
+				 #if ($element.id == $sub.elementID)
+					<$sub.subName $sub.attributes>$sub.text</$sub.subName>
+				#end
+			#end
+		</$element.name>
+	#end
+</$pool.name>
 #end
-
-
+## end process here
+#foreach ($element in $dataStoreElements)
+<$element.name $element.attributes/>
+#end
+</definitions>

@@ -49,16 +49,19 @@ private ArrayList<String> stepValues;
 			outPatternNodes.addAll(matchDoubleStarStep(node, patternNodes, G, blackList, nextStepName, nextStepValues));
 			return outPatternNodes;	
 		}
-	return patternNodes;
+	return new ArrayList<>();
 	}
 	
 	public boolean simpleMatch(ETLFlowOperation node){
+		if (!node.getOperationName().equals("dummy")){
 		if((getElementName().equals("optype") && stepValues.contains(node.getOperationType().getOpTypeName().name()))||
 				(getElementName().equals("implementationType") && stepValues.contains(node.getImplementationType()))||
 				(getElementName().equals("type") && stepValues.contains(node.getNodeKind().name()))){
 			return true;
 		}
 		else return false;
+		}
+		return false;
 	}
 	
 	public ArrayList<ETLFlowOperation> matchWhiteListStep(ETLFlowOperation node, ArrayList<ETLFlowOperation> patternNodes, ETLFlowGraph G, HashMap<String, ArrayList<String>> blackList, HashMap<String, ArrayList<String>> whiteList,
@@ -80,7 +83,7 @@ private ArrayList<String> stepValues;
 		//this is when the $whiteList *v match a blackList item
 		} else {
 			System.out.println("whiteList match for target "+node.getNodeID()+ " false");	
-			return patternNodes;
+			return new ArrayList<>();
 			}
 		}
 	
@@ -102,7 +105,7 @@ private ArrayList<String> stepValues;
 			return outPatternNodes;
 		}else {
 			System.out.println("Step: double star match for target "+node.getNodeID()+" false");
-			return patternNodes;
+			return new ArrayList<>();
 		}
 	}
 	

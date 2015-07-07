@@ -108,10 +108,10 @@ public class DictionaryParser2 {
 							String attrName = (String) attribute.get("name");
 							String attrValue = (String) attribute.get("value");
 							bpmnAttr = new BPMNAttribute(attrName, attrValue);
-							element.addAttribute(bpmnAttr);
+							element.setAttribute(bpmnAttr);
 						}
 						String text = (String) bpmn.get("text");
-						element.addText(text);
+						element.setText(text);
 						elementsPerOptype.add(element);
 					}
 					//System.out.println(xlmName+" "+ elementsPerOptype);

@@ -23,5 +23,10 @@ dataStore,
 conditionExpression,
 subprocess,
 startEvent,
-endEvent
+endEvent,
+dataOutputAssociation,
+dataInputAssociation,
+association,
+textAnnotation,
+text
 }
