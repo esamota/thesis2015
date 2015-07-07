@@ -26,6 +26,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
+import display.Demo;
 import utilities.BPMNElementTagName;
 import utilities.JSONDictionaryParser;
 import utilities.XLMParser;
@@ -38,7 +39,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 
 	
-	private static final String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
+	//private static String BPMNFilePathOutput = Demo.BPMNFilePathOutput;
+	private static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	private static final String startEventID = "0001";
 	private static final String endEventID = "0009";
 	private static final ArrayList<OperationTypeName> nonBlockingOperations = new ArrayList<OperationTypeName>();
@@ -52,12 +54,12 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// String BPMN = toStringBPMN();
-		//ETLFlowGraph G = XLMParser.getXLMGraph();
-		//String BPMN = toStringBPMNWithDictionary();
-		//toFileBPMN(BPMN);
+		ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
+		String BPMN = toStringBPMNWithDictionary(G);
+		toFileBPMN(BPMNFilePathOutput, BPMN);
 	}
 	
-	public static void toFileBPMN(String writerInput) {
+	public static void toFileBPMN(String BPMNFilePathOutput, String writerInput) {
 		File file = new File(BPMNFilePathOutput);
 		try {
 

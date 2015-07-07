@@ -19,6 +19,7 @@ import org.jgrapht.EdgeFactory;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.AbstractBaseGraph;
 
+import display.Demo;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
@@ -36,7 +37,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-	//	ETLFlowGraph G = utilities.XLMParser.getXLMGraph();
+	ETLFlowGraph G = utilities.XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
 	//	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		
 		/*Iterator<Integer> graphIter = G.iterator();
@@ -64,12 +65,14 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
 		//System.out.println(maxMatchingPatternSubgraph.size());
 		
-		/*ArrayList<BPMNElement> graphElements = translateToBPMN(G);
+		ArrayList<BPMNElement> graphElements = translateToBPMN(G);
 		for (BPMNElement element: graphElements){
 			System.out.println(element.getElementName());
-			for (BPMNElement BPMN: element.getSubElements())
+			for (BPMNElement BPMN: element.getSubElements()){
 			System.out.println("subElement "+BPMN.getElementName());
-		}*/
+			System.out.println("subElement text"+ BPMN.getElementText());
+		}
+		}
 		
 	}
 	
@@ -124,7 +127,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
 		for (String flagName: flagNamesPerOptype){
 			if (!bigPatternName.equals(flagName)){
-				pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
+				pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, flagName);
 				System.out.println("Starting to discover pattern: "+flagName);
 				patternNodes.retainAll(pattern.match(node, G, patternNodes));
 				}
@@ -202,7 +205,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 			flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(node.getOperationType().getOpTypeName());
 			for (String flagName: flagNamesPerOptype){
 					System.out.println(flagName);
-					Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(flagName);
+					Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, flagName);
 					patternNodes.addAll(pattern.match(node, G, patternNodes));
 					if (patternNodes.size() != 0){
 						System.out.println(pattern.getElementName()+" pattern is present in the graph");

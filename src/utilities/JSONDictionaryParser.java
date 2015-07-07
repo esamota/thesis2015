@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import display.Demo;
 import operationDictionary.OperationTypeName;
 import patternDiscovery.Pattern;
 import patternDiscovery.PatternElement;
@@ -30,8 +31,8 @@ public class JSONDictionaryParser {
 
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
-	public static final String dictionaryFilePath = "mappings//newJSONDictionary.json";
-
+	//public static String dictionaryFilePath = Demo.dictionaryFilePath;
+	public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
 	//public static final String dictionaryFilePath = "mappings//temp.json";
 	public static final String patternFlagMappingPath = "mappings//patternFlags.json";
 	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
@@ -52,13 +53,13 @@ public class JSONDictionaryParser {
 
 	}
 	
-	public static JSONArray getJSONRootObject(String filePath, String rootName){
+	public static JSONArray getJSONRootObject(String dictionaryFilePath, String rootName){
 		JSONParser parser = new JSONParser();
 		Object obj;
 		JSONArray dictionary = new JSONArray();
 
 		try {
-			obj = parser.parse(new FileReader(filePath));
+			obj = parser.parse(new FileReader(dictionaryFilePath));
 			JSONObject jsonObject = (JSONObject) obj;
 
 			// loop through the root array
@@ -173,7 +174,7 @@ public class JSONDictionaryParser {
 		return patterns;
 		}
 	
-	public static Pattern getAnyPatternElementByName (String flagName){
+	public static Pattern getAnyPatternElementByName (String dictionaryFilePath, String flagName){
 		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
 		Integer size = dictionary.size();
 		Pattern patternElement = new Pattern();
@@ -294,7 +295,7 @@ public class JSONDictionaryParser {
 		return flows;
 	}
 	
-	public static ArrayList<BPMNElement> parseBPMNForEdges(){
+	public static ArrayList<BPMNElement> parseBPMNForEdges(String dictionaryFilePath){
 		ArrayList<BPMNElement> bpmnElements = new ArrayList<>();
 		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
 		Integer size = dictionary.size();

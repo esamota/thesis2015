@@ -287,152 +287,31 @@
 
 {"name":"edge",
 "description": "A simple mapping for any xLM edge",
-"pattern":[
-	{"sequence":[
-		{"s1": {"name": "edge", "values": [{"value": "N/A"}]}}]}
-],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"pattern":[],
+"bpmnElement": [{"name":"sequenceFlow", "attributes":[{"name":"id", "value":"$graph"},
+															{"name":"sourceRef", "value":"$graph"}, 
+															{"name":"targetRef", "value":"$graph"}]}]
 },
 
-{"name":"mergeJoin",
-"description": "A control-flow pattern that depicts a merge-Join 
-				between two sorted data inputs in an ETL flow",
+{"name":"subprocess",
+"description": "A user-defined ETL flow pattern that groups parts on the flow that can be pipelined",
 "pattern":[
-	{"splitFlow":[
-		{"flow1":[
-			{"repeat": ">1",
-			"sequence":[
-				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}},
-				{"s2": {"name": "$whiteList", "values":[{"value": "*v"}]}}]}]}]
-	},
-	{"sequence": [
-		{"s1": {"name":"optype", "values": [{"value": "Join"}, 
-											{"value": "LeftOuterJoin"}]}}]
+	{"sequence":[							
+		{"s1":{"name": "$whiteList", "values":[{"value": "*v"}]}}]
 	}
 ],
-"whiteList": [{"name": "optype", "values":[{"value": "Splitter"}, {"value":"Router"}]}],
-"blackList": [{"name": "optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}],
-"bpmnElement":[{"name":"subprocess", 
-			"attributes":[{"name": "startQuantity", "value":"1"},
-						{"name":"id", "value":"$graph"},
-						{"name":"name", "value":"$create"},
-						{"name":"isForCompensation", "value":"false"},
-						{"name": "triggeredByEvent", "value":"false"},
-						{"name":"completionQuantity", "value":"1"}]}]
-},
-
-{"name":"recoveryPoint",
-"description": "A user-defined control-flow pattern that identifies check-pointing in an ETL flow",
-"pattern":[
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Splitter"}, {"value": "Router"}]}}]},
-	{"splitFlow":[
-		{"flow1":[
-			{"repeat": "=1",
-			"sequence":[
-				{"s1":{"name":"$whiteList", "values": [{"value": "*v"}]}},
-				{"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
-	}
-],
-"bpmnElement":[
-	{"name":"subprocess", 
-	 "attributes":[{"name":"name", "value":"$create"},
-				{"name":"id", "value":"$graph"},
-				{"name":"completionQuantity", "value":"1"},
-				{"name":"isForCompensation", "value":"false"},
-				{"name": "startQuantity", "value":"1"},
-				{"name": "triggeredByEvent", "value":"false"}]}],
-"whiteList":[{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
-},
-
-{"name":"compensation",	
-"description": "A user-defined control-flow pattern to depict compensation action operations in an ETL flow",
-"pattern":[
-	{"sequence": [
-		{"s1": {"name": "optype", "values": [{"value": "Splitter"}, {"value": "Router"}]}}]},
-	{"splitFlow":[
-		{"flow1":[
-			{"repeat": "=1",
-			"sequence":[
-				{"s1": {"name":"$whiteList", "values": [{"value": "#1"}]}},
-				{"s2": {"name":"type", "values":[{"value": "Datastore"}]}}]}]}]
-	}
-],
-"bpmnElement":[
-	{"name":"subprocess", 
-	 "attributes":[{"name":"name", "value":"$create"},
-				{"name":"id", "value":"$graph"},
-				{"name":"completionQuantity", "value":"1"},
-				{"name":"isForCompensation", "value":"true"},
-				{"name": "startQuantity", "value":"1"},
-				{"name": "triggeredByEvent", "value":"false"}]}], 
-"whiteList": [{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
-},
-
-{"name":"replication",
-"description": "A user-defined control-flow pattern that identifies replication in an ETL flow",
-"pattern":[
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Splitter"}, {"value": "Router"}]}}]
-	},
-	{"splitFlow":[
-		{"flow1":[
-			{"repeat": ">1",
-			"sequence":[
-				{"s1":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
-	},
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Union"}]}}]
-	}
-],
-"blackList": [{"name": "optype", "values": [{"value": "Union"}]}],
-"bpmnElement":[
-	{"name":"subprocess", 
-	 "attributes":[{"name":"name", "value":"$create"},
-				{"name":"id", "value":"$graph"},
-				{"name":"completionQuantity", "value":"1"},
-				{"name":"isForCompensation", "value":"false"},
-				{"name": "startQuantity", "value":"1"},
-				{"name": "triggeredByEvent", "value":"false"}]},
-	{"name":"multiInstanceLoopCharacteristics",
-	"attributes":[{"name": "behavior", "value": "All"}, 
-				{"name":"isSequential", "value":"false"}]}]
-},
-
-{"name":"externalDataValidation",
-"description": "A user-defined pattern that identifies data quality actions to fill in null values in an ETL flow data input via a web service call",
-"pattern":[
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Router"}]}}]
-	},
-	{"splitFlow":[
-		{"flow1":[
-			{"repeat": "=1",
-			"sequence":[
-				{"s1":{"name":"*t", "values": [{"value": "*v"}]}},
-				{"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}}, 
-				{"s3":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
-	},
-	{"sequence":[
-		{"s1": {"name": "optype", "values": 
-								[{"value": "Union"}]}}]
-	}
-],
-"blackList": [{"name": "optype", "values": [{"value": "Union"}]}],
-"bpmnElement":[
-	{"name":"subprocess", 
-	 "attributes":[{"name":"name", "value":"$create"},
-				{"name":"id", "value":"$graph"},
-				{"name":"completionQuantity", "value":"1"},
-				{"name":"isForCompensation", "value":"false"},
-				{"name": "startQuantity", "value":"1"},
-				{"name": "triggeredByEvent", "value":"false"}]}]
+"bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
+												{"name":"id", "value":"$id"},
+												{"name":"isForCompensation", "value":"false"},
+												{"name":"name", "value":"$create"}
+												{"name": "startQuantity", "value":"1"},
+												{"name": "triggeredByEvent", "value":"false"}]}],
+"whiteList":[{"name":"optype", "values": [{"value": "Router"}, {"value":"Splitter"}, {"value":"Merger"}, {"value":"Voter"}, 
+				{"value":"Filter"}, {"value":"AttributeAddition"}, {"value":"Rename"}, {"value":"Project"}, {"value":"WSLookup"},]},
+			{"name": "implementationType", "values": [{"value": "MERGE"}, {"value": "LEFTOUTERMERGE"}]}],
+"blackList":[{"name": "optype", "values": [{"value":"Sort"}, {"value":"Distinct"}, {"value":"TopK"},  {"value":"UserDefinedFunction"}, {"value":"Union"}]},
+				{"name": "implementationType", "values": [{"value": "HASH"}, {"value":"LEFTOUTERHASH"}]}]
 }
+
 ]
 }
