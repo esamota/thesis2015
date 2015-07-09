@@ -84,9 +84,9 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		
 		//all elements from the dictionary that belong to the graph of this xLM document
 		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G);
-		//edges
-		ArrayList<BPMNElement> edges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
-		graphElements.addAll(edges);
+		//edges already added in translateToBpmn function in PatternDiscovery
+		//ArrayList<BPMNElement> edges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
+		//graphElements.addAll(edges);
 		//startEvent and edges
 		ArrayList<BPMNElement> startAndEgdes = BPMNConstructsGenerator.createProcessStartEvent(G);
 		graphElements.addAll(startAndEgdes);
@@ -136,6 +136,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 			stringAttributes = "";
 			// System.out.println(optypeMapping.get(str).getElementName());
 			element.put("name", el.getElementName());
+			System.out.println("element id "+el.getElementID());
 			element.put("id", el.getElementID());
 			
 			if (el.getElementName().equals("dataStoreReference")){
@@ -146,10 +147,6 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 				stringAttributes = "";
 				dataStoreElements.add(dsElement);
 			// for recovery point: need to test
-			} if (el.getElementName().equals(BPMNElementTagName.textAnnotation.name())){
-				String text = "<text>recoveryPoint</text>";
-				el.setText(text);
-				collborationSubElements.add(element);
 			} if(el.getSubElements().size() < 1 && !el.getElementName().equals(BPMNElementTagName.conditionExpression.name())){
 				simpleProcessElements.add(element);
 			} else if(el.getSubElements().size() >= 1){
@@ -182,9 +179,12 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		String stringAttributes="";
 		for (BPMNElement subEl: el.getSubElements()){
 			HashMap subElement = new HashMap();
+			System.out.println("element id in subElement "+ el.getElementID()+", subelement "+subEl.getElementName());
 			subElement.put("elementID", el.getElementID());
+			
 			subElement.put("subName", subEl.getElementName());
 			System.out.println(el.getElementName()+" "+subEl.getElementName()+" "+ subEl.getElementText());
+			if (subEl.getElementText() != null)
 			subElement.put("text", subEl.getElementText());
 			//TODO:edge after splitter has a text value and not just attributes. How to deal with that?
 			for (BPMNAttribute attr : subEl.getAttributes()) {

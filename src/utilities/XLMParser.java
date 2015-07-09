@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.Hashtable;
 
 import importXLM.ImportXLMToETLGraph;
+import operationDictionary.ETLOpTypeCharacteristic;
 import operationDictionary.OperationTypeName;
 
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
+import etlFlowGraph.ETLNonFunctionalCharacteristic;
+import etlFlowGraph.expressionTree.Expression;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
 import etlFlowGraph.operation.ETLFlowOperation;
@@ -15,15 +18,39 @@ import etlFlowGraph.operation.ETLFlowOperation;
 
 public class XLMParser {
 	
-	public static final String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml";
+	//public static final String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml";
 	//public static final String XLMFilePathInput = display.Demo.xlmFile.getAbsolutePath();
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-1.xml";
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
+	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
 	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		ETLFlowGraph G = getXLMGraph(XLMFilePathInput);
+		Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		/*ArrayList<ETLFlowOperation> sourceNodes = getSourceNodesGivenTarget(G, ops.get(610));
+		for (ETLFlowOperation op: sourceNodes){
+			System.out.println(op.getNodeID());
+		}*/
+		
+		//System.out.println(ops.get(137).getoProperties().get("send_true_to"));
+		for (String str: ops.get(137).getoProperties().keySet()){
+			for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get(str)){
+				//System.out.println(chr.getChName()+" " +chr.getLeftOp()+" "+chr.getOper()+" "+chr.getRightOp());
+			}
+		}
+		
+		for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get("send_true_to")){
+			System.out.println(chr.getRightOp());
+		}
+			/*ops.get(137).getoFeatures();
+			System.out.println(ops.get(137).getSemanticsExpressionTrees());
+			Hashtable <String, Expression> exprTree = ops.get(137).getSemanticsExpressionTrees();
+			for (String str: exprTree.keySet()){
+				System.out.println("expression kind:"+exprTree.get(str).getExKind());
+				System.out.println("expression :"+exprTree.get(str).getLeftEx()+" "+exprTree.get(str).getOperator()+" "+exprTree.get(str).getRightEx());
+				}*/
 	}
 	
 	public static ETLFlowGraph getXLMGraph(String XLMFilePathInput){

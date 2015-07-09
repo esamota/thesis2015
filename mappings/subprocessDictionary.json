@@ -300,7 +300,7 @@
 		{"s1":{"name": "$whiteList", "values":[{"value": "*v"}]}}]
 	}
 ],
-"bpmnElement":[{"name":"subprocess", "attributes":[{"name":"completionQuantity", "value":"1"},
+"bpmnElement":[{"name":"subProcess", "attributes":[{"name":"completionQuantity", "value":"1"},
 												{"name":"id", "value":"$id"},
 												{"name":"isForCompensation", "value":"false"},
 												{"name":"name", "value":"$create"}

@@ -309,9 +309,11 @@
 											{"value": "LeftOuterJoin"}]}}]
 	}
 ],
-"whiteList": [{"name": "optype", "values":[{"value": "Splitter"}, {"value":"Router"}]}],
-"blackList": [{"name": "optype", "values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}],
-"bpmnElement":[{"name":"subprocess", 
+"whiteList": [{"name": "optype", 
+			"values":[{"value": "Splitter"}, {"value":"Router"}]}],
+"blackList": [{"name": "optype", 
+			"values": [{"value": "Join"}, {"value": "LeftOuterJoin"}]}],
+"bpmnElement":[{"name":"subProcess", 
 			"attributes":[{"name": "startQuantity", "value":"1"},
 						{"name":"id", "value":"$graph"},
 						{"name":"name", "value":"$create"},
@@ -363,7 +365,7 @@
 	}
 ],
 "bpmnElement":[
-	{"name":"subprocess", 
+	{"name":"subProcess", 
 	 "attributes":[{"name":"name", "value":"$create"},
 				{"name":"id", "value":"$graph"},
 				{"name":"completionQuantity", "value":"1"},
@@ -393,7 +395,7 @@
 ],
 "blackList": [{"name": "optype", "values": [{"value": "Union"}]}],
 "bpmnElement":[
-	{"name":"subprocess", 
+	{"name":"subProcess", 
 	 "attributes":[{"name":"name", "value":"$create"},
 				{"name":"id", "value":"$graph"},
 				{"name":"completionQuantity", "value":"1"},
@@ -427,7 +429,7 @@
 ],
 "blackList": [{"name": "optype", "values": [{"value": "Union"}]}],
 "bpmnElement":[
-	{"name":"subprocess", 
+	{"name":"subProcess", 
 	 "attributes":[{"name":"name", "value":"$create"},
 				{"name":"id", "value":"$graph"},
 				{"name":"completionQuantity", "value":"1"},

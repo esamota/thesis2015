@@ -32,18 +32,20 @@ public class PatternSequence extends PatternElement{
 				return new ArrayList<>();
 			}
 			if(outPatternNodes.get(outPatternNodes.size()-1).getOperationName().equals("whiteList")){
+				Integer nextNodeID = outPatternNodes.get(outPatternNodes.size()-1).getNodeID();
 				outPatternNodes.remove(outPatternNodes.size() - 1);
 				//old:
 				//nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size() - 1), G).get(0);
 				//new:
-				Iterator<Integer> graphIter = G.iterator();
+				/*Iterator<Integer> graphIter = G.iterator();
 				while (graphIter.hasNext()) {
 					Integer v = graphIter.next();
 					if (v.intValue() == outPatternNodes.get(outPatternNodes.size() - 1).getNodeID()){
 					nextNode = ops.get(graphIter.next());
 					break;
 					}
-				}
+				}*/ 
+				nextNode = ops.get(nextNodeID);
 				if (s < getSubElements().size()){
 					for (ETLFlowOperation op: outPatternNodes){
 						if (!patternNodes.contains(op)) patternNodes.add(op);

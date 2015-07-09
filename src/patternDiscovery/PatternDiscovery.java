@@ -19,6 +19,8 @@ import org.jgrapht.EdgeFactory;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.AbstractBaseGraph;
 
+import com.mxgraph.swing.util.mxGraphActions.UpdateGroupBoundsAction;
+
 import display.Demo;
 import etlFlowGraph.graph.ETLEdge;
 import etlFlowGraph.graph.ETLFlowGraph;
@@ -156,6 +158,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<BPMNElement> graphBpmnElements = new ArrayList<>();
 		ArrayList<ETLFlowOperation> visitedNodes = new ArrayList<>();
+		ArrayList<BPMNElement> graphEdges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
 		System.out.println("Graph "+G);
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
@@ -171,12 +174,14 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 					System.out.println("pattern size > 1");
 				ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
 					System.out.println("Max subGraph "+subGraph);
-				ArrayList<BPMNElement> MaxBpmn = toBPMN.BPMNConstructsGenerator.getPatternBPMNElements(G, pattern);
+				ArrayList<BPMNElement> maxBpmn = toBPMN.BPMNConstructsGenerator.getPatternBPMNElements(G, pattern);
 				ArrayList<BPMNElement> nestedBpmn = translateToBPMN(subGraph);
 					System.out.println("go into recursion");
-				if (MaxBpmn.get(0).getElementName().equals(BPMNElementTagName.subprocess.name())){
-					MaxBpmn.get(0).setSubElements(nestedBpmn);
-					graphBpmnElements.addAll(MaxBpmn);
+				if (maxBpmn.get(0).getElementName().equals(BPMNElementTagName.subProcess.name())){
+					maxBpmn.get(0).setSubElements(nestedBpmn);
+					// deal with edges here for each pattern
+					graphEdges = BPMNConstructsGenerator.updateEdgesWhenInsertingSubprocesses(graphEdges, G, subGraph, pattern, maxBpmn.get(0));
+					graphBpmnElements.addAll(maxBpmn);
 				} else graphBpmnElements.addAll(nestedBpmn);
 				for (ETLFlowOperation op: patternNodes){
 					visitedNodes.add(op);
@@ -187,14 +192,16 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 			}
 			System.out.println("----------------------------------");
 		}
+		//add graph edges to graph elements
+		graphBpmnElements.addAll(graphEdges);
 		return graphBpmnElements;
 	}
 	
-	public static void getAllGraphPatterns(ETLFlowGraph G){
+	public static ArrayList<Pattern> getAllMatchedPatterns(ETLFlowGraph G){
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
-		HashSet<String> optypes = JSONDictionaryParser.getOperationTypeEnums();
+		ArrayList<Pattern> matchedPatterns = new ArrayList<>();
 		
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
@@ -209,10 +216,12 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 					patternNodes.addAll(pattern.match(node, G, patternNodes));
 					if (patternNodes.size() != 0){
 						System.out.println(pattern.getElementName()+" pattern is present in the graph");
-						System.out.println(patternNodes.size());
+						pattern.setPatternSubgraph(new ArrayList<>(patternNodes));
+						matchedPatterns.add(pattern);
 					}
 					patternNodes.clear();
 			}
 			}
+		return matchedPatterns;
 	}
 }

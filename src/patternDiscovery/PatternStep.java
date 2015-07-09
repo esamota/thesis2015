@@ -78,7 +78,9 @@ private ArrayList<String> stepValues;
 			return outPatternNodes;
 		//this is for cases when $whitelist *v returns zero nodes before next step
 		} else if (checkNodeAgainstNextStep(node, nextStepName, nextStepValues) == true){
-			outPatternNodes.add(new ETLFlowOperation("whiteList"));
+			ETLFlowOperation fake = new ETLFlowOperation("whiteList");
+			fake.setNodeID(node.getNodeID());
+			outPatternNodes.add(fake);
 			return outPatternNodes;
 		//this is when the $whiteList *v match a blackList item
 		} else {

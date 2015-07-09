@@ -29,7 +29,11 @@
 		<$element.name $element.attributes>
 			#foreach ($sub in $subElements)
 				 #if ($element.id == $sub.elementID)
+				 	#if (!$sub.text)
+				 	<$sub.subName $sub.attributes/>
+				 	#else
 					<$sub.subName $sub.attributes>$sub.text</$sub.subName>
+					#end
 				#end
 			#end
 		</$element.name>

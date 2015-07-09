@@ -32,10 +32,10 @@ public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, 
 	if (utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() == 1){
 		return patternNodes;
 	}
-	outPatternNodes.addAll(patternNodes);
 	ArrayList<ETLFlowOperation> nextNodes = utilities.XLMParser.getTargetOperationsGivenSource(node, G);
 	int counter = 0;
 	for (ETLFlowOperation nextNode: nextNodes){
+		if (outPatternNodes.size() == 0) outPatternNodes.addAll(patternNodes);
 		for (int s=0; s < getSubElements().size(); s++){
 			outPatternNodes = getSubElements().get(s).match(nextNode, G, outPatternNodes);
 			if (outPatternNodes.size() > patternNodes.size()){
