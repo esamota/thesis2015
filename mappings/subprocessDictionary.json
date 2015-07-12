@@ -102,8 +102,7 @@
 ],
 "bpmnElement": [{"name":"complexGateway", "attributes":[{"name":"gatewayDirection","value":"Unspecified"}, 
 												{"name":"id", "value":"$graph"}, 
-												{"name":"name", "value":"$graph"}]},
-				{"name":"conditionExpression", "attributes":[], "text":"$condition"}]
+												{"name":"name", "value":"$graph"}]}]
 },
 							 
 {"name":"Union",

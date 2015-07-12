@@ -18,13 +18,14 @@ public class PatternSequence extends PatternElement{
 		ArrayList<ETLFlowOperation> outPatternNodes = new ArrayList();
 		System.out.println("Seq: we are at node "+ node.getNodeID());
 		System.out.println("Seq size: "+ getSubElements().size());
-		/*if (utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() != 1){
-			System.out.println("More than one traget node in a sequence");
-			return patternNodes;
-		}*/
+		
 		outPatternNodes.addAll(patternNodes);
 		ETLFlowOperation nextNode = node;
 		for (int s=0; s < getSubElements().size(); s++){
+			if (s < getSubElements().size()-1 && utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() != 1){
+				System.out.println("More than one traget node in a sequence");
+				return new ArrayList<>();
+			}
 			outPatternNodes = getSubElements().get(s).match(nextNode, G, outPatternNodes);
 			
 			if (outPatternNodes.size() == 0 || outPatternNodes.size() == patternNodes.size()){
@@ -53,7 +54,8 @@ public class PatternSequence extends PatternElement{
 				}
 			} else patternNodes.add(node);
 			
-			if (s <= getSubElements().size()-1 && !getSubElements().get(s).getElementName().equals("$whiteList") && !getSubElements().get(s).getElementName().equals("*t")){
+			if (s < getSubElements().size()-1 && !getSubElements().get(s).getElementName().equals("$whiteList") && 
+					!getSubElements().get(s).getElementName().equals("*t")){
 				if (utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).size() <= 1){
 					//old:
 					//nextNode = utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).get(0);

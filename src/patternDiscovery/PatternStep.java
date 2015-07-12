@@ -102,7 +102,9 @@ private ArrayList<String> stepValues;
 			}
 			return outPatternNodes;
 		}else if (checkNodeAgainstNextStep(node, nextStepName, nextStepValues) == true || checkNodeInList(node, blackList) == true){
-			outPatternNodes.add(new ETLFlowOperation("whiteList"));
+			ETLFlowOperation fake = new ETLFlowOperation("whiteList");
+			fake.setNodeID(node.getNodeID());
+			outPatternNodes.add(fake);
 			System.out.println("This is the next step's node");
 			return outPatternNodes;
 		}else {

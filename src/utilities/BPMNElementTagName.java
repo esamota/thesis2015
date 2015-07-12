@@ -28,5 +28,6 @@ dataOutputAssociation,
 dataInputAssociation,
 association,
 textAnnotation,
-text
+text,
+multiInstanceLoopCharacteristics
 }
