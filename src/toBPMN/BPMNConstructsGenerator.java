@@ -29,8 +29,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 public class BPMNConstructsGenerator {
 	
 	public static void main(String[] args) {
-		ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
-		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		//ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
+		//Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		/*ArrayList<ETLFlowOperation> subgraph = new ArrayList<>();
 		subgraph.add(ops.get(34));
 		Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName("Join");
@@ -74,10 +74,19 @@ public class BPMNConstructsGenerator {
 			}
 		}
 		*/
-		ArrayList<BPMNElement> startEventElements = createProcessStartEvent(G);
+		/*ArrayList<BPMNElement> startEventElements = createProcessStartEvent(G);
 		for (BPMNElement el: startEventElements){
 			System.out.println(el.getElementName());
-		}
+		}*/
+		/*ArrayList<BPMNElement> edges = getBPMNElementsEdge(G);
+		for (BPMNElement el: edges){
+			if (el.getElementText() != null){
+				System.out.println(el.getElementText());
+				for (BPMNAttribute attr: el.getAttributes()){
+					System.out.println(attr.name+" "+attr.value);
+				}
+			}
+		}*/
 	}
 	
 	public static void getGraphElementsPerParticipant(){
@@ -240,7 +249,7 @@ public class BPMNConstructsGenerator {
 		
 		//single node patterns
 		//*****************************************************************************************	
-		if (patternSubgraph.size() == 1){
+		if (patternSubgraph.size() == 1 && !pattern.getElementName().equals("subprocess")){
 		for(BPMNElement el: patternBPMNElements){
 			el.setID(String.valueOf(node.getNodeID()));
 			
@@ -324,7 +333,7 @@ public class BPMNConstructsGenerator {
 				}
 			//complex patterns
 			//***********************************************************************************
-			} else if (patternSubgraph.size() > 1){
+			} else if (patternSubgraph.size() > 1 || pattern.getElementName().equals("subprocess")){
 				Random randomGenerator = new Random();
 				String elementID= "e"+randomGenerator.nextInt(100);
 				ETLFlowGraph Gsub = PatternDiscovery.createSubGraph(G, patternSubgraph);
@@ -562,9 +571,8 @@ public class BPMNConstructsGenerator {
 				System.out.println("target Operation name: "+opTName);
 				if (opTName.equals(conditionTrueTarget)){
 					System.out.println("opt equals target operation");
-				BPMNElement sub = new BPMNElement(BPMNElementTagName.conditionExpression.name());
-				sub.setText("<![CDATA["+filter.getSemanticsExpressionTrees().toString().substring(1, filter.getSemanticsExpressionTrees().toString().length()-1)+"]]>");
-				bpmnElement.setSubElement(sub);
+				//BPMNElement sub = new BPMNElement(BPMNElementTagName.conditionExpression.name());
+				bpmnElement.setText("<conditionExpression><![CDATA["+filter.getSemanticsExpressionTrees().toString().substring(1, filter.getSemanticsExpressionTrees().toString().length()-1)+"]]></conditionExpression>");
 				}
 			}
 			bpmnElement.setID(opS+"-"+opT);
@@ -766,7 +774,11 @@ public class BPMNConstructsGenerator {
 							//subprocess.setSubElement(el);
 							itr.remove();
 							break;
-						}		
+						} if (attr.name.equals("id") && attr.value.equals("_0"+String.valueOf(sourceID)+"-_"+String.valueOf(targetID))){
+							//subprocess.setSubElement(el);
+							itr.remove();
+							break;
+						}
 					}	
 				}
 			}

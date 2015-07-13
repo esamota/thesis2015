@@ -23,7 +23,11 @@
 <$pool.name $pool.attributes>
 	## start process here
 	#foreach ($element in $simpleElements)
-		<$element.name $element.attributes/>
+		#if (!$element.text)
+			<$element.name $element.attributes/>
+		#else
+		<$element.name $element.attributes>$element.text</$element.name>
+		#end
 	#end
 	#foreach ($element in $complexElements)
 		<$element.name $element.attributes>

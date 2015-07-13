@@ -1,7 +1,7 @@
 {
 "flagDictionary":[
 {"optype":"Filter", "patterns":[{"name":"Filter"}]},
-{"optype":"Sort", "patterns":[{"name":"Sort"}, {"name":"mergeJoin"}]},
+{"optype":"Sort", "patterns":[{"name":"Sort"}]},
 {"optype":"Project", "patterns":[{"name":"Project"}]},
 {"optype":"AttributeAddition", "patterns":[{"name":"AttributeAddition"}]},
 {"optype":"Distinct", "patterns":[{"name":"Distinct"}]},
@@ -9,11 +9,11 @@
 {"optype":"TopK", "patterns":[{"name":"TopK"}]},
 {"optype":"UserDefinedFunction", "patterns":[{"name":"UserDefinedFunction"}]},
 {"optype":"Grouper", "patterns":[{"name":"Grouper"}]},
-{"optype":"Router", "patterns":[{"name":"Router"},{"name":"recoveryPoint"}, {"name":"compensation"},{"name":"replication"},{"name":"externalDataValidation"}]},
+{"optype":"Router", "patterns":[{"name":"Router"}]},
 {"optype":"Union", "patterns":[{"name":"Union"}]},
 {"optype":"Merger", "patterns":[{"name":"Merger"}]},
 {"optype":"Voter", "patterns":[{"name":"Voter"}]},
-{"optype":"Splitter", "patterns":[{"name":"Splitter"},{"name":"recoveryPoint"},{"name":"compensation"}, {"name":"replication"}]},
+{"optype":"Splitter", "patterns":[{"name":"Splitter"}]},
 {"optype":"Join", "patterns":[{"name":"Join"}]},
 {"optype":"LeftOuterJoin", "patterns":[{"name":"LeftOuterJoin"}]},
 {"optype":"TableInput", "patterns":[{"name":"TableInput"}]},

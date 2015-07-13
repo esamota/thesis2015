@@ -7,6 +7,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -15,12 +16,15 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JRadioButton;
 import javax.swing.JTextPane;
 
 import toBPMN.BPMNConstructsGenerator;
 import toBPMN.BPMNConstructsToFile;
+import utilities.JSONDictionaryParser;
 import etlFlowGraph.graph.ETLFlowGraph;
 
 import javax.swing.JLabel;
@@ -35,6 +39,8 @@ public class Demo {
     private File xlmFile; 
     public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
     public static  String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
+    public static String patternFlagMappingPath = "mappings//patternFlags.json";
+    public static HashMap<String, ArrayList<String>> flagMappings = new HashMap<>();
     private ETLFlowGraph G;
     private int clicked = 0; 
 
@@ -47,6 +53,7 @@ public class Demo {
 			public void run() {
 				try {
 					Demo window = new Demo();
+					window.rdbtnPipelinedSubprocesses.setVisible(false);
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -83,6 +90,8 @@ public class Demo {
 			         xlmFile = fc.getSelectedFile();
 			         G = utilities.XLMParser.getXLMGraph(xlmFile.getAbsolutePath());
 			            //This is where a real application would open the file.
+			         JOptionPane.showMessageDialog(frame,
+			        		    "File uploaded successfully.");
 			        }
 			}
 			}
@@ -96,8 +105,11 @@ public class Demo {
 				//handle upload button
 				clicked++;
 				if (e.getSource() == btnTranslateToBpmn) {
-				patternDiscovery.PatternDiscovery.translateToBPMN(G);
+					
+				flagMappings = JSONDictionaryParser.parsePatternFlags(patternFlagMappingPath);
+				patternDiscovery.PatternDiscovery.translateToBPMN(G, flagMappings);
 				String BPMN = BPMNConstructsToFile.toStringBPMNWithDictionary(G);
+				
 				//this lets you choose where to save the file
 				fc = new JFileChooser("C:\\Users\\Elena\\Desktop");
 				fc.setSelectedFile(new File("output.bpmn"));
@@ -107,6 +119,8 @@ public class Demo {
 			        BPMNFilePathOutput = file.getAbsolutePath();
 			        BPMNConstructsToFile.toFileBPMN(BPMNFilePathOutput, BPMN);
 			      }
+				JOptionPane.showMessageDialog(frame,
+	        		    "File translated successfully."+'\n'+"Opening BPMN Editor.");
 				//only start yaoqiang the first time
 				if (clicked == 1) {
 				try {
@@ -124,15 +138,15 @@ public class Demo {
 		frame.getContentPane().add(btnTranslateToBpmn);
 		
 		rdbtnSemanticPatterns = new JRadioButton("Semantic Patterns");
-		rdbtnSemanticPatterns.setBounds(151, 113, 121, 23);
+		rdbtnSemanticPatterns.setBounds(237, 113, 158, 23);
 		frame.getContentPane().add(rdbtnSemanticPatterns);
 		
 		rdbtnPipelinedSubprocesses = new JRadioButton("Pipelined Subprocesses");
-		rdbtnPipelinedSubprocesses.setBounds(281, 113, 136, 23);
+		rdbtnPipelinedSubprocesses.setBounds(292, 7, 136, 23);
 		frame.getContentPane().add(rdbtnPipelinedSubprocesses);
 		
 		rdbtnDirectTranslation = new JRadioButton("Direct Translation");
-		rdbtnDirectTranslation.setBounds(33, 113, 109, 23);
+		rdbtnDirectTranslation.setBounds(50, 113, 185, 23);
 		frame.getContentPane().add(rdbtnDirectTranslation);
 		
 		lblSelectOneTranslation = new JLabel("Select one translation option:");
@@ -147,13 +161,18 @@ public class Demo {
 		rdbtnSemanticPatterns.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				dictionaryFilePath = "mappings//semanticPatternDictionary.json";
+				patternFlagMappingPath = "mappings//patternFlags.json";
+				flagMappings = JSONDictionaryParser.parsePatternFlags(patternFlagMappingPath);
 				System.out.println(dictionaryFilePath);
+				System.out.println(patternFlagMappingPath);
 			}
 		});
 		
 		rdbtnPipelinedSubprocesses.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				dictionaryFilePath = "mappings//subprocessDictionary.json";
+				patternFlagMappingPath = "mappings//subprocessFlags.json";
+				flagMappings = JSONDictionaryParser.parsePatternFlags(patternFlagMappingPath);
 				System.out.println(dictionaryFilePath);
 			}
 		});
@@ -161,6 +180,8 @@ public class Demo {
 		rdbtnDirectTranslation.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				dictionaryFilePath = "mappings//simplePatternDictionary.json";
+				patternFlagMappingPath = "mappings//simplePatternFlags.json";
+				flagMappings = JSONDictionaryParser.parsePatternFlags(patternFlagMappingPath);
 				System.out.println(dictionaryFilePath);
 			}
 		});

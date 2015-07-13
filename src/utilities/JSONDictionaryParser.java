@@ -32,10 +32,11 @@ public class JSONDictionaryParser {
 	// private static String dictionaryFilePath =
 	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
 	//public static String dictionaryFilePath = Demo.dictionaryFilePath;
-	public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
-	//public static final String dictionaryFilePath = "mappings//temp.json";
-	public static final String patternFlagMappingPath = "mappings//patternFlags.json";
-	private static ArrayList<BPMNAttribute> attributes = new ArrayList();
+	//public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
+	//public static final String dictionaryFilePath = "mappings//simplePatternDictionary.json";
+	//public static final String dictionaryFilePath = "mappings//subprocessDictionary.json";
+	//public static final String patternFlagMappingPath = "mappings//patternFlags.json";
+	//private static ArrayList<BPMNAttribute> attributes = new ArrayList();
 
 	public static void main(String[] args) {
 		/*System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Splitter));
@@ -45,12 +46,12 @@ public class JSONDictionaryParser {
 			System.out.println(root.get("name"));
 			HashMap<String, ArrayList<String>> bList = parsePatternBlackList(root);
 		}*/
-		
-		ArrayList<String> flagNames = getPatternNamesByOriginOperation(OperationTypeName.Filter);
-		System.out.println("1 "+flagNames.size());
-		removeFlagNameFromFlagDictionary(OperationTypeName.Filter, "Filter");
-		System.out.println("2 "+flagNames.size());
-
+		/*HashMap<String, ArrayList<String>> flagMappings = parsePatternFlags(patternFlagMappingPath);
+		ArrayList<String> flagNames = getPatternNamesByOriginOperation(flagMappings, OperationTypeName.Router.name());
+		System.out.println("1: "+flagNames);
+		HashMap<String, ArrayList<String>> flagMappings2 = updateFlagMappings(flagMappings, OperationTypeName.Router.name(), "remove", "recoveryPoint");
+		ArrayList<String> flagNames2 = getPatternNamesByOriginOperation(flagMappings2, OperationTypeName.Router.name());
+		System.out.println("2: "+flagNames2);*/
 	}
 	
 	public static JSONArray getJSONRootObject(String dictionaryFilePath, String rootName){
@@ -82,51 +83,52 @@ public class JSONDictionaryParser {
 		  return values;
 	}
 	
-	//returns a list of pattern names that could start with a given optype
-	public static ArrayList<String> getPatternNamesByOriginOperation(OperationTypeName optypeName){
+	public static HashMap<String, ArrayList<String>> parsePatternFlags(String patternFlagMappingPath){
+		HashMap<String, ArrayList<String>> flagMappings = new HashMap<>();
+		ArrayList<String> flagNames = new ArrayList<>();
 		JSONArray dictionary = getJSONRootObject(patternFlagMappingPath, "flagDictionary");
 		Integer size = dictionary.size();
 		
-		ArrayList<String> flagNames = new ArrayList<String>();
 		for (int i = 0; i < size; i++) {
 			JSONObject root = (JSONObject) dictionary.get(i);
 			String optype = (String) root.get("optype");
-			if (optypeName.name().equals(optype)){
 			JSONArray patternFlag = (JSONArray) root.get("patterns");
 			for (int f=0; f <patternFlag.size(); f++){
 				JSONObject flag = (JSONObject) patternFlag.get(f);
 				String flagName = (String) flag.get("name");
-				System.out.println(flagName);
 				flagNames.add(flagName);
 			}
+			flagMappings.put(optype, new ArrayList<>(flagNames));
+			flagNames.clear();
 			}
+		return flagMappings;
 		}
-			return flagNames;
-	}
 	
-	public static void removeFlagNameFromFlagDictionary(OperationTypeName optypeName, String patternName){
-		JSONArray dictionary = getJSONRootObject(patternFlagMappingPath, "flagDictionary");
-		Integer size = dictionary.size();
+	//returns a list of pattern names that could start with a given optype
+	public static ArrayList<String> getPatternNamesByOriginOperation(HashMap<String, ArrayList<String>> flagMappings, String optype){
+		ArrayList<String> flagNames = new ArrayList<>();
 		
-		ArrayList<String> flagNames = new ArrayList<String>();
-		for (int i = 0; i < size; i++) {
-			JSONObject root = (JSONObject) dictionary.get(i);
-			String optype = (String) root.get("optype");
-			if (optypeName.name().equals(optype)){
-			JSONArray patternFlag = (JSONArray) root.get("patterns");
-			for (int f=0; f <patternFlag.size(); f++){
-				JSONObject flag = (JSONObject) patternFlag.get(f);
-				String flagName = (String) flag.get("name");
-				if (flagName.equals(patternName)){
-					System.out.println("flagName "+ flagName+", patternName "+patternName);
-				System.out.println(flag.remove("name"));
+		for (String str: flagMappings.keySet()){
+			if (str.equals(optype)){
+				for (String flagName: flagMappings.get(str)){
+					flagNames.add(flagName);
 				}
 			}
-			}
 		}
+		return flagNames;
 	}
-		
-	public static ArrayList<String> getPatternNames(){
+	
+	public static HashMap<String, ArrayList<String>> updateFlagMappings(HashMap<String, ArrayList<String>> flagMappings, 
+			String optype, String action, String flagName){
+		if (action.equals("add")){
+			flagMappings.get(optype).add(flagName);
+		} else if (action.equals("remove")){
+			flagMappings.get(optype).remove(flagName);
+		}
+		return flagMappings;
+	}
+	
+	/*public static ArrayList<String> getPatternNames(){
 		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
 		Integer size = dictionary.size();
 		ArrayList<String> patternNames = new ArrayList<String>(); 
@@ -137,9 +139,9 @@ public class JSONDictionaryParser {
 			patternNames.add(patternName);
 		}
 		return patternNames;
-	}
+	}*/
 
-	public static ArrayList<Pattern> getAllPatternElements (){
+	public static ArrayList<Pattern> getAllPatternElements (String dictionaryFilePath){
 		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
 		Integer size = dictionary.size();
 		ArrayList<Pattern> patterns = new ArrayList<>();
@@ -185,7 +187,7 @@ public class JSONDictionaryParser {
 			if(patternName.equals(flagName)){
 				if (root.get("pattern") != null){
 				patternElement = parsePatternStructure(root);
-				} 
+				} else return new Pattern();
 				if (root.get("bpmnElement") != null){
 				patternElement.setBpmnElements(parsePatternBPMNElements(root));
 				}

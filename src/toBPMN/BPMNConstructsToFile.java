@@ -37,16 +37,9 @@ import etlFlowGraph.operation.ETLFlowOperation;
 import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructsToFile extends DirectedAcyclicGraph {
-
-	
 	//private static String BPMNFilePathOutput = Demo.BPMNFilePathOutput;
-	private static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
-	private static final String startEventID = "0001";
-	private static final String endEventID = "0009";
-	private static final ArrayList<OperationTypeName> nonBlockingOperations = new ArrayList<OperationTypeName>();
-	private static final ArrayList<OperationTypeName> blockingOperations = new ArrayList<OperationTypeName>();
-	private static final ArrayList<OperationTypeName> uncertainBlockingTypeOperations = new ArrayList<OperationTypeName>();
-
+	//private static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
+	
 	public BPMNConstructsToFile(Class arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
@@ -54,9 +47,16 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// String BPMN = toStringBPMN();
-		ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
+		/*ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
 		String BPMN = toStringBPMNWithDictionary(G);
-		toFileBPMN(BPMNFilePathOutput, BPMN);
+		toFileBPMN(BPMNFilePathOutput, BPMN);*/
+		
+		/*ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
+		for (BPMNElement el: graphElements){
+			if (el.getElementName().equals(BPMNElementTagName.sequenceFlow.name())){
+				//System.out.println(el.getSubElements().get(0).getElementName());
+			}
+		}*/
 	}
 	
 	public static void toFileBPMN(String BPMNFilePathOutput, String writerInput) {
@@ -83,7 +83,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		//gets an array list of pattern name flags for each optype in the dictionary
 		
 		//all elements from the dictionary that belong to the graph of this xLM document
-		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G);
+		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
 		//edges already added in translateToBpmn function in PatternDiscovery
 		//ArrayList<BPMNElement> edges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
 		//graphElements.addAll(edges);
@@ -123,34 +123,35 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		String stringAttributes = "";	
 		int counter = 0;
 		for (BPMNElement el : graphElements) {
+			
 			//System.out.println(el.getElementName()+" "+el.getSubElements().size());
 			HashMap element = new HashMap();
-			if (el.getElementName().equals("dataStoreReference")) counter++;
+			if (el.getElementName().equals(BPMNElementTagName.dataStore.name())) counter++;
 			String dataStoreName="";
 			for (BPMNAttribute attr : el.getAttributes()) {
-				if (attr.name.equals("dataStoreRef")) attr.setAttributeValue("DS_"+String.valueOf(counter));
-				System.out.println(attr.name+" "+attr.value+" "+counter);
+				if (el.getElementName().equals(BPMNElementTagName.dataStore.name()) && 
+						attr.name.equals("id"))
+				attr.setAttributeValue("DS_"+String.valueOf(counter));
+				if (attr.name.equals("dataStoreRef"))
+					attr.setAttributeValue("DS_"+String.valueOf(counter));
+				if (attr.getAttributeValue().contains(".")){
+					attr.setAttributeValue(attr.value.substring(attr.value.lastIndexOf(".") + 1));
+				}
 				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
 			element.put("attributes", stringAttributes);
 			stringAttributes = "";
-			// System.out.println(optypeMapping.get(str).getElementName());
 			element.put("name", el.getElementName());
-			System.out.println("element id "+el.getElementID());
 			element.put("id", el.getElementID());
+			element.put("text", el.getElementText());
 			
-			if (el.getElementName().equals("dataStoreReference")){
-				HashMap dsElement = new HashMap();
-				dsElement.put("name", "dataStore");
-				stringAttributes = "id=\""+"DS_"+counter+ "\""+" isUnlimited=\""+"false"+"\"";
-				dsElement.put("attributes", stringAttributes);
-				stringAttributes = "";
-				dataStoreElements.add(dsElement);
-			// for recovery point: need to test
-			} if(el.getSubElements().size() < 1 && !el.getElementName().equals(BPMNElementTagName.conditionExpression.name())
-					&& !el.getElementName().equals(BPMNElementTagName.multiInstanceLoopCharacteristics.name())){
+			if (el.getElementName().equals(BPMNElementTagName.dataStore.name())){
+				dataStoreElements.add(element);
+			} else if(el.getSubElements().size() < 1 && !el.getElementName()
+					.equals(BPMNElementTagName.multiInstanceLoopCharacteristics.name())){
 				simpleProcessElements.add(element);
 			} else if(el.getSubElements().size() >= 1){
+				System.out.println(el.getElementName());
 					complexProcessElements.add(element);
 					subElements.addAll(loadSubElements(el));
 		}
@@ -178,21 +179,24 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 	public static ArrayList<HashMap> loadSubElements(BPMNElement el){
 		ArrayList<HashMap> subElements = new ArrayList<HashMap>();
 		String stringAttributes="";
+		HashMap subElement = new HashMap();
 		for (BPMNElement subEl: el.getSubElements()){
-			HashMap subElement = new HashMap();
-			System.out.println("element id in subElement "+ el.getElementID()+", subelement "+subEl.getElementName());
+			subElement = new HashMap();
 			subElement.put("elementID", el.getElementID());
-			
 			subElement.put("subName", subEl.getElementName());
-			System.out.println(el.getElementName()+" "+subEl.getElementName()+" "+ subEl.getElementText());
+
 			if (subEl.getElementText() != null)
 			subElement.put("text", subEl.getElementText());
-			//TODO:edge after splitter has a text value and not just attributes. How to deal with that?
+			
 			for (BPMNAttribute attr : subEl.getAttributes()) {
+				if (attr.getAttributeValue().contains(".")){
+					attr.setAttributeValue(attr.value.substring(attr.value.lastIndexOf(".") + 1));
+				}
 				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
 			subElement.put("attributes", stringAttributes);		
 			stringAttributes = "";
+		
 			subElements.add(subElement);
 		}
 		return subElements;

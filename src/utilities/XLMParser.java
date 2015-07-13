@@ -9,6 +9,7 @@ import operationDictionary.OperationTypeName;
 
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
+import display.Demo;
 import etlFlowGraph.ETLNonFunctionalCharacteristic;
 import etlFlowGraph.expressionTree.Expression;
 import etlFlowGraph.graph.ETLEdge;
@@ -22,28 +23,28 @@ public class XLMParser {
 	//public static final String XLMFilePathInput = display.Demo.xlmFile.getAbsolutePath();
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
 	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-1.xml";
-	public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
+	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
 	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ETLFlowGraph G = getXLMGraph(XLMFilePathInput);
-		Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		//ETLFlowGraph G = getXLMGraph(XLMFilePathInput);
+		//Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		/*ArrayList<ETLFlowOperation> sourceNodes = getSourceNodesGivenTarget(G, ops.get(610));
 		for (ETLFlowOperation op: sourceNodes){
 			System.out.println(op.getNodeID());
 		}*/
 		
 		//System.out.println(ops.get(137).getoProperties().get("send_true_to"));
-		for (String str: ops.get(137).getoProperties().keySet()){
+		/*for (String str: ops.get(137).getoProperties().keySet()){
 			for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get(str)){
 				//System.out.println(chr.getChName()+" " +chr.getLeftOp()+" "+chr.getOper()+" "+chr.getRightOp());
 			}
-		}
+		}*/
 		
-		for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get("send_true_to")){
+		/*for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get("send_true_to")){
 			System.out.println(chr.getRightOp());
-		}
+		}*/
 			/*ops.get(137).getoFeatures();
 			System.out.println(ops.get(137).getSemanticsExpressionTrees());
 			Hashtable <String, Expression> exprTree = ops.get(137).getSemanticsExpressionTrees();

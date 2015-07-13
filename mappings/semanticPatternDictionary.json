@@ -102,7 +102,8 @@
 ],
 "bpmnElement": [{"name":"complexGateway", "attributes":[{"name":"gatewayDirection","value":"Unspecified"}, 
 												{"name":"id", "value":"$graph"}, 
-												{"name":"name", "value":"$graph"}]}]
+												{"name":"name", "value":"$graph"}]}
+				]
 },
 							 
 {"name":"Union",
@@ -192,9 +193,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "TableInput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}],
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"TableOutput",
@@ -203,9 +206,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "TableOutput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"DS_n"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"FileInput",
@@ -214,9 +219,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "FileInput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"FileOutput",
@@ -225,9 +232,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "FileOutput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"XMLInput",
@@ -236,9 +245,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "XMLInput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"XMLOutput",
@@ -247,9 +258,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "XMLOutput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"ExcelInput",
@@ -258,9 +271,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "ExcelInput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"ExcelOutput",
@@ -269,9 +284,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": [{"value": "ExcelOutput"}]}}]}
 ],
-"bpmnElement": [{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_1"},
-															{"name":"id", "value":"$graph"}, 
-															{"name":"name", "value":"$graph"}]}]
+"bpmnElement": [{"name":"dataStore", "attributes":[{"name":"id", "value":"$graph"},
+													{"name":"name", "value":"$graph"},
+													{"name":"isUnlimited", "value":"false"}]},
+				{"name":"dataStoreReference", "attributes":[{"name":"dataStoreRef", "value":"DS_n"},
+															{"name":"id", "value":"$graph"}]}]
 },
 
 {"name":"WSLookup",
