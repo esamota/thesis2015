@@ -47,9 +47,10 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// String BPMN = toStringBPMN();
-		/*ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
-		String BPMN = toStringBPMNWithDictionary(G);
-		toFileBPMN(BPMNFilePathOutput, BPMN);*/
+		ETLFlowGraph G = XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings, Demo.dictionaryFilePath);
+		String BPMN = toStringBPMNWithDictionary(G, graphElements);
+		toFileBPMN(Demo.BPMNFilePathOutput, BPMN);
 		
 		/*ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
 		for (BPMNElement el: graphElements){
@@ -76,14 +77,14 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		}
 	}
 
-	public static String toStringBPMNWithDictionary(ETLFlowGraph G) {
+	public static String toStringBPMNWithDictionary(ETLFlowGraph G, ArrayList<BPMNElement> graphElements) {
 		//all graph operations
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		
 		//gets an array list of pattern name flags for each optype in the dictionary
 		
 		//all elements from the dictionary that belong to the graph of this xLM document
-		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
+		//ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
 		//edges already added in translateToBpmn function in PatternDiscovery
 		//ArrayList<BPMNElement> edges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
 		//graphElements.addAll(edges);

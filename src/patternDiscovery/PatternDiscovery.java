@@ -39,9 +39,9 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-	//ETLFlowGraph G = utilities.XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
-	//	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-	//	HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
+	ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+	HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
 		/*ArrayList<ETLFlowOperation> patternNodes = matchMergeJoin(ops.get(114), G);
 		System.out.println("patternNodes: "+ patternNodes.size());
 		for (ETLFlowOperation op: patternNodes){
@@ -73,14 +73,14 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
 		//System.out.println(maxMatchingPatternSubgraph.size());
 		
-		/*ArrayList<BPMNElement> graphElements = translateToBPMN(G, flagMappings);
+		ArrayList<BPMNElement> graphElements = translateToBPMN(G, flagMappings, Demo.dictionaryFilePath);
 		for (BPMNElement element: graphElements){
 			System.out.println(element.getElementName());
 			for (BPMNElement BPMN: element.getSubElements()){
 			System.out.println("subElement "+BPMN.getElementName());
 			System.out.println("subElement text"+ BPMN.getElementText());
 		}
-		}*/
+		}
 		
 	}
 	
@@ -175,7 +175,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		return new ArrayList<>();
 	}
 	
-	public static Pattern getMaxSubgraphMatch (ETLFlowOperation node, ETLFlowGraph G, HashMap<String, ArrayList<String>> flagMappings) {
+	public static Pattern getMaxSubgraphMatch (ETLFlowOperation node, ETLFlowGraph G, HashMap<String, ArrayList<String>> flagMappings, String dictionaryFilePath) {
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
@@ -188,15 +188,15 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		for (String flagName: flagNamesPerOptype){
 			if (!((node.getNodeID() == 946 || node.getNodeID() == 1092) && flagName.equals("replication"))){
 				if (flagName.equals("mergeJoin")){
-					pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, flagName);
+					pattern = JSONDictionaryParser.getAnyPatternElementByName(dictionaryFilePath, flagName);
 					patternNodes.addAll(matchMergeJoin(node, G));
 				}else {
-				pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, flagName);
+				pattern = JSONDictionaryParser.getAnyPatternElementByName(dictionaryFilePath, flagName);
 				System.out.println("Starting to discover pattern: "+flagName);
 				patternNodes.retainAll(pattern.match(node, G, patternNodes));
 				}
 			}
-				if (patternNodes.size() != 0){
+				if (patternNodes.size() != 0 && patternNodes.size() != G.getEtlFlowOperations().size()){
 					System.out.println(pattern.getElementName()+" is present in the graph");
 					matchedPatterns.put(pattern, new ArrayList<>(patternNodes));
 				} else System.out.println(pattern.getElementName()+" pattern failed");
@@ -204,9 +204,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				}
 				if (matchedPatterns.size() != 0){
 				for(Pattern matchedPattern: matchedPatterns.keySet()){
-					if (matchedPatterns.get(matchedPattern).size() > maxSize || 
-						(matchedPatterns.get(matchedPattern).size() == maxSize &&
-							matchedPattern.getElementName().equals("subprocess"))) {
+					if (matchedPatterns.get(matchedPattern).size() > maxSize) {
 						maxSize = matchedPatterns.get(matchedPattern).size();
 						maxPattern = matchedPattern;
 					}
@@ -217,7 +215,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				} else return new Pattern();
 	}
 	
-	public static ArrayList<BPMNElement> translateToBPMN(ETLFlowGraph G, HashMap<String, ArrayList<String>> flagMappings){
+	public static ArrayList<BPMNElement> translateToBPMN(ETLFlowGraph G, HashMap<String, ArrayList<String>> flagMappings, String dictionaryFilePath){
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Pattern pattern = new Pattern();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
@@ -236,24 +234,24 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				System.out.println("we are at node "+v);
 			ETLFlowOperation node = ops.get(v);
 			if (!visitedNodes.contains(node)){
-			pattern = getMaxSubgraphMatch(node, G, flagMappings);
+			pattern = getMaxSubgraphMatch(node, G, flagMappings, dictionaryFilePath);
 			patternNodes = pattern.getPatternSubgraph();
-			if (patternNodes.size() > 1 || pattern.getElementName().equals("subprocess")){
-				if (pattern.getElementName().equals("subprocess")){
+			if (patternNodes.size() > 1){
+				/*if (pattern.getElementName().equals("subprocess")){
 					for (ETLFlowOperation patternNode: patternNodes){
 						flagMappings = JSONDictionaryParser.updateFlagMappings(flagMappings, 
 								patternNode.getOperationType().getOpTypeName().name(), 
 								"remove", "subprocess");
 					}
-				}else {
-						flagMappings = JSONDictionaryParser.updateFlagMappings(flagMappings, node.getOperationType().getOpTypeName().name(), 
-								"remove", pattern.getElementName());
-					}
+				}else {*/
+						//flagMappings = JSONDictionaryParser.updateFlagMappings(flagMappings, node.getOperationType().getOpTypeName().name(), 
+							//	"remove", pattern.getElementName());
+					//}
 					System.out.println("pattern size > 1");
 				ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
 					System.out.println("Max subGraph "+subGraph);
 				ArrayList<BPMNElement> maxBpmn = toBPMN.BPMNConstructsGenerator.getPatternBPMNElements(G, pattern);
-				ArrayList<BPMNElement> nestedBpmn = translateToBPMN(subGraph, flagMappings);
+				ArrayList<BPMNElement> nestedBpmn = translateToBPMN(subGraph, flagMappings, dictionaryFilePath);
 					System.out.println("go into recursion");
 				if (maxBpmn.get(0).getElementName().equals(BPMNElementTagName.subProcess.name())){
 					maxBpmn.get(0).setSubElements(nestedBpmn);

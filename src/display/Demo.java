@@ -24,6 +24,7 @@ import javax.swing.JTextPane;
 
 import toBPMN.BPMNConstructsGenerator;
 import toBPMN.BPMNConstructsToFile;
+import toBPMN.BPMNElement;
 import utilities.JSONDictionaryParser;
 import etlFlowGraph.graph.ETLFlowGraph;
 
@@ -38,6 +39,7 @@ public class Demo {
     private JFileChooser fc = new JFileChooser("C:\\Users\\Elena\\Desktop");
     private File xlmFile; 
     public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
+    public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
     public static  String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
     public static String patternFlagMappingPath = "mappings//patternFlags.json";
     public static HashMap<String, ArrayList<String>> flagMappings = new HashMap<>();
@@ -88,7 +90,8 @@ public class Demo {
 
 			    if (returnVal == JFileChooser.APPROVE_OPTION) {
 			         xlmFile = fc.getSelectedFile();
-			         G = utilities.XLMParser.getXLMGraph(xlmFile.getAbsolutePath());
+			         XLMFilePathInput = xlmFile.getAbsolutePath();
+			         G = utilities.XLMParser.getXLMGraph(XLMFilePathInput);
 			            //This is where a real application would open the file.
 			         JOptionPane.showMessageDialog(frame,
 			        		    "File uploaded successfully.");
@@ -107,8 +110,8 @@ public class Demo {
 				if (e.getSource() == btnTranslateToBpmn) {
 					
 				flagMappings = JSONDictionaryParser.parsePatternFlags(patternFlagMappingPath);
-				patternDiscovery.PatternDiscovery.translateToBPMN(G, flagMappings);
-				String BPMN = BPMNConstructsToFile.toStringBPMNWithDictionary(G);
+				ArrayList<BPMNElement> graphElements = patternDiscovery.PatternDiscovery.translateToBPMN(G, flagMappings, dictionaryFilePath);
+				String BPMN = BPMNConstructsToFile.toStringBPMNWithDictionary(G, graphElements);
 				
 				//this lets you choose where to save the file
 				fc = new JFileChooser("C:\\Users\\Elena\\Desktop");
@@ -134,7 +137,7 @@ public class Demo {
 			}
 			}
 		});
-		btnTranslateToBpmn.setBounds(157, 156, 121, 23);
+		btnTranslateToBpmn.setBounds(144, 157, 168, 23);
 		frame.getContentPane().add(btnTranslateToBpmn);
 		
 		rdbtnSemanticPatterns = new JRadioButton("Semantic Patterns");
@@ -150,7 +153,7 @@ public class Demo {
 		frame.getContentPane().add(rdbtnDirectTranslation);
 		
 		lblSelectOneTranslation = new JLabel("Select one translation option:");
-		lblSelectOneTranslation.setBounds(40, 92, 168, 14);
+		lblSelectOneTranslation.setBounds(55, 93, 168, 14);
 		frame.getContentPane().add(lblSelectOneTranslation);
 		
 		ButtonGroup group = new ButtonGroup();
