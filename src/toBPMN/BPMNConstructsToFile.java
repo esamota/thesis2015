@@ -48,7 +48,8 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 	public static void main(String[] args) {
 		// String BPMN = toStringBPMN();
 		ETLFlowGraph G = XLMParser.getXLMGraph(Demo.XLMFilePathInput);
-		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings, Demo.dictionaryFilePath);
+		HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
+		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, flagMappings, Demo.dictionaryFilePath);
 		String BPMN = toStringBPMNWithDictionary(G, graphElements);
 		toFileBPMN(Demo.BPMNFilePathOutput, BPMN);
 		

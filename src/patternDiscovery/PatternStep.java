@@ -41,11 +41,10 @@ private ArrayList<String> stepValues;
 			outPatternNodes.add(node);
 			return outPatternNodes;
 		} else if (stepName.equals("$whiteList")){
-			if(stepValues.contains("*v")){
 				outPatternNodes.addAll(matchWhiteListStep(node, patternNodes, G, blackList, whiteList, nextStepName, nextStepValues));
 				return outPatternNodes;
-			} 
-		} else if (stepName.equals("*t")){
+		
+		} else if (stepName.equals("$anyType")){
 			outPatternNodes.addAll(matchDoubleStarStep(node, patternNodes, G, blackList, nextStepName, nextStepValues));
 			return outPatternNodes;	
 		}

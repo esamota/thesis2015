@@ -49,7 +49,7 @@ public class JSONDictionaryParser {
 		/*HashMap<String, ArrayList<String>> flagMappings = parsePatternFlags(patternFlagMappingPath);
 		ArrayList<String> flagNames = getPatternNamesByOriginOperation(flagMappings, OperationTypeName.Router.name());
 		System.out.println("1: "+flagNames);
-		HashMap<String, ArrayList<String>> flagMappings2 = updateFlagMappings(flagMappings, OperationTypeName.Router.name(), "remove", "recoveryPoint");
+		/*HashMap<String, ArrayList<String>> flagMappings2 = updateFlagMappings(flagMappings, OperationTypeName.Router.name(), "remove", "recoveryPoint");
 		ArrayList<String> flagNames2 = getPatternNamesByOriginOperation(flagMappings2, OperationTypeName.Router.name());
 		System.out.println("2: "+flagNames2);*/
 	}
@@ -219,8 +219,8 @@ public class JSONDictionaryParser {
 			patternElement.addPatternSubElement(patternSequence);
 			
 		} 
-		else if (patternObj.get("splitFlow") != null){
-			//System.out.println("	splitFlow yes");
+		else if (patternObj.get("fork") != null){
+			//System.out.println("	fork yes");
 			patternFlows.addAll(parsePatternFlow(patternObj, root));	
 			for (PatternFlow patternFlow: patternFlows){
 				patternElement.addPatternSubElement(patternFlow);
@@ -266,10 +266,10 @@ public class JSONDictionaryParser {
 	public static ArrayList<PatternFlow> parsePatternFlow(JSONObject patternObj, JSONObject root){
 		ArrayList<String> stepValues = new ArrayList<>();
 		ArrayList<PatternFlow> flows = new ArrayList<>();
-		JSONArray splitFlow = (JSONArray) patternObj.get("splitFlow");
-		for (int sf=0; sf < splitFlow.size(); sf++){
-			JSONObject splitFlowObj = (JSONObject) splitFlow.get(sf);
-			JSONArray flow = (JSONArray) splitFlowObj.get("flow"+String.valueOf(sf+1));
+		JSONArray fork = (JSONArray) patternObj.get("fork");
+		for (int sf=0; sf < fork.size(); sf++){
+			JSONObject forkObj = (JSONObject) fork.get(sf);
+			JSONArray flow = (JSONArray) forkObj.get("flow"+String.valueOf(sf+1));
 			PatternFlow patternFlow = new PatternFlow();
 			patternFlow.setElementName("Flow");
 			for (int f=0; f< flow.size(); f++){
@@ -286,7 +286,7 @@ public class JSONDictionaryParser {
 					if (root.get("blackList")!= null) flowSequence.setBlackList(parsePatternBlackList(root));
 					if (root.get("whiteList")!= null) flowSequence.setWhiteList(parsePatternWhiteList(root));
 					patternFlow.addPatternSubElement(flowSequence);
-				} else if (flowObj.get("splitFlow") != null){
+				} else if (flowObj.get("fork") != null){
 					ArrayList<PatternFlow> subFlows = parsePatternFlow(flowObj, root);
 					for (PatternFlow subFlow: subFlows){
 					patternFlow.addPatternSubElement(subFlow);}

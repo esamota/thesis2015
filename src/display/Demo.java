@@ -39,7 +39,7 @@ public class Demo {
     private JFileChooser fc = new JFileChooser("C:\\Users\\Elena\\Desktop");
     private File xlmFile; 
     public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
-    public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
+    public static String XLMFilePathInput = "C:\\Users\\Elena\\Dropbox\\Thesis 2015 Samota - ETL Conceptualization and Standardization\\kettle example\\modified by Petar\\etl-all-patterns-2.xml";
     public static  String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
     public static String patternFlagMappingPath = "mappings//patternFlags.json";
     public static HashMap<String, ArrayList<String>> flagMappings = new HashMap<>();
@@ -122,18 +122,21 @@ public class Demo {
 			        BPMNFilePathOutput = file.getAbsolutePath();
 			        BPMNConstructsToFile.toFileBPMN(BPMNFilePathOutput, BPMN);
 			      }
-				JOptionPane.showMessageDialog(frame,
-	        		    "File translated successfully."+'\n'+"Opening BPMN Editor.");
 				//only start yaoqiang the first time
 				if (clicked == 1) {
 				try {
 					Runtime.getRuntime().exec("java -jar yaoqiang.jar");
+					JOptionPane.showMessageDialog(frame,
+		        		    "Opening BPMN Editor.");
 					//Runtime.getRuntime().exec("cmd /c \"C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn\"");
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				}
+				JOptionPane.showMessageDialog(frame,
+	        		    "File translated successfully.");
+				
 			}
 			}
 		});

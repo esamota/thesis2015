@@ -313,12 +313,12 @@
 "description": "A control-flow pattern that depicts a merge-Join 
 				between two sorted data inputs in an ETL flow",
 "pattern":[
-	{"splitFlow":[
+	{"fork":[
 		{"flow1":[
 			{"repeat": ">1",
 			"sequence":[
 				{"s1": {"name": "optype", "values":[{"value": "Sort"}]}},
-				{"s2": {"name": "$whiteList", "values":[{"value": "*v"}]}}]}]}]
+				{"s2": {"name": "$whiteList", "values":[]}}]}]}]
 	},
 	{"sequence": [
 		{"s1": {"name":"optype", "values": [{"value": "Join"}, 
@@ -344,11 +344,11 @@
 	{"sequence":[
 		{"s1": {"name": "optype", "values": 
 								[{"value": "Splitter"}, {"value": "Router"}]}}]},
-	{"splitFlow":[
+	{"fork":[
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1":{"name":"$whiteList", "values": [{"value": "*v"}]}},
+				{"s1":{"name":"$whiteList", "values": []}},
 				{"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
 	}
 ],
@@ -372,11 +372,11 @@
 "pattern":[
 	{"sequence": [
 		{"s1": {"name": "optype", "values": [{"value": "Splitter"}, {"value": "Router"}]}}]},
-	{"splitFlow":[
+	{"fork":[
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1": {"name":"$whiteList", "values": [{"value": "#1"}]}},
+				{"s1": {"name":"optype", "values": [{"value":"UserDefinedFunction"}]}},
 				{"s2": {"name":"type", "values":[{"value": "Datastore"}]}}]}]}]
 	}
 ],
@@ -398,11 +398,11 @@
 		{"s1": {"name": "optype", "values": 
 								[{"value": "Splitter"}, {"value": "Router"}]}}]
 	},
-	{"splitFlow":[
+	{"fork":[
 		{"flow1":[
 			{"repeat": ">1",
 			"sequence":[
-				{"s1":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
+				{"s1":{"name":"$anyType", "values": [{"value": "$anyValue"}]}}]}]}]
 	},
 	{"sequence":[
 		{"s1": {"name": "optype", "values": 
@@ -430,13 +430,13 @@
 		{"s1": {"name": "optype", "values": 
 								[{"value": "Router"}]}}]
 	},
-	{"splitFlow":[
+	{"fork":[
 		{"flow1":[
 			{"repeat": "=1",
 			"sequence":[
-				{"s1":{"name":"*t", "values": [{"value": "*v"}]}},
+				{"s1":{"name":"$anyType", "values": [{"value": "$anyValue"}]}},
 				{"s2":{"name":"optype", "values": [{"value": "WSLookup"}]}}, 
-				{"s3":{"name":"*t", "values": [{"value": "*v"}]}}]}]}]
+				{"s3":{"name":"$anyType", "values": [{"value": "$anyValue"}]}}]}]}]
 	},
 	{"sequence":[
 		{"s1": {"name": "optype", "values": 

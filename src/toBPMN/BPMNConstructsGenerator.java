@@ -88,11 +88,6 @@ public class BPMNConstructsGenerator {
 			}
 		}*/
 	}
-	
-	public static void getGraphElementsPerParticipant(){
-		//for each participant, or unique pool, add all tasks that belong there as subelements of the process element
-		//then return the process elements to the printing method
-	}
 		
 	//this works for the process, for subprocesses, need different attribute values.
 	public static ArrayList<BPMNElement> createProcessStartEvent(ETLFlowGraph G){
@@ -112,6 +107,7 @@ public class BPMNConstructsGenerator {
 
 		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
 		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
+		if (!Demo.dictionaryFilePath.equals("mappings//semanticPatternDictionary.json")) sourceNodes.add(105);
 		//loop through all source nodes of a given graph
 		for (Integer i : allSourceNodes) {
 			//if the node is a datastore connect start event to their target unless it is a join
@@ -128,7 +124,9 @@ public class BPMNConstructsGenerator {
 							&& !ops.get(targetId).getOperationType()
 									.getOpTypeName()
 									.equals(OperationTypeName.LeftOuterJoin)
-							&& !ops.get(targetId).getOperationType().getOpTypeName().equals(OperationTypeName.Sort)) {
+							&& !ops.get(targetId).getOperationType()
+							.getOpTypeName()
+							.equals(OperationTypeName.Sort)) {
 						sourceNodes.add(targetId);
 					}
 				}

@@ -28,8 +28,8 @@ public class XLMParser {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//ETLFlowGraph G = getXLMGraph(XLMFilePathInput);
-		//Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ETLFlowGraph G = getXLMGraph(Demo.XLMFilePathInput);
+		Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		/*ArrayList<ETLFlowOperation> sourceNodes = getSourceNodesGivenTarget(G, ops.get(610));
 		for (ETLFlowOperation op: sourceNodes){
 			System.out.println(op.getNodeID());
@@ -42,16 +42,14 @@ public class XLMParser {
 			}
 		}*/
 		
-		/*for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get("send_true_to")){
-			System.out.println(chr.getRightOp());
-		}*/
-			/*ops.get(137).getoFeatures();
+		
+			ops.get(137).getoFeatures();
 			System.out.println(ops.get(137).getSemanticsExpressionTrees());
 			Hashtable <String, Expression> exprTree = ops.get(137).getSemanticsExpressionTrees();
 			for (String str: exprTree.keySet()){
 				System.out.println("expression kind:"+exprTree.get(str).getExKind());
 				System.out.println("expression :"+exprTree.get(str).getLeftEx()+" "+exprTree.get(str).getOperator()+" "+exprTree.get(str).getRightEx());
-				}*/
+				}
 	}
 	
 	public static ETLFlowGraph getXLMGraph(String XLMFilePathInput){
