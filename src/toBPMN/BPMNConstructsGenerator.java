@@ -29,16 +29,23 @@ import etlFlowGraph.operation.ETLNodeKind;
 public class BPMNConstructsGenerator {
 	
 	public static void main(String[] args) {
-		//ETLFlowGraph G = XLMParser.getXLMGraph(XLMParser.XLMFilePathInput);
-		//Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		/*ArrayList<ETLFlowOperation> subgraph = new ArrayList<>();
-		subgraph.add(ops.get(34));
-		Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName("Join");
+		ETLFlowGraph G = XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
+		ArrayList<ETLFlowOperation> subgraph = new ArrayList<>();
+		subgraph.add(ops.get(72)); 
+		subgraph.add(ops.get(668));
+		subgraph.add(ops.get(424));
+		subgraph.add(ops.get(1092));
+		Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, "mergeJoin");
 		pattern.setPatternSubgraph(subgraph);
-		ArrayList<BPMNElement> sortElements = getPatternBPMNElements(pattern);
-		for (BPMNElement el: sortElements){
+		ETLFlowGraph subGraph = PatternDiscovery.createSubGraph(G, subgraph);
+		/*System.out.println("subG "+subGraph);
+		System.out.println("subG target nodes "+subGraph.getAllTargetNodes().size());
+		ArrayList<BPMNElement> endEventElements = createBPMNEndEvent(subGraph, null);
+		for (BPMNElement el: endEventElements){
+			System.out.println("name "+ el.getElementName());
 			for (BPMNAttribute attr: el.getAttributes()){
-				System.out.println("element "+ el.getElementName()+", attribute name: "+ attr.getAttributeName()+" , attribte values: "+attr.getAttributeValue());
+				System.out.println(attr.name +" "+attr.value);
 			}
 		}*/
 		/*ArrayList<BPMNElement> poolElements = getPoolElements(ops);
@@ -88,7 +95,32 @@ public class BPMNConstructsGenerator {
 			}
 		}*/
 	}
+	
+	public static ArrayList<BPMNElement> createMainProcessStartEvent(ArrayList<Integer> graphSourceNodes, String idValue){
+		ArrayList<BPMNElement> startEventAndEdges = new ArrayList<BPMNElement>();
+		BPMNElement startEvent = new BPMNElement(BPMNElementTagName.startEvent.name());
+		BPMNAttribute id = new BPMNAttribute("id", "_s0"+idValue);
+		BPMNAttribute name= new BPMNAttribute("name", "StartProcess");
+		startEvent.setAttribute(id);
+		startEvent.setAttribute(name);
+		startEventAndEdges.add(startEvent);
 		
+		if (graphSourceNodes.size() > 1) {
+			startEventAndEdges.add(createSequenceFlow(id.getAttributeValue(), "_g0"+idValue));
+			startEventAndEdges.add(createParallelGateway("Diverging", null ,"_g0"+idValue));
+		}
+		
+		// generate sequence flows from start event to all source nodes
+		for (Integer i: graphSourceNodes){
+			if (i == 1) i = 1111;
+			if (graphSourceNodes.size() == 1){
+				startEventAndEdges.add(createSequenceFlow(id.getAttributeValue(), "_"+String.valueOf(i)));
+			} else if (graphSourceNodes.size() > 1){
+				startEventAndEdges.add(createSequenceFlow("_g0"+idValue, "_"+String.valueOf(i)));
+			}
+		}
+		return startEventAndEdges;
+	}
 	//this works for the process, for subprocesses, need different attribute values.
 	public static ArrayList<BPMNElement> createProcessStartEvent(ETLFlowGraph G){
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
@@ -96,19 +128,18 @@ public class BPMNConstructsGenerator {
 		BPMNElement startEvent = new BPMNElement(BPMNElementTagName.startEvent.name());
 		Random randomGenerator = new Random();
 		Integer randomNumber = randomGenerator.nextInt(1000);
-		String randomID= "_s0"+randomNumber;
-		BPMNAttribute id = new BPMNAttribute("id", randomID);
+		String randomID = "_s0"+randomNumber; 
+		BPMNAttribute id = new BPMNAttribute("id");
+		id.setAttributeValue(randomID);
+		
 		BPMNAttribute name= new BPMNAttribute("name", "StartProcess");
 		startEvent.setAttribute(id);
 		startEvent.setAttribute(name);
 		startEventAndEdges.add(startEvent);
 		
-		ArrayList<Integer> allSourceNodes = G.getAllSourceNodes();
-
-		ArrayList<Integer> targetOfSourceNodes = new ArrayList<Integer>();
 		ArrayList<Integer> sourceNodes = new ArrayList<Integer>();
-		if (!Demo.dictionaryFilePath.equals("mappings//semanticPatternDictionary.json")) sourceNodes.add(105);
-		//loop through all source nodes of a given graph
+		ArrayList<Integer> allSourceNodes = G.getAllSourceNodes();
+		
 		for (Integer i : allSourceNodes) {
 			//if the node is a datastore connect start event to their target unless it is a join
 			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
@@ -116,28 +147,24 @@ public class BPMNConstructsGenerator {
 					Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 					Integer targetId = (Integer) ((ETLEdge) e).getTarget();
 					if (sourceId.intValue() == i.intValue()
-							//why this condition??? where is targetOfSourceNodes getting populated???
-							//&& !targetOfSourceNodes.contains(targetId)
 							&& !ops.get(targetId).getOperationType()
 									.getOpTypeName()
 									.equals(OperationTypeName.Join)
 							&& !ops.get(targetId).getOperationType()
 									.getOpTypeName()
-									.equals(OperationTypeName.LeftOuterJoin)
-							&& !ops.get(targetId).getOperationType()
-							.getOpTypeName()
-							.equals(OperationTypeName.Sort)) {
+									.equals(OperationTypeName.LeftOuterJoin)) {
 						sourceNodes.add(targetId);
 					}
 				}
-				// if not a datastore, connect the start event to the node itself
 			} else {
 				sourceNodes.add(i);
 			}
 		}
-
+		
+		System.out.println("********************* sourceNodes size"+sourceNodes.size());
+		
 		if (sourceNodes.size() > 1) {
-			startEventAndEdges.add(createSequenceFlow("s0"+randomNumber, "g0"+randomNumber));
+			startEventAndEdges.add(createSequenceFlow(id.getAttributeValue(), "_g0"+randomNumber));
 			startEventAndEdges.add(createParallelGateway("Diverging", null ,"_g0"+randomNumber));
 		}
 		
@@ -145,22 +172,23 @@ public class BPMNConstructsGenerator {
 		for (Integer i: sourceNodes){
 			if (i == 1) i = 1111;
 			if (sourceNodes.size() == 1){
-				System.out.println("adding edge "+"s0"+randomNumber+"-_"+String.valueOf(i));
-				startEventAndEdges.add(createSequenceFlow("s0"+randomNumber, String.valueOf(i)));
+				startEventAndEdges.add(createSequenceFlow(id.getAttributeValue(), "_"+String.valueOf(i)));
 			} else if (sourceNodes.size() > 1){
-				startEventAndEdges.add(createSequenceFlow("g0"+randomNumber, String.valueOf(i)));
+				startEventAndEdges.add(createSequenceFlow("_g0"+randomNumber, "_"+String.valueOf(i)));
 			}
 		}
 		return startEventAndEdges;
 	}
 	
-	public static ArrayList<BPMNElement> createBPMNEndEvent(ETLFlowGraph G){
+	public static ArrayList<BPMNElement> createBPMNEndEvent(ETLFlowGraph G, String idValue){
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<BPMNElement> endEventAndEdges = new ArrayList<BPMNElement>();
 		BPMNElement endEvent = new BPMNElement(BPMNElementTagName.endEvent.name());
 		Random randomGenerator = new Random();
 		Integer randomNumber = randomGenerator.nextInt(1000);
-		String randomID= "_e0"+randomNumber;
+		String randomID="";
+		if (idValue == null) randomID= "_e0"+randomNumber;
+		else randomID = "_e0"+idValue;
 		BPMNAttribute id = new BPMNAttribute("id", randomID);
 		BPMNAttribute name= new BPMNAttribute("name", "EndProcess");
 		endEvent.setAttribute(id);
@@ -173,45 +201,47 @@ public class BPMNConstructsGenerator {
 		ArrayList<Integer> sourceOfTargetNodes = new ArrayList<Integer>();
 		ArrayList<Integer> targetNodes = new ArrayList<Integer>();
 
-		for (Integer i: ops.keySet()){
-			if (ops.get(i).getOperationType().getOpTypeName().equals(OperationTypeName.Splitter)||
-					ops.get(i).getOperationType().getOpTypeName().equals(OperationTypeName.Router)){
-				if (XLMParser.getTargetOperationsGivenSource(ops.get(i), G).size() <= 1){
-					BPMNElement endEvent1 = new BPMNElement(BPMNElementTagName.endEvent.name());
-					Integer randomNumber1 = randomGenerator.nextInt(1000);
-					String randomID1= "_e0"+randomNumber1;
-					BPMNAttribute id1 = new BPMNAttribute("id", randomID1);
-					BPMNAttribute name1= new BPMNAttribute("name", "EndProcess");
-					endEvent1.setAttribute(id1);
-					endEvent1.setAttribute(name1);
-					endEventAndEdges.add(endEvent1);
-					endEventAndEdges.add(createSequenceFlow(String.valueOf(i), "e0"+randomNumber1));
-				}
-			}
-		}
 		for (Integer i : allTargetNodes) {
 			if (ops.get(i).getNodeKind().equals(ETLNodeKind.Datastore)) {
 				for (Object e : G.edgeSet()) {
 				Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 				Integer targetId = (Integer) ((ETLEdge) e).getTarget();
 					if (targetId.intValue() == i.intValue() && !sourceOfTargetNodes.contains(sourceId) 
-							&& !ops.get(sourceId).getOperationType().getOpTypeName().equals(OperationTypeName.Router)
-							&& !ops.get(sourceId).getOperationType().getOpTypeName().equals(OperationTypeName.Splitter)) {
+							&& !(ops.get(sourceId).getOperationType().getOpTypeName().equals(OperationTypeName.Router) &&
+								XLMParser.getTargetOperationsGivenSource(ops.get(sourceId), G).size() > 1)
+							&& !(ops.get(sourceId).getOperationType().getOpTypeName().equals(OperationTypeName.Splitter) && 
+									XLMParser.getTargetOperationsGivenSource(ops.get(sourceId), G).size() > 1)) {
+						System.out.println("adding to targetNodes "+sourceId);
 						targetNodes.add(sourceId);
 					}
 				}
-			} else targetNodes.add(i);
+			}else{
+				System.out.println("adding to targetNodes "+i);
+				targetNodes.add(i);
 			}
+			}
+		if (targetNodes.size() == 1) {
+			if (ops.get(targetNodes.get(0)).getOperationType().getOpTypeName().equals(OperationTypeName.Join)||
+					ops.get(targetNodes.get(0)).getOperationType().getOpTypeName().equals(OperationTypeName.LeftOuterJoin)){
+				endEventAndEdges.add(createSequenceFlow("_0"+String.valueOf(targetNodes.get(0)), randomID));
+			} else{
+				endEventAndEdges.add(createSequenceFlow("_"+String.valueOf(targetNodes.get(0)), randomID));
+			}
+		} else {
+		endEventAndEdges.add(createParallelGateway("Converging", null, "_g0"+randomNumber));
 		// generate sequence flows from all target nodes to the end event
 		for (Integer i: targetNodes){
 			if (ops.get(i).getOperationType().getOpTypeName().equals(OperationTypeName.Join)||
 					ops.get(i).getOperationType().getOpTypeName().equals(OperationTypeName.LeftOuterJoin)){
 				if (i == 1) i = 1111;
-				endEventAndEdges.add(createSequenceFlow("0"+String.valueOf(i), "e0"+randomNumber));
+				endEventAndEdges.add(createSequenceFlow("_0"+String.valueOf(i), "_g0"+randomNumber));
+				endEventAndEdges.add(createSequenceFlow("_g0"+randomNumber, randomID));
 			} else{
 				if (i == 1) i = 1111;
-				endEventAndEdges.add(createSequenceFlow(String.valueOf(i), "e0"+randomNumber));
+				endEventAndEdges.add(createSequenceFlow("_"+String.valueOf(i), "_g0"+randomNumber));
+				endEventAndEdges.add(createSequenceFlow("_g0"+randomNumber, randomID));
 			}
+		}
 		}
 	return endEventAndEdges;
 
@@ -263,7 +293,7 @@ public class BPMNConstructsGenerator {
 					task.setAttribute(attr2);
 					task = createOutputSpecification(G, node, "0"+node.getNodeID(), task);
 					task.setID(String.valueOf(node.getNodeID()));
-					BPMNElement seq = createSequenceFlow(String.valueOf(node.getNodeID()), "0"+String.valueOf(node.getNodeID()));
+					BPMNElement seq = createSequenceFlow("_"+String.valueOf(node.getNodeID()), "_0"+String.valueOf(node.getNodeID()));
 					seq.setID(String.valueOf(node.getNodeID()));
 					bpmnElements.add(task);
 					bpmnElements.add(seq);
@@ -379,7 +409,7 @@ public class BPMNConstructsGenerator {
 					
 					if (el.getElementName().equals(BPMNElementTagName.subProcess.name())){
 						el.setSubElements(createProcessStartEvent(Gsub));
-						el.setSubElements(createBPMNEndEvent(Gsub));
+						el.setSubElements(createBPMNEndEvent(Gsub, null));
 					}
 					if (el.getElementName().equals(BPMNElementTagName.textAnnotation.name())) {
 						System.out.println("textAnnotation");
@@ -731,11 +761,12 @@ public class BPMNConstructsGenerator {
 		element.setAttribute(attr3);
 		return element;
 	}
+	
 	public static BPMNElement createSequenceFlow(String sourceRefValue, String targetRefValue){
 		BPMNElement seqElement = new BPMNElement(BPMNElementTagName.sequenceFlow.name());
-		BPMNAttribute attr1 = new BPMNAttribute("id", "_"+sourceRefValue+"-_"+targetRefValue);
-		BPMNAttribute attr2 = new BPMNAttribute("sourceRef", "_"+sourceRefValue);
-		BPMNAttribute attr3 = new BPMNAttribute("targetRef", "_"+targetRefValue);
+		BPMNAttribute attr1 = new BPMNAttribute("id", sourceRefValue+"-"+targetRefValue);
+		BPMNAttribute attr2 = new BPMNAttribute("sourceRef", sourceRefValue);
+		BPMNAttribute attr3 = new BPMNAttribute("targetRef", targetRefValue);
 		seqElement.setAttribute(attr1);
 		seqElement.setAttribute(attr2);
 		seqElement.setAttribute(attr3);
@@ -758,8 +789,7 @@ public class BPMNConstructsGenerator {
 		
 		for (Object e: G.edgeSet()){
 			Integer sourceID = (Integer)((ETLEdge) e).getSource();
-			Integer targetID = (Integer)((ETLEdge) e).getTarget();
-			
+			Integer targetID = (Integer)((ETLEdge) e).getTarget();	
 			//the whole edge is contained in subprocess
 			if (subOps.containsKey(sourceID) && subOps.containsKey(targetID)){
 				Iterator<BPMNElement> itr = graphEdges.iterator();
@@ -833,5 +863,28 @@ public class BPMNConstructsGenerator {
 			}
 		return graphEdges;
 	}
+	
+	/*public static ArrayList<String> getMainProcessSourceNodes (ArrayList<Integer> startEventAndEdges, 
+			ETLFlowGraph G, ETLFlowGraph subGraph, Pattern pattern){
+		ArrayList<String> outputSourceNodes = new ArrayList<>();
+		ArrayList<Integer> graphSourceNodes = G.getAllSourceNodes();
+		ArrayList<Integer> subGraphSourceNodes = subGraph.getAllSourceNodes();
+		Integer counter = 0;
+		
+		// all subgraph source nodes are contained in graph source nodes -->
+		// create a sequence flow pointing from start event to the subprocess.
+		for (Integer i: graphSourceNodes){
+			if (subGraphSourceNodes.contains(i)) {
+				counter++;
+			} else {
+				outputSourceNodes.add("_"+i);
+			}
+		}
+		if (counter == subGraphSourceNodes.size()){
+			outputSourceNodes.add("_"+pattern.getElementID()+"-"+pattern.getPatternSubgraph().get(0).getNodeID());
+		}
+		
+		return outputSourceNodes;
+	}*/
 
 }

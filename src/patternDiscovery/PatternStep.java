@@ -96,10 +96,10 @@ private ArrayList<String> stepValues;
 		if (checkNodeAgainstNextStep(node, nextStepName, nextStepValues) == false && checkNodeInList(node, blackList) == false){
 			System.out.println("Step: double star match for target "+node.getNodeID()+" true");
 			outPatternNodes.add(node);
-			for (ETLFlowOperation nextNode: targetNodes){
-				outPatternNodes.addAll(matchDoubleStarStep(nextNode, patternNodes, G, blackList, nextStepName, nextStepValues));
-			}
-			return outPatternNodes;
+			if (targetNodes.size() == 1){
+				outPatternNodes.addAll(matchDoubleStarStep(targetNodes.get(0), patternNodes, G, blackList, nextStepName, nextStepValues));
+				return outPatternNodes;
+			} else return new ArrayList<>();
 		}else if (checkNodeAgainstNextStep(node, nextStepName, nextStepValues) == true || checkNodeInList(node, blackList) == true){
 			ETLFlowOperation fake = new ETLFlowOperation("whiteList");
 			fake.setNodeID(node.getNodeID());

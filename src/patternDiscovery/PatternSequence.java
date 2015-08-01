@@ -22,7 +22,7 @@ public class PatternSequence extends PatternElement{
 		outPatternNodes.addAll(patternNodes);
 		ETLFlowOperation nextNode = node;
 		for (int s=0; s < getSubElements().size(); s++){
-			if (s < getSubElements().size()-1 && utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() != 1){
+			if (s < getSubElements().size()-1 && utilities.XLMParser.getTargetOperationsGivenSource(node, G).size() > 1){
 				System.out.println("More than one traget node in a sequence");
 				return new ArrayList<>();
 			}
@@ -55,7 +55,7 @@ public class PatternSequence extends PatternElement{
 			} else patternNodes.add(node);
 			
 			if (s < getSubElements().size()-1 && !getSubElements().get(s).getElementName().equals("$whiteList") && 
-					!getSubElements().get(s).getElementName().equals("*t")){
+					!getSubElements().get(s).getElementName().equals("$anyType")){
 				if (utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).size() <= 1){
 					//old:
 					//nextNode = utilities.XLMParser.getTargetOperationsGivenSource(nextNode, G).get(0);

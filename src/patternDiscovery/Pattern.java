@@ -44,7 +44,9 @@ private ArrayList<ETLFlowOperation> patternSubgraph;
 			}
 			if (e < getSubElements().size()-1 ){
 				if (getSubElements().get(e+1).getElementName().equals("Sequence")){
-				nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size()-1), G).get(0);
+					//if (!G.getAllTargetNodes().contains(utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size()-1), G).get(0))){
+						nextNode = utilities.XLMParser.getTargetOperationsGivenSource(outPatternNodes.get(outPatternNodes.size()-1), G).get(0);
+					//} else return outPatternNodes;
 				} else {
 				for (ETLFlowOperation op: outPatternNodes){
 					if (utilities.XLMParser.getTargetOperationsGivenSource(op, G).size() > 1)

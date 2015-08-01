@@ -46,7 +46,15 @@ public ArrayList<ETLFlowOperation> match(ETLFlowOperation node, ETLFlowGraph G, 
 			}
 		}
 	}
-	if (repeat.equals(">1") && counter > 1) return outPatternNodes;
+	if (repeat.equals(">1") && counter > 1) {
+		int midIndex = (outPatternNodes.size() - 1) / 2;
+		for (int i = 1; i < midIndex; i++) {
+			if (!outPatternNodes.get(i).getOperationType().getOpTypeName().name().equals(outPatternNodes.get(i + midIndex).getOperationType().getOpTypeName().name())) {
+				return new ArrayList<>();
+			}
+		}
+		return outPatternNodes;
+	}
 	else return patternNodes;
 	}
 

@@ -39,6 +39,8 @@ import etlFlowGraph.operation.ETLNodeKind;
 public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 	//private static String BPMNFilePathOutput = Demo.BPMNFilePathOutput;
 	//private static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
+	private static final String processStartEventID = "0001";
+	private static final String processEndEventID = "0009";
 	
 	public BPMNConstructsToFile(Class arg0) {
 		super(arg0);
@@ -81,19 +83,12 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 	public static String toStringBPMNWithDictionary(ETLFlowGraph G, ArrayList<BPMNElement> graphElements) {
 		//all graph operations
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		
-		//gets an array list of pattern name flags for each optype in the dictionary
-		
-		//all elements from the dictionary that belong to the graph of this xLM document
-		//ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
-		//edges already added in translateToBpmn function in PatternDiscovery
-		//ArrayList<BPMNElement> edges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
-		//graphElements.addAll(edges);
+	
 		//startEvent and edges
-		ArrayList<BPMNElement> startAndEgdes = BPMNConstructsGenerator.createProcessStartEvent(G);
+		ArrayList<BPMNElement> startAndEgdes = BPMNConstructsGenerator.createMainProcessStartEvent(PatternDiscovery.graphSourceNodes, processStartEventID);
 		graphElements.addAll(startAndEgdes);
 		//end event and edges
-		ArrayList<BPMNElement> endAndEgdes = BPMNConstructsGenerator.createBPMNEndEvent(G);
+		ArrayList<BPMNElement> endAndEgdes = BPMNConstructsGenerator.createBPMNEndEvent(G, processEndEventID);
 		graphElements.addAll(endAndEgdes);
 		//all elements that belong inside of a process tag and require a 
 		// single--one-line self closing tag, like a task without i/o's
