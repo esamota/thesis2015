@@ -39,6 +39,9 @@ public class BPMNConstructsGenerator {
 		Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, "mergeJoin");
 		pattern.setPatternSubgraph(subgraph);
 		ETLFlowGraph subGraph = PatternDiscovery.createSubGraph(G, subgraph);
+		ArrayList<Integer> graphSourceNodes = new ArrayList<>();
+		graphSourceNodes.add(121);
+		ArrayList<BPMNElement> blah = createMainProcessStartEvent(graphSourceNodes, "0001");
 		/*System.out.println("subG "+subGraph);
 		System.out.println("subG target nodes "+subGraph.getAllTargetNodes().size());
 		ArrayList<BPMNElement> endEventElements = createBPMNEndEvent(subGraph, null);
@@ -106,15 +109,18 @@ public class BPMNConstructsGenerator {
 		startEventAndEdges.add(startEvent);
 		
 		if (graphSourceNodes.size() > 1) {
+			System.out.println("source nodes > 1");
 			startEventAndEdges.add(createSequenceFlow(id.getAttributeValue(), "_g0"+idValue));
 			startEventAndEdges.add(createParallelGateway("Diverging", null ,"_g0"+idValue));
 		}
-		
+		System.out.println("source nodes == 1");
 		// generate sequence flows from start event to all source nodes
 		for (Integer i: graphSourceNodes){
+			System.out.println("source node "+ i);
 			if (i == 1) i = 1111;
 			if (graphSourceNodes.size() == 1){
 				startEventAndEdges.add(createSequenceFlow(id.getAttributeValue(), "_"+String.valueOf(i)));
+				System.out.println("sequence flow created from "+ id.getAttributeValue()+" to "+ String.valueOf(i));
 			} else if (graphSourceNodes.size() > 1){
 				startEventAndEdges.add(createSequenceFlow("_g0"+idValue, "_"+String.valueOf(i)));
 			}

@@ -352,18 +352,7 @@
 				{"s2":{"name":"type", "values": [{"value": "Datastore"}]}}]}]}]
 	}
 ],
-"bpmnElement":[
-	{"name":"textAnnotation", 
-	 "attributes":[{"name":"id", "value":"$create"},
-				{"name":"textFormat", "value":"text/plain"}],
-	"text":"recoveryPoint"
-	},
-	{"name":"association",
-	"attributes":[{"name":"associationDirection", "value":"None"},
-				{"name":"id", "value":"$create"},
-				{"name":"sourceRef", "value":"$graph"},
-				{"name":"targetRef", "value":"$create"}]}
-],
+"bpmnElement":[],
 "whiteList":[{"name": "optype", "values": [{"value": "UserDefinedFunction"}]}]
 },
 

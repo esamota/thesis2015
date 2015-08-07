@@ -49,7 +49,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 
 	public static void main(String[] args) {
 		// String BPMN = toStringBPMN();
-		ETLFlowGraph G = XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+		ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
 		HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
 		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, flagMappings, Demo.dictionaryFilePath);
 		String BPMN = toStringBPMNWithDictionary(G, graphElements);
@@ -85,7 +85,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 	
 		//startEvent and edges
-		ArrayList<BPMNElement> startAndEgdes = BPMNConstructsGenerator.createMainProcessStartEvent(PatternDiscovery.graphSourceNodes, processStartEventID);
+		ArrayList<BPMNElement> startAndEgdes = PatternDiscovery.createMainProcessStartEventWrapper(processStartEventID);
 		graphElements.addAll(startAndEgdes);
 		//end event and edges
 		ArrayList<BPMNElement> endAndEgdes = BPMNConstructsGenerator.createBPMNEndEvent(G, processEndEventID);
@@ -119,6 +119,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		
 		String stringAttributes = "";	
 		int counter = 0;
+		String associationElement ="";
 		for (BPMNElement el : graphElements) {
 			
 			//System.out.println(el.getElementName()+" "+el.getSubElements().size());
@@ -136,6 +137,9 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 				}
 				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
+			/*if (el.getElementName().equals(BPMNElementTagName.association.name())){
+				associationElement = "<association "+ stringAttributes+ "/>";
+			}*/
 			element.put("attributes", stringAttributes);
 			stringAttributes = "";
 			element.put("name", el.getElementName());
@@ -144,8 +148,9 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 			
 			if (el.getElementName().equals(BPMNElementTagName.dataStore.name())){
 				dataStoreElements.add(element);
-			} else if(el.getSubElements().size() < 1 && !el.getElementName()
-					.equals(BPMNElementTagName.multiInstanceLoopCharacteristics.name())){
+			} else if(el.getSubElements().size() < 1 && 
+					!el.getElementName().equals(BPMNElementTagName.multiInstanceLoopCharacteristics.name())
+							&& !el.getElementName().equals(BPMNElementTagName.association.name())){
 				simpleProcessElements.add(element);
 			} else if(el.getSubElements().size() >= 1){
 				System.out.println(el.getElementName());

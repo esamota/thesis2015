@@ -44,6 +44,7 @@ public class Demo {
     public static String patternFlagMappingPath = "mappings//patternFlags.json";
     public static HashMap<String, ArrayList<String>> flagMappings = new HashMap<>();
     private ETLFlowGraph G;
+    private static ArrayList<Integer> graphSourceNodes = new ArrayList<>();
     private int clicked = 0; 
 
     

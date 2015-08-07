@@ -31,7 +31,8 @@ import utilities.JSONDictionaryParser;
 import utilities.XLMParser;
 
 public class PatternDiscovery extends DirectedAcyclicGraph {
-	public static ArrayList<Integer> graphSourceNodes = new ArrayList<>();
+	//public static ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+	public static ArrayList<Integer> graphSourceNodes; 
 
 	public PatternDiscovery(Class arg0) {
 		super(arg0);
@@ -39,43 +40,13 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		// TODO Auto-generated method stub
-	ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+	//ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
 	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 	HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
-	System.out.println("source operations "+getOpeartionSourceNodes(G));
-		/*ArrayList<ETLFlowOperation> patternNodes = matchMergeJoin(ops.get(114), G);
-		System.out.println("patternNodes: "+ patternNodes.size());
-		for (ETLFlowOperation op: patternNodes){
-			System.out.println(op.getNodeID());
-		}*/
-
-		/*Iterator<Integer> graphIter = G.iterator();
-		while (graphIter.hasNext()) {
-			Integer v = graphIter.next();
-			ETLFlowOperation op = ops.get(v);
-			System.out.println(v+" "+ op.getOperationType().getOpTypeName());
-		}*/
-		//System.out.println(utilities.XLMParser.getTargetOperationsGivenSource(ops.get(895), G).size());
-		//System.out.println(G.getEtlFlowOperations().size());
-		//getAllGraphPatterns(G);
-		/*Pattern maxMatchedPattern = getMaxSubgraphMatch(ops.get(946), G, "default");
-		ArrayList<ETLFlowOperation> patternNodes = maxMatchedPattern.getPatternSubgraph();
-		
-		for (ETLFlowOperation op: patternNodes) {
-			System.out.println("---------------------> "+op.getOperationName());
-		}*/
-
-		//createSubGraphByCloningGraph(G, patternNodes);
-	//ArrayList<ETLEdge> edges = getEdgesForSubGraph(G, patternNodes);
-	//System.out.println("EDGES: "+edges);
+	//System.out.println("source operations "+getOpeartionSourceNodes(G));
 	
-	//ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
-	//System.out.println("SUBGRAPH: "+subGraph);
-		//ArrayList<ETLFlowOperation> maxMatchingPatternSubgraph = getMaxSubgraphMatch(node, G);
-		//System.out.println(maxMatchingPatternSubgraph.size());
-		
 		ArrayList<BPMNElement> graphElements = translateToBPMN(G, flagMappings, Demo.dictionaryFilePath);
 		for (BPMNElement element: graphElements){
 			System.out.println(element.getElementName());
@@ -84,8 +55,11 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 			System.out.println("subElement text"+ BPMN.getElementText());
 		}
 		}
+		System.out.println("graph source operations "+ graphSourceNodes);
+		ArrayList<BPMNElement> blah = createMainProcessStartEventWrapper("0001");
 		
-	}
+	}*/
+
 	
 	public static ArrayList<ETLEdge> getEdgesForSubGraph(ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
 		ArrayList<ETLEdge> subGraphEdges = new ArrayList<ETLEdge>();
@@ -220,13 +194,19 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 	
 	public static ArrayList<BPMNElement> translateToBPMN(ETLFlowGraph G, HashMap<String, ArrayList<String>> flagMappings, 
 			String dictionaryFilePath){
+			graphSourceNodes = getOpeartionSourceNodes(G);
+			return translateToBPMN2(G, flagMappings, dictionaryFilePath);
+		
+	}
+	
+	public static ArrayList<BPMNElement> translateToBPMN2(ETLFlowGraph G, HashMap<String, ArrayList<String>> flagMappings, 
+			String dictionaryFilePath){
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Pattern pattern = new Pattern();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<BPMNElement> graphBpmnElements = new ArrayList<>();
 		ArrayList<ETLFlowOperation> visitedNodes = new ArrayList<>();
 		ArrayList<BPMNElement> graphEdges = BPMNConstructsGenerator.getBPMNElementsEdge(G);
-		ArrayList<Integer> graphSourceNodes = getOpeartionSourceNodes(G);
 		System.out.println("Graph "+G);
 		Integer mergeCounter = 1;
 		Integer subprocessCounter = 1;
@@ -238,7 +218,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 			Integer v = graphIter.next();
 				System.out.println("we are at node "+v);
 			ETLFlowOperation node = ops.get(v);
-			if (v == 946)
+			if (v == 105)
 				System.out.println();
 			if (!visitedNodes.contains(node)){
 			pattern = getMaxSubgraphMatch(node, G, flagMappings, dictionaryFilePath);
@@ -246,7 +226,8 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 			if (patternNodes.size() > 1){
 				ETLFlowGraph subGraph = createSubGraph(G, patternNodes);
 				ArrayList<BPMNElement> maxBpmn = toBPMN.BPMNConstructsGenerator.getPatternBPMNElements(G, pattern);
-				ArrayList<BPMNElement> nestedBpmn = translateToBPMN(subGraph, flagMappings, dictionaryFilePath);
+				ArrayList<BPMNElement> nestedBpmn = translateToBPMN2(subGraph, flagMappings, dictionaryFilePath);
+				if (maxBpmn.size() != 0){
 				if (maxBpmn.get(0).getElementName().equals(BPMNElementTagName.subProcess.name())){
 					maxBpmn.get(0).setSubElements(nestedBpmn);
 					graphEdges = BPMNConstructsGenerator.updateEdgesWhenInsertingSubprocesses(graphEdges, G, subGraph, pattern, maxBpmn.get(0));
@@ -281,6 +262,7 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 					///---naming end
 					graphBpmnElements.addAll(maxBpmn);
 					
+				}
 				} else {
 					graphBpmnElements.addAll(maxBpmn);
 					graphBpmnElements.addAll(nestedBpmn);
@@ -305,6 +287,12 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		graphBpmnElements.addAll(graphEdges);
 		System.out.println("source nodes "+ graphSourceNodes);
 		return graphBpmnElements;
+	}
+	
+	public static ArrayList<BPMNElement> createMainProcessStartEventWrapper(String processStartEventID){
+		System.out.println("graph source nodes from wrapper "+graphSourceNodes);
+		ArrayList<BPMNElement> startAndEdges = BPMNConstructsGenerator.createMainProcessStartEvent(graphSourceNodes, "0001");
+		return startAndEdges;
 	}
 	
 	public static ArrayList<Integer> getOpeartionSourceNodes(ETLFlowGraph G){
