@@ -1,3 +1,0 @@
-## start with gateway
-<sequenceFlow id="_001-_$source.id" sourceRef="_001" targetRef="_$source.id" />
-#set($divergingGateway = "Y")

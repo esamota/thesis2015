@@ -19,39 +19,6 @@ import etlFlowGraph.operation.ETLFlowOperation;
 
 public class XLMParser {
 	
-	//public static final String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\q13.xml";
-	//public static final String XLMFilePathInput = display.Demo.xlmFile.getAbsolutePath();
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-initial_agn.xml";
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-1.xml";
-	//public static String XLMFilePathInput = "C:\\Users\\Elena\\Desktop\\xLMexamples\\etl-all-patterns-2.xml";
-	
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		ETLFlowGraph G = getXLMGraph(Demo.XLMFilePathInput);
-		Hashtable <Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		/*ArrayList<ETLFlowOperation> sourceNodes = getSourceNodesGivenTarget(G, ops.get(610));
-		for (ETLFlowOperation op: sourceNodes){
-			System.out.println(op.getNodeID());
-		}*/
-		
-		//System.out.println(ops.get(137).getoProperties().get("send_true_to"));
-		/*for (String str: ops.get(137).getoProperties().keySet()){
-			for(ETLNonFunctionalCharacteristic chr: ops.get(137).getoProperties().get(str)){
-				//System.out.println(chr.getChName()+" " +chr.getLeftOp()+" "+chr.getOper()+" "+chr.getRightOp());
-			}
-		}*/
-		
-		
-			ops.get(137).getoFeatures();
-			System.out.println(ops.get(137).getSemanticsExpressionTrees());
-			Hashtable <String, Expression> exprTree = ops.get(137).getSemanticsExpressionTrees();
-			for (String str: exprTree.keySet()){
-				System.out.println("expression kind:"+exprTree.get(str).getExKind());
-				System.out.println("expression :"+exprTree.get(str).getLeftEx()+" "+exprTree.get(str).getOperator()+" "+exprTree.get(str).getRightEx());
-				}
-	}
-	
 	public static ETLFlowGraph getXLMGraph(String XLMFilePathInput){
 		ImportXLMToETLGraph importXlm = new ImportXLMToETLGraph();
 		ETLFlowGraph G = new ETLFlowGraph();
@@ -98,7 +65,6 @@ public class XLMParser {
 		
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		ArrayList<Integer> nodesWithDBInput = new ArrayList<Integer>();
-		// ArrayList<HashMap> dbInputNodes = new ArrayList<HashMap>();
 		for (Object e : G.edgeSet()) {
 			ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 			ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
@@ -112,12 +78,6 @@ public class XLMParser {
 				nodesWithDBInput.add(targetId);
 			}
 		}
-		/*
-		 * for (Integer i : nodesWithDBInput) { HashMap dbInputNode = new
-		 * HashMap(); dbInputNode.put("id", i); dbInputNodes.add(dbInputNode); }
-		 */
-
-		// System.out.println("dbInputNodes end " + dbInputNodes);
 		return nodesWithDBInput;
 	}
 
@@ -130,10 +90,8 @@ public static ArrayList<Integer> nodesWithDataOutput(ETLFlowGraph G) {
 	for (Object e : G.edgeSet()) {
 		ETLFlowOperation opS = ops.get(((ETLEdge) e).getSource());
 		ETLFlowOperation opT = ops.get(((ETLEdge) e).getTarget());
-		// is there a simpler way to do this????
 		Integer sourceId = (Integer) ((ETLEdge) e).getSource();
 		Integer targetId = (Integer) ((ETLEdge) e).getTarget();
-		// System.out.println("targetId " + targetId);
 		if (sourceId.intValue() == opS.getNodeID()
 				&& opT.getOperationType().getOpTypeName()
 						.equals(OperationTypeName.TableOutput)) {
@@ -151,7 +109,6 @@ public static ArrayList<HashMap> flowEngineTypes(
 	ArrayList<HashMap> pools = new ArrayList<HashMap>();
 	ArrayList<Integer> flowIDs = new ArrayList<Integer>();
 	ArrayList<String> uniquePools = new ArrayList<String>();
-	// System.out.println("engineTypes before " + engineTypes);
 	for (Integer i : ops.keySet()) {
 		if (!engineTypes.contains(ops.get(i).getEngine().toString())) {
 			engineTypes.add(ops.get(i).getEngine().toString());
@@ -167,9 +124,6 @@ public static ArrayList<HashMap> flowEngineTypes(
 					+ ops.get(i).getParentFlowID());
 		}
 	}
-	System.out.println("flowIDS " + flowIDs);
-	System.out.println("unique pools " + uniquePools);
-	// engineTypes.add("PDI");
 	for (Integer i : flowIDs) {
 		for (String str : engineTypes) {
 			HashMap pool = new HashMap();
@@ -180,7 +134,6 @@ public static ArrayList<HashMap> flowEngineTypes(
 			pools.add(pool);
 		}
 	}
-	System.out.println("engineTypes " + engineTypes);
 	return pools;
 }
 }

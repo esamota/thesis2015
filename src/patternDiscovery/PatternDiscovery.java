@@ -31,7 +31,7 @@ import utilities.JSONDictionaryParser;
 import utilities.XLMParser;
 
 public class PatternDiscovery extends DirectedAcyclicGraph {
-	//public static ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
+	
 	public static ArrayList<Integer> graphSourceNodes; 
 
 	public PatternDiscovery(Class arg0) {
@@ -39,27 +39,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		// TODO Auto-generated constructor stub
 		
 	}
-
-	/*public static void main(String[] args) {
-		// TODO Auto-generated method stub
-	//ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
-	Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-	HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
-	//System.out.println("source operations "+getOpeartionSourceNodes(G));
-	
-		ArrayList<BPMNElement> graphElements = translateToBPMN(G, flagMappings, Demo.dictionaryFilePath);
-		for (BPMNElement element: graphElements){
-			System.out.println(element.getElementName());
-			for (BPMNElement BPMN: element.getSubElements()){
-			System.out.println("subElement "+BPMN.getElementName());
-			System.out.println("subElement text"+ BPMN.getElementText());
-		}
-		}
-		System.out.println("graph source operations "+ graphSourceNodes);
-		ArrayList<BPMNElement> blah = createMainProcessStartEventWrapper("0001");
-		
-	}*/
-
 	
 	public static ArrayList<ETLEdge> getEdgesForSubGraph(ETLFlowGraph G, ArrayList<ETLFlowOperation> patternNodes){
 		ArrayList<ETLEdge> subGraphEdges = new ArrayList<ETLEdge>();
@@ -104,7 +83,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
 		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
 		if (node.getOperationType().getOpTypeName().equals(OperationTypeName.Sort)){
-			System.out.println("first node is sort "+ node.getNodeID());
 			Integer mergeNodeID = 0;
 			ArrayList<ETLFlowOperation> targetNodes = XLMParser.getTargetOperationsGivenSource(node, G);
 			for (ETLFlowOperation target: targetNodes){
@@ -121,11 +99,9 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				if ((nextNode.getOperationType().getOpTypeName().equals(OperationTypeName.Join) ||
 						nextNode.getOperationType().getOpTypeName().equals(OperationTypeName.LeftOuterJoin)) &&
 						nextNode.getNodeID() == mergeNodeID){
-					System.out.println("found a merge: "+ nextNode.getNodeID());
 					if (patternNodes.size() <= 1) return new ArrayList<>();
 					else { patternNodes.add(nextNode); return patternNodes;}
 				} else if (nextNode.getOperationType().getOpTypeName().equals(OperationTypeName.Sort)){
-					System.out.println("found another Sort " + nextNode.getNodeID());
 					ArrayList<ETLFlowOperation> targets = XLMParser.getTargetOperationsGivenSource(nextNode, G);
 					for (ETLFlowOperation t: targets){
 						if ((t.getOperationType().getOpTypeName().equals(OperationTypeName.Join)||
@@ -148,7 +124,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 				}
 		}
 	}
-		System.out.println("never found a merge");
 		return new ArrayList<>();
 	}
 	
@@ -169,14 +144,11 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 					patternNodes.addAll(matchMergeJoin(node, G));
 				}else {
 				pattern = JSONDictionaryParser.getAnyPatternElementByName(dictionaryFilePath, flagName);
-				System.out.println("Starting to discover pattern: "+flagName);
 				patternNodes.retainAll(pattern.match(node, G, patternNodes));
 				}
-			//}
 				if (patternNodes.size() != 0 && patternNodes.size() != G.getEtlFlowOperations().size()){
-					System.out.println(pattern.getElementName()+" is present in the graph");
 					matchedPatterns.put(pattern, new ArrayList<>(patternNodes));
-				} else System.out.println(pattern.getElementName()+" pattern failed");
+				} 
 				patternNodes.clear();
 				}
 				if (matchedPatterns.size() != 0){
@@ -186,7 +158,6 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 						maxPattern = matchedPattern;
 					}
 				}
-				System.out.println("max pattern "+maxPattern.getElementName());
 				maxPattern.setPatternSubgraph(matchedPatterns.get(maxPattern));
 				return maxPattern;
 				} else return new Pattern();
@@ -214,12 +185,9 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		Integer replicationCounter = 1;
 		Iterator<Integer> graphIter = G.iterator();
 		while (graphIter.hasNext()) {
-			System.out.println("----------------------------------");
 			Integer v = graphIter.next();
-				System.out.println("we are at node "+v);
 			ETLFlowOperation node = ops.get(v);
 			if (v == 105)
-				System.out.println();
 			if (!visitedNodes.contains(node)){
 			pattern = getMaxSubgraphMatch(node, G, flagMappings, dictionaryFilePath);
 			patternNodes = pattern.getPatternSubgraph();
@@ -279,18 +247,14 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 						graphBpmnElements.add(el);
 				}
 			}
-			System.out.println("bpmn element added to graph elements");
 			}
-			System.out.println("----------------------------------");
 		}
 		//add graph edges to graph elements
 		graphBpmnElements.addAll(graphEdges);
-		System.out.println("source nodes "+ graphSourceNodes);
 		return graphBpmnElements;
 	}
 	
 	public static ArrayList<BPMNElement> createMainProcessStartEventWrapper(String processStartEventID){
-		System.out.println("graph source nodes from wrapper "+graphSourceNodes);
 		ArrayList<BPMNElement> startAndEdges = BPMNConstructsGenerator.createMainProcessStartEvent(graphSourceNodes, "0001");
 		return startAndEdges;
 	}
@@ -342,32 +306,4 @@ public class PatternDiscovery extends DirectedAcyclicGraph {
 		return graphSourceNodes;
 	}
 	
-	/*public static ArrayList<Pattern> getAllMatchedPatterns(ETLFlowGraph G){
-		ArrayList<ETLFlowOperation> patternNodes = new ArrayList<>();
-		Hashtable<Integer, ETLFlowOperation> ops = G.getEtlFlowOperations();
-		ArrayList<String> flagNamesPerOptype = new ArrayList<>();
-		ArrayList<Pattern> matchedPatterns = new ArrayList<>();
-		HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
-		
-		Iterator<Integer> graphIter = G.iterator();
-		while (graphIter.hasNext()) {
-			System.out.println("------------------------------");
-			Integer v = graphIter.next();
-			ETLFlowOperation node = ops.get(v);
-			System.out.println("start node "+node.getOperationName()+" node id "+ node.getNodeID());
-			flagNamesPerOptype = JSONDictionaryParser.getPatternNamesByOriginOperation(flagMappings, node.getOperationType().getOpTypeName().name());
-			for (String flagName: flagNamesPerOptype){
-					System.out.println(flagName);
-					Pattern pattern = JSONDictionaryParser.getAnyPatternElementByName(Demo.dictionaryFilePath, flagName);
-					patternNodes.addAll(pattern.match(node, G, patternNodes));
-					if (patternNodes.size() != 0){
-						System.out.println(pattern.getElementName()+" pattern is present in the graph");
-						pattern.setPatternSubgraph(new ArrayList<>(patternNodes));
-						matchedPatterns.add(pattern);
-					}
-					patternNodes.clear();
-			}
-			}
-		return matchedPatterns;
-	}*/
 }

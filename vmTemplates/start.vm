@@ -1,2 +1,0 @@
-## start event to source connection
-<sequenceFlow id="_0001-_$source.id" sourceRef="_0001" targetRef="_$source.id" />

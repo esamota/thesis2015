@@ -28,31 +28,6 @@ import toBPMN.BPMNElement;
 
 
 public class JSONDictionaryParser {
-
-	// private static String dictionaryFilePath =
-	// "C:\\Users\\Elena\\Desktop\\testForQ1.json";
-	//public static String dictionaryFilePath = Demo.dictionaryFilePath;
-	//public static  String dictionaryFilePath = "mappings//semanticPatternDictionary.json";
-	//public static final String dictionaryFilePath = "mappings//simplePatternDictionary.json";
-	//public static final String dictionaryFilePath = "mappings//subprocessDictionary.json";
-	//public static final String patternFlagMappingPath = "mappings//patternFlags.json";
-	//private static ArrayList<BPMNAttribute> attributes = new ArrayList();
-
-	public static void main(String[] args) {
-		/*System.out.println(getPatternNamesByOriginOperation(OperationTypeName.Splitter));
-		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
-		for (int i = 0; i < dictionary.size(); i++) {
-			JSONObject root = (JSONObject) dictionary.get(i);
-			System.out.println(root.get("name"));
-			HashMap<String, ArrayList<String>> bList = parsePatternBlackList(root);
-		}*/
-		/*HashMap<String, ArrayList<String>> flagMappings = parsePatternFlags(patternFlagMappingPath);
-		ArrayList<String> flagNames = getPatternNamesByOriginOperation(flagMappings, OperationTypeName.Router.name());
-		System.out.println("1: "+flagNames);
-		/*HashMap<String, ArrayList<String>> flagMappings2 = updateFlagMappings(flagMappings, OperationTypeName.Router.name(), "remove", "recoveryPoint");
-		ArrayList<String> flagNames2 = getPatternNamesByOriginOperation(flagMappings2, OperationTypeName.Router.name());
-		System.out.println("2: "+flagNames2);*/
-	}
 	
 	public static JSONArray getJSONRootObject(String dictionaryFilePath, String rootName){
 		JSONParser parser = new JSONParser();
@@ -127,19 +102,6 @@ public class JSONDictionaryParser {
 		}
 		return flagMappings;
 	}
-	
-	/*public static ArrayList<String> getPatternNames(){
-		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
-		Integer size = dictionary.size();
-		ArrayList<String> patternNames = new ArrayList<String>(); 
-		
-		for (int i = 0; i < size; i++) {
-			JSONObject root = (JSONObject) dictionary.get(i);
-			String patternName = (String) root.get("name");
-			patternNames.add(patternName);
-		}
-		return patternNames;
-	}*/
 
 	public static ArrayList<Pattern> getAllPatternElements (String dictionaryFilePath){
 		JSONArray dictionary = getJSONRootObject(dictionaryFilePath, "patternDictionary");
@@ -151,27 +113,21 @@ public class JSONDictionaryParser {
 			String patternName = (String) root.get("name");
 			String patternDescription = (String) root.get("description");
 				if (root.get("pattern") != null){
-					//System.out.println("pattern yes");
 				patternElement = parsePatternStructure(root);
 				} 
 				if (root.get("bpmnElement") != null){
-					//System.out.println("bpmn yes");
 				patternElement.setBpmnElements(parsePatternBPMNElements(root));
 				}
 				if (root.get("whiteList") != null){
-					//System.out.println("wList yes");
 					patternElement.setWhiteList(parsePatternWhiteList(root));
 				}
 				if (root.get("blackList") != null){
-					//System.out.println("bList yes");
 					patternElement.setBlackList(parsePatternBlackList(root));
 				}
 				patternElement.setElementName(patternName);
 				patternElement.setDescription(patternDescription);
 				patternElement.setElementID("p"+String.valueOf(i+1));
 			patterns.add(patternElement);
-			//System.out.println("patternElement "+patternElement);
-			//System.out.println("------------------------------------------");
 		}
 		return patterns;
 		}
@@ -214,13 +170,11 @@ public class JSONDictionaryParser {
 		for (int p=0; p < pattern.size(); p++){
 		JSONObject patternObj = (JSONObject) pattern.get(p);
 		if (patternObj.get("sequence") != null){
-			//System.out.println("	sequence yes");
 			PatternSequence patternSequence = parsePatternSequence(patternObj, root);
 			patternElement.addPatternSubElement(patternSequence);
 			
 		} 
 		else if (patternObj.get("fork") != null){
-			//System.out.println("	fork yes");
 			patternFlows.addAll(parsePatternFlow(patternObj, root));	
 			for (PatternFlow patternFlow: patternFlows){
 				patternElement.addPatternSubElement(patternFlow);
@@ -238,7 +192,6 @@ public class JSONDictionaryParser {
 			for (int s = 0; s < sequence.size(); s++){
 				PatternStep patternStep = new PatternStep();
 				JSONObject seqObj = (JSONObject) sequence.get(s);
-				//System.out.println("		step yes");
 				JSONObject step = (JSONObject) seqObj.get("s"+String.valueOf(s+1));
 				String name = (String) step.get("name");
 				JSONArray values = (JSONArray) step.get("values");
@@ -276,11 +229,9 @@ public class JSONDictionaryParser {
 				JSONObject flowObj = (JSONObject) flow.get(f);
 				if (flowObj.get("repeat") != null) {
 					String repeat = (String) flowObj.get("repeat");
-					//System.out.println("		repeat yes "+ repeat);
 					patternFlow.setPatternFlowRepeatValue(repeat);
 				}
 				if (flowObj.get("sequence") != null){
-					//System.out.println("		sequence under flow yes");
 					PatternSequence flowSequence = parsePatternSequence(flowObj, root);
 					flowSequence.setElementName("Sequence");
 					if (root.get("blackList")!= null) flowSequence.setBlackList(parsePatternBlackList(root));

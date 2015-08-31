@@ -37,8 +37,6 @@ import etlFlowGraph.operation.ETLFlowOperation;
 import etlFlowGraph.operation.ETLNodeKind;
 
 public class BPMNConstructsToFile extends DirectedAcyclicGraph {
-	//private static String BPMNFilePathOutput = Demo.BPMNFilePathOutput;
-	//private static String BPMNFilePathOutput = "C:\\Users\\Elena\\Desktop\\xLMtoBPMNtest.bpmn";
 	private static final String processStartEventID = "0001";
 	private static final String processEndEventID = "0009";
 	
@@ -47,21 +45,7 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void main(String[] args) {
-		// String BPMN = toStringBPMN();
-		ETLFlowGraph G = utilities.XLMParser.getXLMGraph(Demo.XLMFilePathInput);
-		HashMap<String, ArrayList<String>> flagMappings = JSONDictionaryParser.parsePatternFlags(Demo.patternFlagMappingPath);
-		ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, flagMappings, Demo.dictionaryFilePath);
-		String BPMN = toStringBPMNWithDictionary(G, graphElements);
-		toFileBPMN(Demo.BPMNFilePathOutput, BPMN);
-		
-		/*ArrayList<BPMNElement> graphElements = PatternDiscovery.translateToBPMN(G, Demo.flagMappings);
-		for (BPMNElement el: graphElements){
-			if (el.getElementName().equals(BPMNElementTagName.sequenceFlow.name())){
-				//System.out.println(el.getSubElements().get(0).getElementName());
-			}
-		}*/
-	}
+
 	
 	public static void toFileBPMN(String BPMNFilePathOutput, String writerInput) {
 		File file = new File(BPMNFilePathOutput);
@@ -122,7 +106,6 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 		String associationElement ="";
 		for (BPMNElement el : graphElements) {
 			
-			//System.out.println(el.getElementName()+" "+el.getSubElements().size());
 			HashMap element = new HashMap();
 			if (el.getElementName().equals(BPMNElementTagName.dataStore.name())) counter++;
 			String dataStoreName="";
@@ -137,9 +120,6 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 				}
 				stringAttributes += attr.name + "=\"" + attr.value + "\"" + " ";
 			}
-			/*if (el.getElementName().equals(BPMNElementTagName.association.name())){
-				associationElement = "<association "+ stringAttributes+ "/>";
-			}*/
 			element.put("attributes", stringAttributes);
 			stringAttributes = "";
 			element.put("name", el.getElementName());
@@ -153,13 +133,10 @@ public class BPMNConstructsToFile extends DirectedAcyclicGraph {
 							&& !el.getElementName().equals(BPMNElementTagName.association.name())){
 				simpleProcessElements.add(element);
 			} else if(el.getSubElements().size() >= 1){
-				System.out.println(el.getElementName());
 					complexProcessElements.add(element);
 					subElements.addAll(loadSubElements(el));
 		}
 		}
-		
-		//System.out.println(subElements);
 		
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
